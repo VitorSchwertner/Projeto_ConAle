@@ -1,0 +1,41 @@
+@startuml
+left to right direction
+
+actor "Visitante" as Visitante
+actor "Administrador" as Administrador
+actor "Portal do Cliente" as Portal
+
+rectangle "Site Institucional ConAle" {
+
+    usecase "UC01\nVisualizar apresentação e\nespecialização da ConAle" as UC01
+    usecase "UC02\nNavegar pelas seções do site" as UC02
+    usecase "UC03\nVisualizar lista de\nserviços oferecidos" as UC03
+    usecase "UC04\nVisualizar propósito,\nmissão e valores" as UC04
+    usecase "UC05\nLer depoimentos\nde clientes" as UC05
+    usecase "UC06\nConsultar dúvidas\nfrequentes" as UC06
+    usecase "UC07\nSolicitar proposta e\nacessar canais de contato" as UC07
+    usecase "UC08\nAcessar a Área do Cliente" as UC08
+    usecase "UC09\nVisualizar credenciais,\nentidades e clientes atendidos" as UC09
+    usecase "UC10\nGerenciar banners, textos e\nimagens da Home" as UC10
+    usecase "UC11\nGerenciar notícias e\nartigos pelo Painel" as UC11
+    usecase "UC12\nInteragir com o chatbot" as UC12
+}
+
+Visitante -- UC01
+Visitante -- UC02
+Visitante -- UC03
+Visitante -- UC04
+Visitante -- UC05
+Visitante -- UC06
+Visitante -- UC07
+Visitante -- UC08
+Visitante -- UC09
+Visitante -- UC12
+
+Administrador -- UC10
+Administrador -- UC11
+
+UC08 -- Portal
+
+@enduml
+
