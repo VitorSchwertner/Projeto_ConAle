@@ -172,7 +172,7 @@ O sistema será desenvolvido em partes, conforme tabela abaixo. Começará pela 
 
 O diagrama apresenta os atores que interagem com o Site Institucional da ConAle e os respectivos casos de uso. O Visitante acessa as funcionalidades públicas do site, enquanto o Administrador utiliza as funcionalidades de gerenciamento de conteúdo. O Portal do Cliente é representado como um sistema externo, responsável pelo atendimento das funcionalidades da área do cliente.
 
-\!\[Diagrama de casos de uso da ConAle\](../diagrama_de_casos_de_uso.png)
+![Diagrama de casos de uso da ConAle](diagrama_de_casos_de_uso.png)
 
 **UC07 \- Solicitar proposta e acessar canais de contato**
 
@@ -275,7 +275,7 @@ Os dois modelos estão relacionados às funcionalidades descritas nos requisitos
 
 O diagrama de classes representa os principais objetos do sistema e os relacionamentos entre eles. Como o projeto possui uma área pública e um Painel Administrativo, o modelo concentra-se nos conteúdos que podem ser apresentados no site e administrados pela equipe da ConAle.
 
-\!\[Diagrama de classes\](diagrama_de_classes.png)
+![Diagrama de classes da ConAle](diagrama_de_classes.png)
 
 **Modelo de dados**
 
@@ -291,7 +291,7 @@ O modelo de dados representa as informações persistentes utilizadas pelo siste
 | Chatbot | Representa a configuração geral do chatbot. |
 | OpcaoChatbot | Armazena perguntas, opções e respostas disponibilizadas pelo chatbot. |
 
-\!\[Modelo de dados\](modelo_de_dados.png)
+![Modelo de dados da ConAle](modelo_de_dados.png)
 
 **Decisões de implementação**
 
