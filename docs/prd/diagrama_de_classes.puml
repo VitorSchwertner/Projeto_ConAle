@@ -1,0 +1,64 @@
+@startuml
+
+class Administrador {
+  - id: int
+  - nome: String
+  - email: String
+  - senhaHash: String
+}
+
+class ConteudoHome {
+  - id: int
+  - titulo: String
+  - texto: String
+  - imagem: String
+  - dataAtualizacao: DateTime
+}
+
+class Banner {
+  - id: int
+  - titulo: String
+  - imagem: String
+  - link: String
+  - ativo: Boolean
+}
+
+class Noticia {
+  - id: int
+  - titulo: String
+  - resumo: String
+  - conteudo: String
+  - imagem: String
+  - dataPublicacao: DateTime
+  - ativo: Boolean
+}
+
+class ClienteMarca {
+  - id: int
+  - nome: String
+  - logo: String
+  - ativo: Boolean
+}
+
+class Chatbot {
+  - id: int
+  - nome: String
+  - ativo: Boolean
+}
+
+class OpcaoChatbot {
+  - id: int
+  - pergunta: String
+  - resposta: String
+  - ativo: Boolean
+}
+
+Administrador "1" --> "0..*" ConteudoHome : gerencia
+Administrador "1" --> "0..*" Banner : gerencia
+Administrador "1" --> "0..*" Noticia : gerencia
+Administrador "1" --> "0..*" ClienteMarca : gerencia
+Administrador "1" --> "1" Chatbot : configura
+
+Chatbot "1" --> "0..*" OpcaoChatbot : possui
+
+@enduml

@@ -1,0 +1,77 @@
+
+@startuml
+
+entity administrador {
+  * id : INT <<PK>>
+  --
+  nome : VARCHAR
+  email : VARCHAR <<UNIQUE>>
+  senha_hash : VARCHAR
+}
+
+entity conteudo_home {
+  * id : INT <<PK>>
+  --
+  titulo : VARCHAR
+  texto : TEXT
+  imagem : VARCHAR
+  data_atualizacao : DATETIME
+  administrador_id : INT <<FK>>
+}
+
+entity banner {
+  * id : INT <<PK>>
+  --
+  titulo : VARCHAR
+  imagem : VARCHAR
+  link : VARCHAR
+  ativo : BOOLEAN
+  administrador_id : INT <<FK>>
+}
+
+entity noticia {
+  * id : INT <<PK>>
+  --
+  titulo : VARCHAR
+  resumo : TEXT
+  conteudo : TEXT
+  imagem : VARCHAR
+  data_publicacao : DATETIME
+  ativo : BOOLEAN
+  administrador_id : INT <<FK>>
+}
+
+entity cliente_marca {
+  * id : INT <<PK>>
+  --
+  nome : VARCHAR
+  logo : VARCHAR
+  ativo : BOOLEAN
+  administrador_id : INT <<FK>>
+}
+
+entity chatbot {
+  * id : INT <<PK>>
+  --
+  nome : VARCHAR
+  ativo : BOOLEAN
+  administrador_id : INT <<FK>>
+}
+
+entity opcao_chatbot {
+  * id : INT <<PK>>
+  --
+  pergunta : VARCHAR
+  resposta : TEXT
+  ativo : BOOLEAN
+  chatbot_id : INT <<FK>>
+}
+
+administrador ||--o{ conteudo_home : gerencia
+administrador ||--o{ banner : gerencia
+administrador ||--o{ noticia : gerencia
+administrador ||--o{ cliente_marca : gerencia
+administrador ||--|| chatbot : configura
+chatbot ||--o{ opcao_chatbot : possui
+
+@enduml
