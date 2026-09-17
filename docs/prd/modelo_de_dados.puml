@@ -33,10 +33,7 @@ entity noticia {
   * id : INT <<PK>>
   --
   titulo : VARCHAR
-  resumo : TEXT
   conteudo : TEXT
-  imagem : VARCHAR
-  data_publicacao : DATETIME
   ativo : BOOLEAN
   administrador_id : INT <<FK>>
 }
