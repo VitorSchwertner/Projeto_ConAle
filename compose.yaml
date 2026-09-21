@@ -1,0 +1,55 @@
+# Agrupa os containers e o volume deste ambiente local.
+name: conale
+
+services:
+  # Compila e executa a aplicacao Java.
+  backend:
+    build:
+      context: ./backend
+      target: runtime
+    # Publica a API somente nesta maquina.
+    ports:
+      - "127.0.0.1:${API_PORT:-8080}:8080"
+    environment:
+    # Dentro do Docker, mysql e o nome do servico; localhost seria o backend.
+    # Conexao sem TLS apenas para este ambiente local isolado.
+      DB_URL: "jdbc:mysql://mysql:3306/${DB_NAME:?Defina DB_NAME no .env}?allowPublicKeyRetrieval=true&sslMode=DISABLED"
+      DB_USERNAME: ${DB_USERNAME:?Defina DB_USERNAME no .env}
+      DB_PASSWORD: ${DB_PASSWORD:?Defina DB_PASSWORD no .env}
+    # Aguarda o banco aceitar conexoes antes de iniciar a aplicacao.
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  # Executa o banco, a versao fixa evita atualizacoes inesperadas.
+  mysql:
+    image: mysql:8.4.11
+    ports:
+      - "127.0.0.1:${DB_PORT:-3306}:3306"
+    environment:
+      # Estes valores criam o banco e os usuarios apenas no primeiro inicio.
+      MYSQL_DATABASE: ${DB_NAME:?Defina DB_NAME no .env}
+      MYSQL_USER: ${DB_USERNAME:?Defina DB_USERNAME no .env}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Defina DB_PASSWORD no .env}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Defina DB_ROOT_PASSWORD no .env}
+    # Permite textos com acentos e emojis.
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+    # Mantem os dados mesmo quando o container e recriado.
+    volumes:
+      - mysql_data:/var/lib/mysql
+    # Testa uma consulta simples com o usuario da aplicacao.
+    # $$ deixa a variavel ser lida dentro do container, nao pelo Compose.
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'MYSQL_PWD="$${MYSQL_PASSWORD}" mysql --protocol=TCP --host=127.0.0.1 --user="$${MYSQL_USER}" --database="$${MYSQL_DATABASE}" --execute="SELECT 1" --silent > /dev/null'
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
+
+# O Docker administra este armazenamento fora dos arquivos do repositorio.
+volumes:
+  mysql_data:

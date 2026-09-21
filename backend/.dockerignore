@@ -1,0 +1,6 @@
+# Nao envia arquivos locais desnecessarios para a compilacao Docker.
+*
+# As excecoes abaixo incluem apenas a configuracao Maven e o codigo.
+!pom.xml
+!src/
+!src/**

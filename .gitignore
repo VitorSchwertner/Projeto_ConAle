@@ -1,3 +1,4 @@
+# Ignora arquivos gerados na compilacao; eles podem ser recriados pelo Maven.
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -38,6 +39,7 @@ build/
 # Variáveis de ambiente e segredos locais
 .env
 .env.*
+# Mantem no Git apenas o modelo de configuracao, sem senhas pessoais.
 !.env.example
 
 # Dependências e arquivos gerados pelo frontend
