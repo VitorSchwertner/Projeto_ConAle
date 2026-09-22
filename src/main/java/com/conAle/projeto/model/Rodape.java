@@ -2,6 +2,7 @@ package com.conAle.projeto.model;
 
 public class Rodape
 {
+    private int id;
     private String telefone;
     private String instagram;
     private String email;
