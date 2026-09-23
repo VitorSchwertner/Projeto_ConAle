@@ -38,8 +38,10 @@ build/
 # Variáveis de ambiente e segredos locais
 .env
 .env.*
+
 !.env.example
 
 # Dependências e arquivos gerados pelo frontend
 node_modules/
+
 dist/

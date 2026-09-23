@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: conale-backend
+  # Recebe a conexao e as credenciais pelo ambiente, sem gravar senhas aqui.
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  # Aplica as migrations pendentes ao iniciar a aplicacao.
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    # Bloqueia o comando de limpeza do Flyway para proteger as tabelas.
+    clean-disabled: true
+    # Nao assume automaticamente um banco existente como ponto inicial.
+    baseline-on-migrate: false
+  jpa:
+    hibernate:
+      # Confere os futuros mapeamentos JPA, sem criar ou alterar tabelas.
+      ddl-auto: validate
+    # Nao mantem acesso JPA aberto durante toda a resposta web.
+    open-in-view: false
+  sql:
+    init:
+      # Evita outro inicializador SQL: a estrutura fica a cargo do Flyway.
+      mode: never
+
+# Expoe apenas /actuator/health, sem detalhes internos da aplicacao.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
