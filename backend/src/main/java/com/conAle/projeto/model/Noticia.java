@@ -1,4 +1,4 @@
-package com.conAle.projeto.model;
+package com.conAle.projeto.Model;
 
 public class Noticia
 {
