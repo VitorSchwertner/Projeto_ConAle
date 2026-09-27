@@ -6,7 +6,32 @@ Projeto desenvolvido para a disciplina de Laboratório de Programação para a I
 
 Backend com Java 24, Spring Boot 3.5.16 e Maven 3.9.9; banco MySQL 8.4.11 com migrations gerenciadas pelo Flyway. A estrutura inicial contém `usuario`, `banner`, `noticia` e `rodape`.
 
-Atualmente, apenas a rota de saúde está disponível. Frontend, entidades JPA, autenticação e APIs de conteúdo serão implementados nas próximas etapas.
+Estão disponíveis a rota de saúde e o CRUD interno de notícias, com `id`, `titulo` e `sub_titulo`. O backend inclui entidade JPA, repository, service, DTOs, controller e tratamento de erros. Frontend, autenticação e as demais APIs de conteúdo ficam para próximas etapas.
+
+## CRUD interno de notícias
+
+Use Postman ou outro cliente HTTP em `http://localhost:8080` (ajuste a porta conforme `API_PORT`). Não há tela administrativa nem autenticação. O Compose publica a API somente na máquina local; proteja as operações de escrita antes de disponibilizá-las na internet.
+
+| Método | Rota | Resultado |
+| --- | --- | --- |
+| POST | `/api/noticias` | Cadastra, retorna 201 e o endereço no cabeçalho Location |
+| GET | `/api/noticias` | Lista por ID decrescente, retorna 200 |
+| GET | `/api/noticias/{id}` | Consulta uma notícia, retorna 200 |
+| PUT | `/api/noticias/{id}` | Substitui título e subtítulo, retorna 200 |
+| DELETE | `/api/noticias/{id}` | Exclui definitivamente, retorna 204 sem corpo |
+
+Em POST e PUT, envie `Content-Type: application/json` e um corpo como:
+
+```json
+{
+  "titulo": "Novidades da ConAle",
+  "sub_titulo": "Confira as novidades."
+}
+```
+
+O ID é gerado pelo banco e incluído na resposta. O título é obrigatório, não pode conter apenas espaços e aceita até 200 caracteres. O subtítulo é opcional e aceita até 500 caracteres. Omitir `sub_titulo` ou enviar `null` no PUT remove o valor anterior.
+
+Dados inválidos retornam 400, com mensagens por campo no objeto `campos` para erros de validação. Um ID inexistente retorna 404 em consulta, edição e exclusão. As operações usam a tabela existente, sem nova migration.
 
 ## Como iniciar
 
@@ -64,7 +89,7 @@ O resultado deve incluir as quatro tabelas, o histórico do Flyway com a versão
 - `noticia`: título obrigatório e subtítulo opcional.
 - `rodape`: registro único com `id = 1`, inicialmente sem informações de contato.
 
-As migrations ficam em `backend/src/main/resources/db/migration/`. Não altere migrations já aplicadas, nem seus comentários: isso pode causar erro de checksum. Evoluções devem entrar em novos arquivos, como `V2__descricao.sql`. O Hibernate está configurado para validar os futuros mapeamentos JPA, não para criar tabelas.
+As migrations ficam em `backend/src/main/resources/db/migration/`. Não altere migrations já aplicadas, nem seus comentários: isso pode causar erro de checksum. Evoluções devem entrar em novos arquivos, como `V2__descricao.sql`. O Hibernate está configurado para validar os mapeamentos JPA, não para criar tabelas.
 
 ## Parar e iniciar novamente
 
@@ -97,6 +122,8 @@ A URL deve apontar para `localhost` e a porta publicada do MySQL, mantendo as op
 
 O arquivo `DatabaseMigrationTest.java` contém cinco testes de integração: histórico de migrations, email único e hash obrigatório, regras do banner, título obrigatório da notícia e registro único do rodapé.
 
+O arquivo `NoticiaApiTest.java` contém 12 testes da API: cadastro, consulta/edição/exclusão, listagem, validação do título, subtítulo opcional e sua remoção, limites dos campos, IDs inexistentes e preservação dos dados após edição inválida. Os testes sincronizam as alterações com o MySQL e limpam o contexto JPA antes das consultas de conferência; ao terminar, a transação de cada teste é desfeita.
+
 Execute na raiz do projeto:
 
 ```powershell
@@ -104,7 +131,7 @@ docker compose -f compose.test.yaml up --build --abort-on-container-exit --exit-
 docker compose -f compose.test.yaml down
 ```
 
-Confira o resultado do primeiro comando antes da limpeza: deve retornar código 0 e `Tests run: 5, Failures: 0, Errors: 0`. O banco de testes é separado, temporário e não publica portas; não utiliza os dados do banco local. Nunca execute esses testes apontando para um banco real.
+Confira o resultado do primeiro comando antes da limpeza: deve retornar código 0 e `Tests run: 17, Failures: 0, Errors: 0`. O banco de testes é separado, temporário e não publica portas; não utiliza os dados do banco local. Nunca execute esses testes apontando para um banco real.
 
 ## Antes do commit
 
