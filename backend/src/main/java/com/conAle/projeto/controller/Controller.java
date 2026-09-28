@@ -1,17 +1,5 @@
-package com.conAle.projeto.Controller;
-
-import com.
+package com.conAle.projeto.controller;
 
 public class Controller
 {
-    UsuarioDAO usuarioDAO = new UsuarioDAO();
-    
-    public ArrayList<Usuario> consultarUsuarios()
-    {
-        try
-        {
-//            return usuarioDAO
-        }
-    }
-    
 }
