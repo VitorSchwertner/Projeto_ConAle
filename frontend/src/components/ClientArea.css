@@ -1,0 +1,47 @@
+.client-area {
+    padding: 0 0 56px;
+    background: var(--color-bg);
+}
+
+.client-area__grid {
+    display: grid;
+    grid-template-columns: 1fr 1.6fr;
+    gap: 20px;
+}
+
+.client-area__card {
+    background: var(--color-slate);
+    border-radius: var(--radius-lg);
+    padding: 32px 28px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 18px;
+}
+
+.client-area__card h3 {
+    color: #fff;
+    font-size: 1.7rem;
+    line-height: 1.15;
+}
+
+.client-area__card .btn {
+    width: fit-content;
+}
+
+.client-area__banner {
+    background: linear-gradient(135deg, var(--color-navy) 0%, var(--color-navy-light) 100%);
+    border-radius: var(--radius-lg);
+    min-height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.6);
+    border: 1.5px dashed rgba(255, 255, 255, 0.3);
+}
+
+@media (max-width: 860px) {
+    .client-area__grid {
+        grid-template-columns: 1fr;
+    }
+}
