@@ -1,0 +1,35 @@
+.quick-actions {
+    padding: 40px 0;
+    display: none;
+}
+
+@media (min-width: 861px) {
+    .quick-actions {
+        display: block;
+    }
+}
+
+.quick-actions__grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+}
+
+.quick-actions__item {
+    background: #fff;
+    border: 1.5px solid var(--color-navy-light);
+    color: var(--color-navy);
+    font-weight: 600;
+    font-size: 0.92rem;
+    padding: 18px 22px;
+    border-radius: var(--radius-md);
+    min-width: 220px;
+    flex: 1 1 220px;
+    max-width: 260px;
+}
+
+.quick-actions__item:hover {
+    border-color: var(--color-green);
+    color: var(--color-green-dark);
+}
