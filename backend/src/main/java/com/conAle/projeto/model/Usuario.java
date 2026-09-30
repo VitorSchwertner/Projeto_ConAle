@@ -12,6 +12,13 @@ import jakarta.persistence.Table;
 @Table(name = "usuario")
 public class Usuario {
 
+    // Contas antigas não recebem acesso administrativo automaticamente.
+    @Column(nullable = false)
+    private boolean administrador;
+
+    public boolean isAdministrador() { return administrador; }
+    public void setAdministrador(boolean administrador) { this.administrador = administrador; }
+
     // O MySQL gera o ID com AUTO_INCREMENT; antes de salvar, ele pode ser null.
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

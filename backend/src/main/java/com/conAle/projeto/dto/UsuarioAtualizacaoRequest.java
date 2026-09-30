@@ -17,6 +17,7 @@ public record UsuarioAtualizacaoRequest(
 
         // Se for omitida (null), a senha atual é mantida. Se vier, é validada e trocada.
         @Size(min = 8, max = 72, message = "A senha deve ter de 8 a 72 caracteres.")
+        @com.conAle.projeto.validation.SenhaBcrypt
         String senha
 ) {
 }

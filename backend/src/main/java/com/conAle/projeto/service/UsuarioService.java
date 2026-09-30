@@ -55,6 +55,8 @@ public class UsuarioService {
         }
 
         Usuario usuario = new Usuario();
+        // A rota de cadastro exige um administrador autenticado.
+        usuario.setAdministrador(true);
         usuario.setNome(request.nome().trim());
         usuario.setEmail(email);
         usuario.setSenhaHash(passwordEncoder.encode(request.senha()));
@@ -91,6 +93,10 @@ public class UsuarioService {
     @Transactional
     public void excluir(Integer id) {
         Usuario usuario = encontrar(id);
+        if (usuario.isAdministrador() && repository.administradoresParaExclusao().size() <= 1) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Não é permitido excluir o último administrador.");
+        }
         repository.delete(usuario);
     }
 

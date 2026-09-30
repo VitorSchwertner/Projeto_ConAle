@@ -17,7 +17,8 @@ public record UsuarioRequest(
         @Size(max = 254, message = "O e-mail aceita até 254 caracteres.")
         String email,
 
-        // O limite de 72 existe porque o BCrypt só considera os primeiros 72 bytes.
+        // Valida caracteres e também o limite em bytes do BCrypt.
+        @com.conAle.projeto.validation.SenhaBcrypt
         @NotBlank(message = "A senha é obrigatória.")
         @Size(min = 8, max = 72, message = "A senha deve ter de 8 a 72 caracteres.")
         String senha

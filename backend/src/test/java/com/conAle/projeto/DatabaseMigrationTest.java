@@ -23,7 +23,7 @@ class DatabaseMigrationTest {
     @Test
     // Confere as tabelas e garante que a V1 nao seja aplicada novamente.
     void migrationCanRunAgainWithoutChangingSchemaOrFooter() {
-        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("1");
+        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("2");
         flyway.validate();
         assertThat(flyway.migrate().migrationsExecuted).isZero();
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM rodape WHERE id = 1", Integer.class)).isEqualTo(1);
@@ -37,6 +37,8 @@ class DatabaseMigrationTest {
     void userEmailMustBeUniqueAndPasswordHashRequired() {
         jdbc.update("INSERT INTO usuario(nome, email, senha_hash) VALUES (?, ?, ?)",
                 "Teste", "teste@example.invalid", "hash-apenas-para-teste");
+        assertThat(jdbc.queryForObject("SELECT administrador FROM usuario WHERE email = 'teste@example.invalid'",
+                Boolean.class)).isFalse();
         assertMysqlError(1062, () -> jdbc.update(
                 "INSERT INTO usuario(nome, email, senha_hash) VALUES (?, ?, ?)",
                 "Outro", "TESTE@example.invalid", "outro-hash"));

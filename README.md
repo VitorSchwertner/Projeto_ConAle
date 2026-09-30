@@ -6,11 +6,19 @@ Projeto desenvolvido para a disciplina de Laboratório de Programação para a I
 
 Backend com Java 24, Spring Boot 3.5.16 e Maven 3.9.9; banco MySQL 8.4.11 com migrations gerenciadas pelo Flyway. A estrutura inicial contém `usuario`, `banner`, `noticia` e `rodape`.
 
-Estão disponíveis a rota de saúde e o CRUD interno de notícias, com `id`, `titulo` e `sub_titulo`. O backend inclui entidade JPA, repository, service, DTOs, controller e tratamento de erros. Frontend, autenticação e as demais APIs de conteúdo ficam para próximas etapas.
+Estão disponíveis a rota de saúde, os CRUDs de notícias e usuários e a autenticação administrativa por sessão. O backend inclui entidade JPA, repository, service, DTOs, controller e tratamento de erros. A integração do frontend com a autenticação fica para uma próxima etapa.
+
+## Autenticação administrativa
+
+Leia o [guia de configuração e testes no Postman](docs/autenticacao-postman.md).
+Importe a [coleção do Postman](docs/postman/ConAle-Auth.postman_collection.json) e configure as credenciais apenas localmente.
+O primeiro administrador usa variáveis locais de ambiente. Não há cadastro público.
+O login cria uma sessão por cookie, com proteção CSRF, logout e expiração por inatividade.
+Contas antigas não ganham permissão administrativa automaticamente. A migration V2 adiciona essa permissão sem apagar dados.
 
 ## CRUD interno de notícias
 
-Use Postman ou outro cliente HTTP em `http://localhost:8080` (ajuste a porta conforme `API_PORT`). Não há tela administrativa nem autenticação. O Compose publica a API somente na máquina local; proteja as operações de escrita antes de disponibilizá-las na internet.
+Use Postman ou outro cliente HTTP em `http://localhost:8080` (ajuste a porta conforme `API_PORT`). Não há tela administrativa. Consultas de notícias são públicas; POST, PUT e DELETE exigem sessão de administrador e token CSRF. O Compose publica a API somente na máquina local. Antes de disponibilizar na internet, configure HTTPS e controles contra tentativas repetidas de login.
 
 | Método | Rota | Resultado |
 | --- | --- | --- |
@@ -131,7 +139,7 @@ docker compose -f compose.test.yaml up --build --abort-on-container-exit --exit-
 docker compose -f compose.test.yaml down
 ```
 
-Confira o resultado do primeiro comando antes da limpeza: deve retornar código 0 e `Tests run: 17, Failures: 0, Errors: 0`. O banco de testes é separado, temporário e não publica portas; não utiliza os dados do banco local. Nunca execute esses testes apontando para um banco real.
+Confira o resultado do primeiro comando antes da limpeza: deve retornar código 0 e `Tests run: 35, Failures: 0, Errors: 0`. O banco de testes é separado, temporário e não publica portas; não utiliza os dados do banco local. Nunca execute esses testes apontando para um banco real.
 
 ## Antes do commit
 
