@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@org.springframework.security.test.context.support.WithMockUser(roles = "ADMIN")
 class NoticiaApiTest {
 
     @Autowired
@@ -34,6 +35,15 @@ class NoticiaApiTest {
     @Autowired
     // Monta JSON a partir de dados Java, sem concatenar textos manualmente.
     private ObjectMapper objectMapper;
+
+    // Os testes de notícias usam um administrador e CSRF válido por padrão.
+    @org.junit.jupiter.api.BeforeEach
+    void configurarCsrf(@Autowired org.springframework.web.context.WebApplicationContext context) {
+        mockMvc = org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup(context)
+                .apply(org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity())
+                .defaultRequest(get("/").with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf()))
+                .build();
+    }
 
     @Test
     // Confere o contrato do cadastro: status 201, Location e campos da resposta.

@@ -16,6 +16,10 @@ services:
       DB_URL: "jdbc:mysql://mysql:3306/${DB_NAME:?Defina DB_NAME no .env}?allowPublicKeyRetrieval=true&sslMode=DISABLED"
       DB_USERNAME: ${DB_USERNAME:?Defina DB_USERNAME no .env}
       DB_PASSWORD: ${DB_PASSWORD:?Defina DB_PASSWORD no .env}
+      ADMIN_INITIAL_NAME: ${ADMIN_INITIAL_NAME:-Administrador ConAle}
+      ADMIN_INITIAL_EMAIL: ${ADMIN_INITIAL_EMAIL:-}
+      ADMIN_INITIAL_PASSWORD: ${ADMIN_INITIAL_PASSWORD:-}
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
     # Aguarda o banco aceitar conexoes antes de iniciar a aplicacao.
     depends_on:
       mysql:
