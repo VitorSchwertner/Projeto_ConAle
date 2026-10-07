@@ -1,6 +1,6 @@
 # Autenticação administrativa no Postman
 
-O frontend não foi alterado. A API usa sessão no servidor e cookie `JSESSIONID`.
+A API usa sessão no servidor e cookie `JSESSIONID`.
 As únicas contas que podem entrar são as que possuem `administrador=true`.
 A migration V2 preserva os dados e marca contas anteriores como não administrativas.
 Não edite a V1 nem apague o volume do banco para aplicar esta mudança.

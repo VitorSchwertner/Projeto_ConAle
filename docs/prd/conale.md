@@ -1,367 +1,299 @@
-**Problema**
+# PRD — ConAle
+
+Revisão pós-P1 — 30/09/2026. Documento de trabalho para validação do grupo e da cliente.
+
+## 1. Contexto e objetivo
+
+A ConAle presta serviços contábeis especializados para profissionais e empresas da área da saúde. O projeto busca ampliar sua presença digital, apresentar serviços e credenciais, facilitar contatos e permitir que a equipe mantenha conteúdos institucionais e notícias sem depender de alterações no código.
+
+A solução compreende um **site institucional público** e um **CMS administrativo**. O painel é uma interface frontend; o backend atende tanto o site quanto o painel, valida permissões e persiste dados. A Área do Cliente é um sistema externo e não se confunde com o painel administrativo.
+
+## 2. Estado atual do projeto
+
+Após a P1, o projeto possui frontend institucional e funcionalidades de backend desenvolvidas separadamente. A integração entre essas partes e a ampliação do CMS estão pendentes. A validação dos fluxos completos faz parte das próximas etapas.
+
+| Parte | Estado atual |
+| --- | --- |
+| Frontend | React com páginas Home, Serviços, Sobre e Dúvidas Frequentes; conteúdos escritos nos componentes e imagens distribuídas com a aplicação. |
+| Interações públicas | Há navegação, FAQ e links de e-mail/mapa. Alguns botões de contato e de acesso ao portal ainda não têm ação; há imagens provisórias. |
+| Notícias no backend | CRUD com `id`, `titulo` e `sub_titulo`, conforme o escopo definido. O conteúdo das notícias é limitado a título e subtítulo. |
+| Usuários e autenticação | CRUD de usuários e autenticação administrativa implementados no backend com Spring Security, BCrypt, sessão e proteção CSRF. |
+| Integração | O frontend ainda não está conectado à API do backend e não possui páginas de notícias, login ou painel administrativo. |
+| CMS ampliado | Upload de imagens para os blocos institucionais e edição desses blocos são funcionalidades planejadas. Notícias não utilizam imagens nem fluxo editorial separado. |
+
+## 3. Escopo de conteúdo
 
-O escritório ConAle presta serviços de contabilidade especializados para profissionais e empresas da área da saúde. Atualmente, a empresa não possui um site institucional, fazendo com que sua presença digital seja limitada e que a divulgação de seus serviços dependa principalmente de indicações e contatos já existentes.
+Fixo significa mantido pelo desenvolvimento, não um elemento sem funcionamento. Botões fixos devem cumprir a navegação ou o contato anunciado.
 
-Essa limitação dificulta que potenciais clientes encontrem a ConAle, conheçam sua especialização na área da saúde e tenham acesso, de forma clara e centralizada, às informações necessárias para avaliar a contratação dos serviços.
+| Bloco | Classificação confirmada pelo grupo | Operações previstas / limites |
+| --- | --- | --- |
+| Botões abaixo do banner | Fixo | Texto e estrutura mantidos no código; destinos funcionais. |
+| Três cards da Home | Fixo | Conteúdo e estrutura mantidos no código. |
+| Nossos diferenciais | Fixo | Sem cadastro no painel. |
+| Nossos serviços | Fixo | Sem cadastro no painel. |
+| Banner do topo | Editável | Atualizar imagem e campos presentes no layout; banner único ou carrossel depende de D01. |
+| Informações da empresa — “spinner” | Editável | Campos e significado do bloco dependem de D02. |
+| Banner “Sobre nós” da Home | Editável | Atualizar imagem e textos existentes, sem permitir alterar arbitrariamente a estrutura da página. |
+| Notícias | Editável | Cadastrar, listar, consultar, editar e remover registros com título e subtítulo, conforme a seção 7. |
+| Rodapé | Editável | Consultar e atualizar contatos, endereço, horários e links em um cadastro compartilhado. |
+| Informações de clientes em “Sobre mim” | Editável | Coleção gerenciável; depoimentos, logos ou ambos dependem de D03. |
 
-Quem perde com isso, e como:
+Um conteúdo repetido em mais de uma página deve utilizar o mesmo cadastro, quando representar a mesma informação. A repetição visual não exige CRUDs separados.
 
-* A ConAle, que possui menos oportunidades de apresentar seus serviços a potenciais clientes fora de sua rede atual de indicações.  
-* Potenciais clientes, que podem ter dificuldade para encontrar uma empresa especializada em contabilidade para a área da saúde e conhecer seus serviços.  
-* A empresa como marca, que deixa de utilizar uma presença digital profissional para transmitir credibilidade e fortalecer seu posicionamento no mercado.
+Os blocos não listados têm sua classificação pendente em D04, incluindo sua associação a conteúdos compartilhados. FAQ, missão/valores e credenciais dependem dessa definição. O chatbot é um requisito do PRD original ainda não implementado, com prioridade e alcance sujeitos a D05.
 
- 
+### Operações do painel
 
-**Solução**
+- Blocos únicos, como rodapé: consulta e atualização; não há necessidade de criar ou excluir vários rodapés.
+- Coleções, como notícias e informações de clientes: cadastro, listagem, edição e remoção, conforme regras próprias.
+- Banners: carrossel, ordenação e quantidade de registros dependem da definição de D01.
+- Usuários: gestão administrativa restrita; não oferecer cadastro público de clientes.
 
-Desenvolver um site institucional para a ConAle, apresentando de forma clara sua atuação e especialização em contabilidade para profissionais e empresas da área da saúde.
+## 4. Stack e arquitetura
 
-O site terá como objetivo fortalecer a presença digital da empresa, transmitindo uma imagem profissional, confiável e acolhedora, além de apresentar seus serviços, notícias e novidades relevantes do ramo.
+| Camada | Tecnologia / responsabilidade |
+| --- | --- |
+| Frontend | React 19, TypeScript 6, Vite 8, React Router, React Icons e CSS. Versões exatas conforme manifesto e lockfile. |
+| API | Java 24 e Spring Boot 3.5.16; HTTP com JSON. Upload futuro por multipart/form-data. |
+| Segurança | Spring Security; hash BCrypt, sessão no servidor, cookie de sessão e proteção CSRF. |
+| Persistência | Spring Data JPA e MySQL 8.4.11. |
+| Evolução do banco | Flyway; novas migrations para ampliar o modelo, sem editar migrations já aplicadas. |
+| Build e ambiente | Maven 3.9.9 no Dockerfile; Docker e Docker Compose. |
+| Verificação | Testes Java/Spring e coleção Postman no repositório; ESLint no frontend. |
+| Mídias | Proposta técnica pós-P1: arquivos em filesystem com volume persistente e metadados no MySQL; ver D06. |
 
-A plataforma também facilitará o contato de potenciais clientes com a ConAle, disponibilizando informações e caminhos claros para solicitar atendimento e conhecer o processo para se tornar cliente.
+Fluxo previsto: o site consulta conteúdo público; o painel envia alterações autenticadas ao backend; o backend verifica permissões e grava no banco e, para uploads, no armazenamento de arquivos. O navegador não acessa diretamente o banco ou o filesystem do servidor.
 
-Para os clientes atuais, o site disponibilizará um direcionamento para a área do cliente, permitindo o acesso ao sistema já utilizado pelo escritório sem substituir ou duplicar suas funcionalidades.
+## 5. Requisitos funcionais
 
-**Escopo**
+Os identificadores RF01–RF17 são preservados para rastreabilidade com a P1. Os requisitos descrevem o comportamento esperado do sistema; a seção 2 apresenta o estado atual de implementação.
 
-O sistema será desenvolvido em partes, conforme tabela abaixo. Começará pela parte visual do site (front-end) e seguindo pela parte editável, que será um painel administrativo (como se fosse o back-end).
+| ID | Requisito revisado |
+| --- | --- |
+| RF01 | Apresentar a página inicial institucional. |
+| RF02 | Apresentar a especialização em contabilidade para a área da saúde. |
+| RF03 | Permitir navegação entre as páginas públicas e suas seções. |
+| RF04 | Apresentar propósito, missão e valores; editabilidade pendente de D04. |
+| RF05 | Apresentar credenciais e marcas conforme conteúdo aprovado; delimitação com RF15 em D03/D04. |
+| RF06 | Apresentar serviços em conteúdo fixo, sem CRUD de serviços nesta revisão. |
+| RF07 | Apresentar depoimentos; relação com a gestão de clientes depende de D03. |
+| RF08 | Apresentar FAQ; sua editabilidade depende de D04. |
+| RF09 | Exibir os canais de contato aprovados. |
+| RF10 | Disponibilizar links funcionais para os canais de contato. |
+| RF11 | Direcionar solicitações de atendimento ou interesse em contratação para canais externos; não contratar ou cobrar dentro do site. |
+| RF12 | Direcionar ao portal externo da cliente, sem reproduzir seu login ou suas funções. |
+| RF13 | Disponibilizar painel restrito aos administradores autorizados da ConAle. |
+| RF14 | Permitir editar somente os blocos institucionais definidos na seção 3; não oferecer edição irrestrita de toda a página. |
+| RF15 | Gerenciar informações de clientes; o requisito original tratava de marcas/logos, e sua ampliação para depoimentos depende de D03. |
+| RF16 | Permitir cadastrar, listar, consultar, editar e remover notícias pelo painel, com apenas título e subtítulo como campos de conteúdo e ID gerado pelo sistema. |
+| RF17 | Disponibilizar chatbot de orientação, conforme requisito original; prioridade e interação dependem de D05. |
+| RF18 | Permitir login, consulta do usuário da sessão e logout; negar operações administrativas sem autorização. |
+| RF19 | Permitir envio e associação de imagens aos banners e demais blocos editáveis que utilizam imagens, com validação no servidor e armazenamento persistente. Não se aplica às notícias. |
+| RF20 | Exibir o título e o subtítulo das notícias cadastradas, consumindo a API pública. Cadastro, edição e exclusão devem refletir na próxima consulta do site, sem etapa separada de publicação. |
+| RF21 | Permitir atualizar o rodapé em um único cadastro, refletido em todas as páginas que o utilizam. |
+| RF22 | Disponibilizar gestão restrita de usuários no painel, respeitando as regras de acesso do backend; sem autorregistro público. |
 
-| Ordem | Parte | Porque nessa posição |
-| :---- | :---- | :---- |
-| 1 | Estrutura base e navegação do site | Define o menu, rodapé e estrutura compartilhada pelas demais páginas. |
-| 2 | Página inicial | É o principal ponto de entrada e apresenta a ConAle aos potenciais clientes. |
-| 3 | Página de Serviços | Apresenta os serviços oferecidos e permite ao visitante conhecer as soluções da empresa. |
-| 4 | Página Sobre Nós | Apresenta a empresa, sua atuação, propósito, missão, valores e credenciais. |
-| 5 | Página de Dúvidas Frequentes | Responde às principais dúvidas dos visitantes e complementa as informações institucionais. |
-| 6 | Área de contato e conversão | Facilita o contato e o início do processo de contratação por potenciais clientes. |
-| 7 | Direcionamento para Área do Cliente  | Permite que clientes atuais encontrem o acesso ao sistema já utilizado pela ConAle. |
-| 8 | Interface do chatbot | Implementa a interface de atendimento e orientação aos visitantes. |
-| 9 | Autenticação do Painel Administrativo | Estabelece o controle de acesso antes das funcionalidades administrativas. |
-| 10 | Gerenciamento do chatbot | Permite configurar as opções e informações apresentadas pelo chatbot. |
-| 11 | Gerenciamento de conteúdo | Permite administrar banners, textos, imagens e demais conteúdos do site. |
+## 6. Autenticação e acesso
 
-**Requisitos Funcionais**
+O acesso administrativo permanece reservado aos administradores da ConAle. A implementação atual usa a propriedade `administrador` em `usuario`, não perfis editoriais por módulo.
 
-| RF01 | O sistema deve disponibilizar uma página inicial com informações institucionais e de apresentação da ConAle. |
-| :---- | :---- |
-| RF02 | O sistema deve apresentar a atuação da ConAle e sua especialização em contabilidade para profissionais e empresas da área da saúde. |
-| RF03 | O sistema deve permitir a navegação entre as principais seções do site por meio do menu de navegação.  |
-| RF04 | O sistema deve apresentar informações sobre o propósito, a missão e os valores da ConAle.  |
-| RF05 | O sistema deve apresentar uma seção dedicada para exibir as credenciais institucionais da ConAle, incluindo as entidades/associações do setor nas quais atua e os logotipos dos principais clientes e clínicas atendidos.  |
-| RF06 | O sistema deve apresentar os serviços oferecidos pela ConAle.  |
-| RF07 | O sistema deve apresentar depoimentos de clientes da ConAle.  |
-| RF08 | O sistema deve apresentar uma seção de dúvidas frequentes (FAQ) com perguntas e respectivas respostas.  |
-| RF09 | O sistema deve apresentar os canais de contato disponibilizados pela ConAle.  |
-| RF10 | O sistema deve permitir que o visitante acesse os canais de contato disponibilizados pela ConAle.  |
-| RF11 | O sistema deve apresentar opções para que potenciais clientes solicitem atendimento ou iniciem o processo de contratação dos serviços.  |
-| RF12 | O sistema deve disponibilizar um direcionamento para a área do cliente existente da ConAle.  |
-| RF13 | O sistema deve disponibilizar um Painel Administrativo restrito à equipe interna para gestão de conteúdos.  |
-| RF14 | O sistema deve permitir que os administradores gerenciem os banners, textos e imagens das seções da página inicial através do Painel Administrativo.  |
-| RF15 | O sistema deve permitir que administradores cadastrem, editem e removam as marcas de clientes e clínicas exibidas no site. |
-| RF16  | O sistema deve permitir que administradores cadastrem, editem e removam notícias e artigos pelo Painel Administrativo. |
-| RF17 | O sistema deve disponibilizar um chatbot para orientar os visitantes sobre informações e serviços da ConAle. |
+Fluxo existente no backend, ainda a integrar ao frontend:
 
-	
+1. Obter token CSRF em `GET /api/auth/csrf`, mantendo o cookie da sessão.
+2. Enviar e-mail e senha para `POST /api/auth/login`, com o cabeçalho CSRF informado pelo servidor.
+3. O servidor valida a senha com BCrypt e verifica o acesso administrativo. No sucesso, troca o identificador da sessão e descarta o token CSRF anterior.
+4. Obter novo token CSRF para as operações seguintes. Consultar `GET /api/auth/me` para identificar o administrador autenticado.
+5. Enviar o cookie de sessão e o token CSRF nas operações de alteração que exigem essa proteção.
+6. Executar `POST /api/auth/logout` para invalidar a sessão. A configuração atual prevê expiração após 30 minutos de inatividade.
 
-						
+O hash protege a senha armazenada; o cookie identifica a sessão; o token CSRF protege requisições contra falsificação. Não são o mesmo mecanismo, e o token CSRF não é um JWT nem comprova sozinho que a pessoa está autenticada.
 
-		
+A autorização deve ser validada no backend, independentemente da visibilidade dos botões na interface. HTTPS e configuração apropriada de cookies são necessários na implantação definitiva. O perfil “editor de notícias” depende de aprovação em D08.
 
-	
+## 7. Notícias: título e subtítulo
 
-**Requisitos Não Funcionais**
+As notícias são registros de conteúdo breve, mantidos exclusivamente com título e subtítulo. O ID é um identificador técnico gerado pelo banco, não um campo de conteúdo preenchido pelo administrador.
 
-| RNF01 | O site deve ser responsivo e manter seus conteúdos legíveis e funcionais em telas a partir de 360px de largura. | Teste em diferentes tamanhos de tela, incluindo 360px. |
-| :---- | :---- | :---- |
-| RNF02 | A interface deve seguir a identidade visual definida para a ConAle, mantendo consistência entre as páginas.  | Comparação com o protótipo aprovado. |
-| RNF03 | As páginas principais do site devem carregar em até 3 segundos em condições adequadas de conexão. | Teste utilizando ferramenta de desempenho do navegador. |
-| RNF04 | O site deve ser compatível com versões atuais dos principais navegadores. | Teste no Chrome, Firefox e Edge. |
-| RNF05 | O acesso ao Painel Administrativo deve ser restrito a usuários autorizados. | Tentativa de acessar o painel sem autenticação. |
-| RNF06 | O conteúdo apresentado no site deve ser gerenciável pelo Painel Administrativo sem necessidade de alteração direta no código-fonte. | Cadastrar ou alterar um conteúdo utilizando exclusivamente o painel. |
+| Campo | Regra |
+| --- | --- |
+| `id` | Gerado automaticamente; identifica o registro nas consultas, alterações e exclusões. |
+| `titulo` | Obrigatório, não pode conter somente espaços e aceita até 200 caracteres. |
+| `sub_titulo` | Opcional, aceita até 500 caracteres. |
 
-	
+O painel permite cadastrar, listar, consultar, editar e excluir notícias. Após o salvamento, o registro fica disponível na API pública; a integração do site deve refletir as alterações na próxima consulta. Não há ação separada de publicar, rascunhos, agendamento ou arquivamento. A exclusão remove o registro da consulta pública.
 
-	
+O módulo não inclui corpo de artigo, imagem de capa, galeria, campo de autoria, comentários ou estados/datas de publicação. Não requer editor de texto rico nem upload de arquivos. O armazenamento de imagens descrito na seção 8 atende aos demais conteúdos do CMS.
 
-		
+A gestão permanece restrita aos administradores. A possibilidade de um perfil com acesso somente às notícias continua como decisão de autorização em D08, sem ampliar os campos da notícia.
 
-		
+## 8. Imagens: armazenamento e ciclo de vida
 
-								
+Esta seção se aplica aos banners e aos demais blocos editáveis com imagens, não às notícias.
 
-**Histórias de usuários**
+**Proposta técnica D06:** para implantação em um único servidor, armazenar os arquivos em filesystem, em diretório configurado e montado em volume Docker persistente. Guardar no MySQL apenas metadados e referências, não o binário da imagem. Essa proposta ainda não está implementada.
 
-1. Como profissional da saúde, quero identificar rapidamente no site que a ConAle é especializada em contabilidade para a área da saúde, para avaliar se seus serviços são adequados às minhas necessidades.
+1. O administrador envia o arquivo pelo painel.
+2. O backend valida sessão, autorização, CSRF, tamanho e tipo real do arquivo.
+3. Gera uma chave interna segura, independente do nome original, e grava no volume com permissões para o usuário da aplicação.
+4. Registra os metadados e associa a mídia ao conteúdo.
+5. Entrega a imagem por endereço controlado pela aplicação; não expõe caminhos físicos do servidor.
 
-   
+Parâmetros propostos para aprovação: JPEG, PNG e WebP, até 5 MB por arquivo. Dimensões máximas, proporções e recorte dependem da definição de cada bloco em D06. A validação deve considerar o conteúdo do arquivo, além da extensão e do MIME enviado pelo navegador.
 
-2. Como visitante do site, quero navegar facilmente entre as principais seções, para encontrar rapidamente as informações que procuro.
+Regras a implementar junto ao upload:
 
-   
+- Não salvar uploads no código-fonte, no Git ou apenas na camada descartável do container.
+- Manter banco e arquivos em backups recuperáveis; volume persistente não é backup.
+- Exigir texto alternativo para imagens informativas; tratar imagens decorativas adequadamente.
+- Substituir a referência somente após sucesso do novo upload; preservar a anterior em caso de falha.
+- Tratar falhas entre gravação do arquivo e do banco, evitando referências quebradas e arquivos órfãos.
+- Não apagar mídia ainda referenciada por outro bloco. Remover uma associação de imagem não deve apagar automaticamente um arquivo compartilhado.
 
-3. Como gestor de uma clínica, quero acessar o site da ConAle e ver claramente a lista de serviços oferecidos, para avaliar se eles atendem às necessidades específicas da minha empresa. 
+Os arquivos atuais em `frontend/public` e `frontend/src/assets` são recursos distribuídos com o frontend, não uma solução de upload pelo CMS.
 
-   
+## 9. Modelagem revisada — proposta e implementação
 
-4. Como potencial cliente, quero consultar depoimentos de clientes da ConAle, para avaliar a credibilidade e a experiência do escritório antes de entrar em contato.
+Esta tabela apresenta a modelagem proposta para a evolução do sistema. As imagens dos diagramas abaixo representam a versão anterior e serão atualizadas para refletir o escopo desta revisão e as decisões pendentes.
 
-   
+### Diagrama de classes
 
-5. Como potencial cliente, quero encontrar facilmente os canais de contato da ConAle, como WhatsApp e e-mail, para solicitar uma proposta comercial ou obter atendimento sem burocracia.
+![Diagrama de classes da ConAle — atualização pendente](diagrama_de_classes.png)
 
-   
+### Modelo de dados
 
-6. Como cliente da ConAle, quero um atalho direto no site para a Área do Cliente, para acessar meu portal contábil rapidamente.  
+![Modelo de dados da ConAle — atualização pendente](modelo_de_dados.png)
 
-   
+### Diagrama de casos de uso
 
-7. Como contadora, quero uma área institucional para destacar em quais diretorias, associações e entidades do setor de saúde e contabilidade a ConAle atua, para fortalecer nossa autoridade no mercado. 
+![Diagrama de casos de uso da ConAle — atualização pendente](diagrama_de_casos_de_uso.png)
 
-   
+### Entidades e responsabilidades
 
-8. Como contadora, quero uma seção dedicada no site para cadastrar e exibir a marca dos nossos maiores clientes e clínicas atendidas, para transmitir credibilidade e demonstrar nossa relevância no setor da saúde. 
+| Entidade | Situação e atributos / responsabilidade |
+| --- | --- |
+| Usuario | Existente: `id`, `nome`, `email`, `senha_hash`, `administrador`. Representa a conta; o indicador define acesso administrativo. |
+| Noticia | Modelo definitivo para este escopo: `id`, `titulo`, `sub_titulo`, conforme a implementação existente. Sem relacionamento com mídia ou autor e sem novos campos editoriais. |
+| Midia | Nova proposta: `id`, chave única do arquivo, nome original, tipo, tamanho em bytes, data de envio e usuário responsável. Texto alternativo/legenda devem acompanhar o uso da imagem no conteúdo. |
+| Banner | Tabela existente com título, referência de imagem, link e ativo. Evoluir a referência para mídia; posição e multiplicidade dependem de D01. |
+| ConteudoInstitucional | Proposta para blocos editáveis identificados por chave estável, com campos definidos por bloco e referências de mídia. Não é um construtor livre de páginas. Detalhar após D02/D04. |
+| Rodape | Tabela existente para registro único com contatos, links, endereço e horários. Integrar edição e leitura ao site. |
+| InformacoesCliente | Conceito pendente de D03. Se depoimento: nome, identificação profissional e texto; se marca: nome e mídia do logo. A organização em uma ou mais entidades depende dessa definição. |
+| Chatbot / OpcaoChatbot | Previstos no PRD original e ainda não implementados. A modelagem final depende de D05. |
 
-   
+Relacionamentos propostos para os conteúdos com imagens: uma mídia pode ser referenciada por mais de um banner ou bloco institucional. Notícias não possuem relacionamento com mídia nem autoria. A permissão para gerenciar notícias é verificada pela autenticação e autorização, sem adicionar campos à entidade Noticia.
 
-9. Como contadora, quero poder alterar os banners, imagens e textos da página inicial sempre que desejar, para destacar novas campanhas, serviços ou eventos do escritório. 
+Os quatro blocos explicitamente fixos permanecem no código e não requerem tabelas próprias para gestão de conteúdo. Novos campos e tabelas dos demais módulos serão implementados por migrations. O modelo de notícias já atende ao escopo e não exige nova migration para esta definição.
 
-   
+## 10. Histórias e casos de uso
 
-10. Como contadora, quero um painel administrativo fácil de usar para publicar e editar notícias, para manter o site atualizado com novidades sobre legislação médica e tributária sem depender de um programador.
+Mantêm-se as histórias institucionais da P1: conhecer especialização, serviços, propósito/valores, credenciais, depoimentos e FAQ; navegar; solicitar contato; acessar portal externo. As histórias administrativas passam a usar a delimitação da seção 3.
 
-     
+| História | Necessidade |
+| --- | --- |
+| HU-CMS01 | Como administrador, quero entrar e sair com segurança para proteger a gestão do conteúdo. |
+| HU-CMS02 | Como administrador, quero atualizar apenas os blocos editáveis aprovados, sem depender de um desenvolvedor. |
+| HU-CMS03 | Como administrador, quero cadastrar, editar e excluir notícias com título e subtítulo para manter o site atualizado. |
+| HU-CMS04 | Como visitante, quero consultar os títulos e subtítulos das notícias disponibilizadas no site. |
+| HU-CMS05 | Como administrador, quero atualizar contatos uma única vez para manter todas as páginas consistentes. |
+| HU-CMS06 | Como administrador, quero gerenciar as informações de clientes conforme o formato aprovado. |
+| HU-CMS07 | Como administrador, quero gerenciar contas sem permitir cadastro público ou acesso indevido. |
 
-11. Como potencial cliente, quero conhecer o propósito, a missão e os valores da ConAle, para entender a forma como a empresa atua e decidir se seus princípios estão alinhados às minhas expectativas.
+| Caso | Ator | Rastreabilidade |
+| --- | --- | --- |
+| UC01–UC06 | Visitante: apresentação, navegação, serviços, valores, depoimentos e FAQ | RF01–RF08, mantendo os casos da P1. |
+| UC07 | Visitante: contato e interesse em contratação | RF09–RF11. |
+| UC08 | Visitante: abrir portal externo | RF12. |
+| UC09 | Visitante/administrador: visualizar/gerenciar informações de clientes | RF05, RF07, RF15; HU-CMS06; D03. |
+| UC10 | Administrador: editar blocos institucionais e rodapé | RF14, RF21; HU-CMS02/05. |
+| UC11 | Administrador: gerenciar notícias com título e subtítulo | RF16; HU-CMS03. |
+| UC12 | Visitante: chatbot | RF17; pendente D05, preservado da P1. |
+| UC13 | Administrador: login, consulta da sessão e logout | RF13, RF18; HU-CMS01. |
+| UC14 | Administrador: enviar e associar mídia aos blocos com imagens | RF19; HU-CMS02. |
+| UC15 | Visitante: listar e ler notícias | RF20; HU-CMS04. |
+| UC16 | Administrador: gerenciar usuários | RF22; HU-CMS07. |
 
-12. Como potencial cliente, quero consultar as dúvidas frequentes sobre os serviços da ConAle, para encontrar respostas antes de entrar em contato com o escritório.
+### Fluxos administrativos principais
 
-13. Como potencial cliente, quero interagir com um chatbot no site, para obter respostas rápidas sobre os serviços da ConAle.
+**UC10:** usuário autenticado seleciona um bloco editável, consulta os dados, altera campos permitidos e confirma. O servidor valida e salva; as páginas que compartilham esse conteúdo passam a usar a atualização. Dados inválidos não substituem os anteriores. Falha de rede deve permitir nova tentativa sem afirmar que houve salvamento. Blocos fixos não aparecem como cadastros.
 
-    
+**UC11:** usuário autenticado lista notícias, cadastra ou seleciona uma e informa título e subtítulo. O servidor valida os campos e persiste o registro, gerando o ID no cadastro. Dados inválidos não alteram o registro anterior. Consulta, edição ou exclusão de ID inexistente retorna erro apropriado; exclusão exige confirmação na interface. O site passa a exibir o conteúdo salvo na próxima consulta à API. Não há envio de imagem nem etapa adicional de publicação.
 
-    
+**UC13:** seguir a sequência da seção 6. Credenciais inválidas não criam sessão autenticada. Sessão expirada solicita novo login. Requisições sem autorização ou com CSRF inválido são recusadas; logout impede continuar acessando recursos restritos com a sessão encerrada.
 
-**Casos de uso**
+**UC14:** selecionar arquivo, enviar, validar no servidor, armazenar e associar ao conteúdo. Arquivo inválido, acima do limite ou falha de armazenamento deve resultar em mensagem clara, sem substituir a imagem anterior ou declarar sucesso.
 
-**Atores**
+**UC07/UC08:** o site utiliza destinos externos aprovados e mantém alternativas de contato visíveis. A detecção automática de aplicativos instalados e da disponibilidade de serviços externos não faz parte desse fluxo. O site não controla a autenticação nem a disponibilidade do portal externo.
 
-| Ator | Quem é |
-| :---- | :---- |
-| Visitante | Pessoa que acessa o site institucional, seja cliente atual ou potencial |
-| Administrador | Membro da equipe da ConAle responsável pela administração do site |
-| Portal do Cliente | Sistema externo para o qual o cliente é direcionado |
+## 11. Requisitos não funcionais e aceitação
 
-**Casos de uso e rastreabilidade**
+| ID | Requisito / critério verificável |
+| --- | --- |
+| RNF01 | Layout legível e operável a partir de 360px; verificar navegação, formulários e ausência de cortes indevidos. |
+| RNF02 | Respeitar o protótipo e a identidade visual aprovados; comparar telas públicas e administrativas. |
+| RNF03 | Carregamento em até 3 segundos, conforme meta original. A avaliação depende da definição de métrica, páginas, conexão, dispositivo e cache em D11. |
+| RNF04 | Verificar os fluxos principais em Chrome, Firefox e Edge, registrando versões utilizadas. |
+| RNF05 | Validar autenticação e autorização no servidor; testar acessos diretos à API, não apenas à interface. |
+| RNF06 | Apenas os blocos editáveis da seção 3 devem ser atualizados pelo painel sem alteração de código ou novo build do frontend. |
+| RNF07 | Upload deve atender às regras da seção 8; formatos, tamanho e dimensões finais dependem de D06. |
+| RNF08 | Preservar conteúdo e arquivos após recriação de containers sem apagar volumes; documentar e testar restauração de backup de ambos. |
+| RNF09 | Formulários com rótulos, navegação por teclado, mensagens compreensíveis e texto alternativo adequado nas imagens. |
+| RNF10 | Não expor senhas, hashes, caminhos internos ou detalhes sensíveis nas respostas; proteger credenciais de ambiente fora do Git. |
 
-| Caso de uso | Vem da história: | Realiza |
-| :---- | :---- | :---- |
-| UC01 · Visualizar apresentação e especialização da ConAle | 1 | RF01, RF02 |
-| UC02 · Navegar pelas seções do site | 2 | RF03 |
-| UC03 · Visualizar lista de serviços oferecidos | 3 | RF06 |
-| UC04 · Visualizar propósito, missão e valores | 11 | RF04 |
-| UC05 · Ler depoimentos de clientes | 4 | RF07 |
-| UC06 · Consultar dúvidas frequentes | 12 | RF08 |
-| UC07 · Solicitar proposta e acessar canais de contato | 5 | RF09, RF10, RF11 |
-| UC08 · Acessar a Área do Cliente | 6 | RF12 |
-| UC09 · Visualizar e gerenciar credenciais, entidades e clientes atendidos | 7,8 | RF05, RF15  |
-| UC10 · Gerenciar banners, textos e imagens da Home | 9 | RF13, RF14 |
-| UC11 · Gerenciar notícias e artigos pelo Painel | 10 | RF13, RF16 |
-| UC12 · Interagir com o chatbot | 13 | RF17 |
+Evidências mínimas para a evolução: login válido/inválido, sessão e logout; CRUD de notícias e usuários; título obrigatório, limites dos campos e subtítulo opcional; exibição de título/subtítulo no site e atualização após edição/exclusão; alteração de rodapé refletida em duas páginas; upload aceito/recusado nos blocos com imagens; falha de upload preservando imagem anterior; recriação dos containers preservando mídias; botões públicos com destino correto. Se D08 for aprovada, acrescentar testes de permissões por módulo. Notícias não exigem testes de upload, rascunhos ou agendamento.
 
-**Diagrama de casos de uso**
+## 12. Decisões de escopo e pendências
 
-O diagrama apresenta os atores que interagem com o Site Institucional da ConAle e os respectivos casos de uso. O Visitante acessa as funcionalidades públicas do site, enquanto o Administrador utiliza as funcionalidades de gerenciamento de conteúdo. O Portal do Cliente é representado como um sistema externo, responsável pelo atendimento das funcionalidades da área do cliente.
+Os identificadores são mantidos para rastreabilidade. D07, D09 e D10 estão resolvidas pela definição de notícias limitadas a título e subtítulo; as demais decisões permanecem pendentes.
 
-![Diagrama de casos de uso da ConAle](diagrama_de_casos_de_uso.png)
+| ID | Decisão / situação | Impacto |
+| --- | --- | --- |
+| D01 | Banner do topo único ou carrossel? Quais campos e quantidade máxima? | Cadastro único versus coleção/ordenação. |
+| D02 | “Spinner” significa indicadores numéricos da empresa ou outro componente? Quais campos? | Define a estrutura e os campos editáveis do bloco. |
+| D03 | Informações de clientes são depoimentos, logos ou ambos? | Define cadastros e relação entre RF05/RF07/RF15. |
+| D04 | Classificar os demais conteúdos e identificar quais se repetem entre páginas. | Define o alcance do CMS e os cadastros compartilhados. |
+| D05 | Confirmar prioridade, gestão e interação do chatbot previsto no PRD original. | Define o funcionamento do chatbot e sua distinção em relação ao FAQ. |
+| D06 | Aprovar filesystem com volume para a implantação prevista, formatos/limites, dimensões, backup e recuperação. | Fecha armazenamento de imagens e critérios de upload. |
+| D07 | Definida: notícias mantêm apenas título e subtítulo, além do ID técnico. | Sem corpo, capa, autoria ou fluxo editorial separado; preserva o modelo existente. |
+| D08 | Pendente: haverá perfil com acesso somente à gestão de notícias? | Hoje somente administradores; novo perfil exige alteração de permissões, não dos campos da notícia. |
+| D09 | Fora do escopo: agendamento de notícias. | Registros salvos ficam disponíveis na consulta pública, sem data ou estado de publicação. |
+| D10 | Fora do escopo: comentários em notícias. | O módulo permanece limitado à gestão e exibição de título e subtítulo. |
+| D11 | Definir cenário mensurável para a meta de desempenho. | Permite avaliar o desempenho por medições reproduzíveis. |
 
-**UC07 \- Solicitar proposta e acessar canais de contato**
+As decisões pendentes devem ser validadas pelo grupo e pela cliente antes da inclusão das funcionalidades correspondentes no escopo. Cada decisão deve registrar responsável e data, com atualização dos requisitos, diagramas e critérios de aceitação relacionados.
 
-| Campo | Conteúdo |
-| ----- | ----- |
-| Ator principal | Visitante |
-| Pré-condição | O visitante deve estar acessando o site institucional da ConAle. |
-| Disparo | O visitante escolhe uma opção de contato ou atendimento disponibilizada pelo site. |
-| Requisitos ligados | RF09, RF10, RF11, RNF01, RNF02, RNF04 |
+## 13. Fora do escopo confirmado
 
-**Fluxo principal:**
+- Emissão/cálculo de guias, impostos ou obrigações contábeis.
+- Substituição ou integração funcional com o portal contábil externo; permanece apenas o direcionamento.
+- Login público de clientes dentro do site, pagamentos, cobrança, assinatura digital e aplicativo nativo.
+- Atendimento contábil ou consultivo automatizado pelo chatbot.
+- Edição pelo painel dos blocos explicitamente fixos na seção 3.
 
-1. O visitante acessa a seção de contato ou uma área de conversão do site.  
-2. O sistema apresenta os canais de contato disponibilizados pela ConAle.  
-3. O visitante escolhe o canal de contato desejado, como WhatsApp ou e-mail.  
-4. O sistema identifica o canal selecionado.  
-5. O sistema direciona o visitante para o aplicativo, programa ou serviço externo correspondente.  
-6. O visitante pode continuar o atendimento pelo canal externo escolhido.
+No módulo de notícias, ficam fora do escopo corpo de artigo, imagens, galerias, autoria, rascunhos, estados/datas de publicação, agendamento, comentários, arquivamento, versionamento e aprovação por múltiplos usuários. O perfil com acesso somente às notícias permanece pendente em D08 e não altera essa delimitação de conteúdo.
 
-**Fluxos alternativos:**
+## 14. Sequência de evolução após a P1
 
-* A1, canal externo indisponível: caso o canal selecionado não esteja disponível, o sistema informa a indisponibilidade e apresenta os demais canais de contato disponíveis.  
-* A2, visitante escolhe outro canal: caso o visitante não queira utilizar o canal inicialmente selecionado, pode retornar à página de contato e escolher outra opção.  
-* A3, aplicativo externo não instalado: caso o visitante selecione um canal que dependa de aplicativo não instalado no dispositivo, o sistema direciona para a versão web do serviço, quando disponível, ou informa que o aplicativo é necessário.  
-* A4, acesso direto ao e-mail: caso o visitante escolha o contato por e-mail, o sistema abre o programa de e-mail configurado no dispositivo com o endereço da ConAle preenchido.
+1. Resolver as decisões pendentes dos blocos institucionais, mídias e permissões; manter o escopo de notícias definido na seção 7.
+2. Sincronizar fontes e imagens dos diagramas, contratos da API e migrations planejadas.
+3. Integrar autenticação e sessão ao painel e concluir os destinos dos botões públicos.
+4. Implementar armazenamento de mídias para os blocos com imagens e integrar o CRUD existente de notícias ao painel e à exibição pública de título e subtítulo.
+5. Integrar edição dos blocos aprovados, rodapé e informações de clientes.
+6. Implementar funcionalidades condicionais somente após aprovação e revisão do esforço.
+7. Validar fluxos completos, segurança, persistência, acessibilidade e desempenho; atualizar o README de execução.
 
-Pós-condição: o visitante é direcionado ao canal externo de contato escolhido ou permanece na página de contato para selecionar outra opção.
+O planejamento de cada entrega deve contemplar interface, API, banco, armazenamento e testes. A conclusão do CMS depende da integração desses elementos e da validação dos fluxos de uso pela cliente.
 
-**UC10 \- Gerenciar banners, textos e imagens da Home**
+## 15. Glossário
 
-| Campo | Conteúdo |
-| ----- | ----- |
-| Ator principal | Administrador |
-| Pré-condição | O administrador deve estar autenticado e autorizado a acessar o Painel Administrativo. |
-| Disparo | O administrador acessa o gerenciamento de conteúdo da página inicial. |
-| Requisitos ligados | RF13, RF14, RNF02, RNF05, RNF06 |
+- **CMS:** sistema para administrar os conteúdos definidos no escopo.
+- **Painel Administrativo:** interface restrita da equipe, distinta do portal externo dos clientes.
+- **Mídia:** arquivo enviado e seus metadados; sua referência no banco não é o arquivo binário.
+- **Conteúdo fixo:** mantido no código; pode conter links e interações funcionais.
+- **Conteúdo editável:** mantido pelo painel, dentro dos campos e regras aprovados.
+- **Notícia:** registro com título e subtítulo, identificado por ID gerado pelo sistema e disponível na consulta pública após o salvamento.
 
-**Fluxo principal:**
+## 16. Referências técnicas
 
-1. O administrador acessa o Painel Administrativo.  
-2. O sistema verifica se o administrador está autenticado e autorizado.  
-3. O administrador acessa a área de gerenciamento da página inicial.  
-4. O sistema apresenta os banners, textos e imagens atualmente cadastrados.  
-5. O administrador escolhe o conteúdo que deseja cadastrar, editar ou remover.  
-6. O administrador realiza a alteração desejada.  
-7. O sistema valida as informações e os arquivos enviados.  
-8. O sistema salva a alteração.  
-9. O conteúdo atualizado fica disponível para exibição na página inicial do site.
-
-**Fluxos alternativos:**
-
-* A1, usuário não autenticado: caso uma pessoa tente acessar o Painel Administrativo sem autenticação, o sistema impede o acesso e solicita a autenticação.  
-* A2, imagem acima do limite: caso uma imagem ultrapasse o limite definido para o sistema, o envio é recusado e o administrador é informado sobre o limite permitido.  
-* A3, imagem com dimensões inválidas: caso a imagem não esteja nas dimensões definidas para o conteúdo, o sistema recusa o arquivo e informa ao administrador as dimensões esperadas.  
-* A4, conteúdo inválido: caso algum campo obrigatório não seja preenchido, o sistema informa o erro e não salva a alteração.
-
-Pós-condição: o conteúdo da página inicial é atualizado de acordo com a alteração realizada pelo administrador, sem necessidade de alteração direta no código-fonte.
-
-**UC12 \- Interagir com o chatbot**
-
-| Campo | Conteúdo |
-| ----- | ----- |
-| Ator principal | Visitante |
-| Pré-condição | O visitante deve estar acessando o site institucional da ConAle e o chatbot deve estar disponível. |
-| Disparo | O visitante abre o chatbot e envia uma pergunta ou seleciona uma opção de atendimento. |
-| Requisitos ligados | RF17, RNF01, RNF02, RNF04 |
-
-**Fluxo principal:**
-
-1. O visitante acessa o site institucional da ConAle.  
-2. O visitante abre a interface do chatbot.  
-3. O sistema apresenta as opções de assuntos ou orientações disponíveis.  
-4. O visitante seleciona uma opção ou envia uma pergunta.  
-5. O sistema identifica o assunto ou pergunta informado.  
-6. O sistema consulta as informações cadastradas para o chatbot.  
-7. O sistema apresenta uma resposta relacionada à dúvida do visitante.  
-8. O visitante pode realizar uma nova pergunta ou encerrar a interação.
-
-**Fluxos alternativos:**
-
-* A1, pergunta não cadastrada: caso o chatbot não possua uma resposta para a pergunta realizada, o sistema informa que não encontrou uma resposta e disponibiliza uma opção para contato com a ConAle pelo WhatsApp.  
-* A2, opção inválida: caso o visitante selecione uma opção que não esteja disponível, o sistema informa que a opção não é válida e apresenta novamente as opções disponíveis.  
-* A3, chatbot indisponível: caso o chatbot não esteja disponível, o visitante continua podendo utilizar os demais canais de contato disponibilizados pelo site.  
-* A4, nova pergunta: caso o visitante faça outra pergunta após receber uma resposta, o sistema processa a nova solicitação sem encerrar a interação.
-
-Pós-condição: o visitante recebe uma orientação relacionada à sua pergunta ou é direcionado para um canal de contato da ConAle quando o chatbot não possui a informação solicitada.
-
-**Modelagem**
-
-A modelagem do sistema representa os principais elementos envolvidos no funcionamento do site institucional da ConAle e do Painel Administrativo.
-
-Para este projeto, serão apresentadas duas formas de modelagem:
-
-* Diagrama de classes, representando os principais conceitos e seus relacionamentos no sistema.  
-* Modelo de dados, representando as principais entidades que precisam ser armazenadas no banco de dados.
-
-Os dois modelos estão relacionados às funcionalidades descritas nos requisitos funcionais e casos de uso, principalmente às funcionalidades de gerenciamento de conteúdo pelo Administrador.
-
-**Diagrama de classes**
-
-O diagrama de classes representa os principais objetos do sistema e os relacionamentos entre eles. Como o projeto possui uma área pública e um Painel Administrativo, o modelo concentra-se nos conteúdos que podem ser apresentados no site e administrados pela equipe da ConAle.
-
-![Diagrama de classes da ConAle](diagrama_de_classes.png)
-
-**Modelo de dados**
-
-O modelo de dados representa as informações persistentes utilizadas pelo sistema. O banco de dados deverá armazenar os usuários administrativos e os conteúdos que podem ser gerenciados pelo Painel Administrativo.
-
-| Entidade | Finalidade |
-| ----- | ----- |
-| Administrador | Armazena os usuários autorizados a acessar o Painel Administrativo. |
-| ConteudoHome | Armazena textos e imagens utilizados nas seções editáveis da página inicial. |
-| Banner | Armazena os banners apresentados na página inicial. |
-| Noticia | Armazena notícias e artigos publicados pela ConAle. |
-| ClienteMarca | Armazena as marcas e logotipos de clientes e clínicas exibidos no site. |
-| Chatbot | Representa a configuração geral do chatbot. |
-| OpcaoChatbot | Armazena perguntas, opções e respostas disponibilizadas pelo chatbot. |
-
-![Modelo de dados da ConAle](modelo_de_dados.png)
-
-**Decisões de implementação**
-
-\- Autenticação e autorização do Painel Administrativo são verificadas no servidor, sempre. Esconder os menus de gerenciamento no front não é controle de acesso (ver RNF05).
-
-\- Banners, textos e imagens ficam armazenados como conteúdo editável no banco de dados, e não fixos no código-fonte, permitindo atualização pelo Painel sem necessidade de novo deploy (ver RNF06).
-
-\- O direcionamento para a Área do Cliente é um redirecionamento externo para o sistema já existente, sem duplicar ou reimplementar suas funcionalidades (ver RF12).
-
-\- As respostas do chatbot são consultadas a partir das opções e perguntas cadastradas no Painel, e não fixas na interface, permitindo que o Administrador atualize o conteúdo sem alterar código (ver RF17, RNF06).
-
-\- Marcas de clientes e clínicas exibidas no site vêm do cadastro feito pelo Administrador, e a remoção de uma marca no Painel reflete na página inicial sem necessidade de intervenção manual (ver RF15).
-
-**Decisões de teste**
-
-\- Acesso ao Painel Administrativo sem autenticação é bloqueado (RNF05). É o teste mais importante do sistema, pois protege o gerenciamento de conteúdo de acessos não autorizados.
-
-\- Cadastro de conteúdo com campo obrigatório vazio é recusado (RF14).
-
-\- Imagem enviada acima do limite definido é recusada com mensagem ao administrador (RF14).
-
-\- Imagem com dimensões fora do padrão é recusada e o administrador é informado das dimensões esperadas (RF14).
-
-\- Conteúdo publicado pelo Painel fica visível no site sem necessidade de alteração no código-fonte (RNF06).
-
-\- Pergunta sem resposta cadastrada no chatbot direciona o visitante para o WhatsApp (RF17).
-
-\- Seleção de opção inválida no chatbot reapresenta as opções disponíveis sem travar a interação (RF17).
-
-\- Canal de contato indisponível não impede o visitante de acessar os demais canais (RF09, RF10).
-
-\- Páginas principais carregam em até 3 segundos em condição adequada de conexão (RNF03).
-
-\- Layout permanece legível e funcional em telas a partir de 360px (RNF01).
-
-**Fora de escopo**
-
-\- Emissão, cálculo ou envio de guias, impostos ou obrigações contábeis.
-
-\- Substituição ou integração com o sistema já utilizado pela ConAle na Área do
-
-Cliente.
-
-\- Assinatura digital de documentos.
-
-\- Aplicativo nativo. O site é web e responsivo (RNF01).
-
-\- Pagamento ou cobrança de honorários dentro do site.
-
-\- Atendimento contábil ou consultivo realizado pelo chatbot. Ele orienta e direciona o visitante, não substitui o atendimento humano (RF17).
-
-\- Cadastro ou login de área exclusiva para clientes dentro do próprio site. O acesso segue sendo feito pelo sistema externo já existente (RF12).
-
-**Glossário**
-
-**Visitante:** pessoa que acessa o site institucional, cliente atual ou potencial.
-
-**Administrador:** membro da equipe da ConAle responsável pela gestão do site.
-
-**Área do Cliente:** sistema externo já usado pelo escritório, para o qual o site direciona.
-
-**Painel Administrativo:** interface restrita usada pelo Administrador para gerenciar o conteúdo.
-
-**Conteúdo da Home:** banners, textos e imagens editáveis da página inicial.
-
-**Marca/Cliente atendido:** logotipo de cliente ou clínica exibido como credencial no site.
-
-**Credencial:** entidade, associação ou marca que reforça a autoridade da ConAle.
-
-**Chatbot:** assistente virtual do site que orienta o visitante com respostas pré-cadastradas.
-
-**Opção do chatbot:** pergunta e resposta cadastrada no Painel para uso do chatbot.
-
+- [Docker — Volumes](https://docs.docker.com/engine/storage/volumes/): persistência de arquivos fora do ciclo de vida do container.
+- [OWASP — File Upload Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html): validação e armazenamento seguro de uploads.
+- Arquivos de referência do projeto: `frontend/package.json`, `frontend/src/App.tsx`, componentes públicos, `backend/pom.xml`, `SegurancaConfig.java`, `AuthController.java`, entidades JPA, migrations, `compose.yaml` e `backend/Dockerfile`.
