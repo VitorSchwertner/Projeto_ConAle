@@ -1,24 +1,36 @@
 @startuml
+' Casos de uso do produto: não representam todos funcionalidades concluídas.
+' Autenticação é precondição das operações restritas, não login a cada ação.
+title ConAle — Casos de uso do site e do CMS
 left to right direction
+skinparam shadowing false
 
-actor "Visitante" as Visitante
-actor "Administrador" as Administrador
-actor "Portal do Cliente" as Portal
+actor Visitante
+actor Administrador
+actor "Portal do Cliente\n(sistema externo)" as Portal
 
-rectangle "Site Institucional ConAle" {
-
-    usecase "UC01\nVisualizar apresentação e\nespecialização da ConAle" as UC01
-    usecase "UC02\nNavegar pelas seções do site" as UC02
-    usecase "UC03\nVisualizar lista de\nserviços oferecidos" as UC03
-    usecase "UC04\nVisualizar propósito,\nmissão e valores" as UC04
-    usecase "UC05\nLer depoimentos\nde clientes" as UC05
-    usecase "UC06\nConsultar dúvidas\nfrequentes" as UC06
-    usecase "UC07\nSolicitar proposta e\nacessar canais de contato" as UC07
-    usecase "UC08\nAcessar a Área do Cliente" as UC08
-    usecase "UC09\nVisualizar credenciais,\nentidades e clientes atendidos" as UC09
-    usecase "UC10\nGerenciar banners, textos e\nimagens da Home" as UC10
-    usecase "UC11\nGerenciar notícias e\nartigos pelo Painel" as UC11
-    usecase "UC12\nInteragir com o chatbot" as UC12
+rectangle "ConAle — site público e CMS" {
+  package "Site público" {
+    usecase "UC01 — Apresentação e especialização\nRF01 / RF02" as UC01
+    usecase "UC02 — Navegar pelo site\nRF03" as UC02
+    usecase "UC03 — Consultar serviços\nRF06" as UC03
+    usecase "UC04 — Propósito, missão e valores\nRF04" as UC04
+    usecase "UC05 — Ler depoimentos\nRF07" as UC05
+    usecase "UC06 — Consultar FAQ\nRF08" as UC06
+    usecase "UC07 — Acessar canais de contato\ne solicitar atendimento\nRF09 / RF10 / RF11" as UC07
+    usecase "UC08 — Abrir portal externo\nRF12" as UC08
+    usecase "UC09a — Visualizar credenciais\ne informações de clientes\nRF05 / RF07 — D03/D04" as UC09a
+    usecase "UC15 — Consultar notícias\nTítulo e subtítulo — RF20\nAPI existente; integração pendente" as UC15 #FFF2CC
+    usecase "UC12 — Interagir com chatbot\nRF17 — definição pendente D05" as UC12 #EEEEEE
+  }
+  package "Gestão administrativa" {
+    usecase "UC13 — Login, consulta da sessão e logout\nRF13 / RF18\nBackend existente; tela pendente" as UC13 #FFF2CC
+    usecase "UC09b — Gerenciar informações de clientes\nRF15 — definição pendente D03" as UC09b #EEEEEE
+    usecase "UC10 — Editar blocos institucionais\ne rodapé compartilhado\nRF14 / RF21 — planejado" as UC10 #FFF2CC
+    usecase "UC11 — CRUD de notícias\nSomente título e subtítulo — RF16\nBackend existente; painel pendente" as UC11 #FFF2CC
+    usecase "UC14 — Enviar e associar imagens\naos blocos com imagens (não às notícias)\nRF19 — proposta D06" as UC14 #FFF2CC
+    usecase "UC16 — Gerenciar usuários\nRF22\nBackend existente; painel pendente" as UC16 #FFF2CC
+  }
 }
 
 Visitante -- UC01
@@ -29,13 +41,53 @@ Visitante -- UC05
 Visitante -- UC06
 Visitante -- UC07
 Visitante -- UC08
-Visitante -- UC09
+Visitante -- UC09a
+Visitante -- UC15
 Visitante -- UC12
+Portal -- UC08
 
+Administrador -- UC13
+Administrador -- UC09b
 Administrador -- UC10
 Administrador -- UC11
+Administrador -- UC14
+Administrador -- UC16
 
-UC08 -- Portal
+note bottom of UC13
+  Gestão restrita exige sessão administrativa válida.
+  Operações de escrita exigem proteção CSRF.
+  Login valida e-mail e senha; logout encerra a sessão.
+  Não há cadastro público nem login local de clientes.
+end note
+note bottom of UC10
+  Editáveis: banner do topo, informações da empresa,
+  banner Sobre nós e rodapé, conforme decisões do PRD.
+  Botões sob o banner, três cards, diferenciais e serviços
+  permanecem fixos: não possuem cadastro no painel.
+  Alterar um cadastro compartilhado reflete nas páginas que o usam.
+end note
+note bottom of UC11
+  Cadastrar, listar, consultar, editar e excluir.
+  ID técnico automático; sem imagem, autor, comentários,
+  agendamento ou ação separada de publicação.
+  Conteúdo salvo fica disponível na API pública.
+end note
+note bottom of UC09b
+  UC09 foi separado em UC09a (visualização)
+  e UC09b (gestão) para distinguir permissões.
+  Continua rastreável ao UC09 do PRD.
+  Depoimentos, logos ou ambos dependem de D03.
+end note
+note bottom of UC08
+  Apenas direcionamento ao sistema externo.
+  O ConAle não autentica clientes no portal.
+end note
 
+legend bottom
+  Branco: interface pública existente; ações e conteúdo ainda podem estar pendentes.
+  Amarelo: integração, painel ou implementação ainda pendente, conforme rótulo.
+  Cinza: definição funcional pendente no PRD.
+  O diagrama descreve o produto previsto, não comprova conclusão ou testes.
+  Perfil restrito às notícias (D08) não é ator aprovado nesta revisão.
+endlegend
 @enduml
-
