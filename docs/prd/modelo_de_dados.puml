@@ -1,74 +1,96 @@
-
 @startuml
+' Parte verde reproduz V1 + V2; parte amarela é proposta, não migration.
+title ConAle — Banco atual e proposta de evolução
+left to right direction
+hide methods
+skinparam shadowing false
+skinparam classBackgroundColor<<existente>> #E5F3E9
+skinparam classBackgroundColor<<proposta>> #FFF2CC
 
-entity administrador {
-  * id : INT <<PK>>
-  --
-  nome : VARCHAR
-  email : VARCHAR <<UNIQUE>>
-  senha_hash : VARCHAR
+package "MySQL atual — migrations V1 e V2" {
+  entity usuario <<existente>> {
+    * id : INT <<PK, AUTO_INCREMENT>>
+    --
+    * nome : VARCHAR(150)
+    * email : VARCHAR(254) <<UNIQUE>>
+    * senha_hash : VARCHAR(255)
+    * administrador : BOOLEAN = FALSE
+  }
+  entity noticia <<existente>> {
+    * id : INT <<PK, AUTO_INCREMENT>>
+    --
+    * titulo : VARCHAR(200)
+    sub_titulo : VARCHAR(500)
+  }
+  entity banner <<existente>> {
+    * id : INT <<PK, AUTO_INCREMENT>>
+    --
+    * titulo : VARCHAR(200)
+    * imagem : VARCHAR(2048)
+    link : VARCHAR(2048)
+    * ativo : BOOLEAN = FALSE
+  }
+  entity rodape <<existente>> {
+    * id : INT <<PK>> = 1
+    --
+    telefone : VARCHAR(30)
+    instagram : VARCHAR(2048)
+    email : VARCHAR(254)
+    link : VARCHAR(2048)
+    dias_semana : VARCHAR(150)
+    horas_trabalhadas : VARCHAR(150)
+    local : VARCHAR(500)
+  }
 }
 
-entity conteudo_home {
-  * id : INT <<PK>>
-  --
-  titulo : VARCHAR
-  texto : TEXT
-  imagem : VARCHAR
-  data_atualizacao : DATETIME
-  administrador_id : INT <<FK>>
+note bottom of noticia
+  Modelo mantido: id, titulo e sub_titulo.
+  Sem FK para usuário ou mídia.
+  Sem conteúdo de artigo, comentários ou publicação agendada.
+  Obrigatoriedade de título não vazio também é validada na API.
+end note
+note bottom of rodape
+  CHECK id = 1; registro inicial inserido pela V1.
+  As quatro tabelas atuais não têm FKs entre si.
+  BOOLEAN de usuario e banner possui CHECK para 0/1.
+end note
+
+package "Proposta lógica — D06 / migrations futuras" {
+  entity "midia (proposta)" as midia <<proposta>> {
+    id <<PK proposta>>
+    --
+    chave_arquivo <<UNIQUE proposta>>
+    nome_original
+    tipo
+    tamanho_bytes
+    data_envio
+    usuario_envio_id <<FK proposta>>
+  }
 }
+usuario "1" .. "0..*" midia : responsável pelo envio\n(proposta)
+banner .. midia : futura referência de imagem\n(não existe na V1/V2)
 
-entity banner {
-  * id : INT <<PK>>
-  --
-  titulo : VARCHAR
-  imagem : VARCHAR
-  link : VARCHAR
-  ativo : BOOLEAN
-  administrador_id : INT <<FK>>
-}
+note bottom of midia
+  Tipos, tamanhos, nulabilidade e política de exclusão
+  devem ser definidos na aprovação da proposta D06.
+  MySQL guarda metadados; arquivo fica no filesystem
+  com volume persistente. Não armazenar caminho
+  absoluto da máquina do desenvolvedor.
+end note
+note top of banner
+  Hoje: imagem VARCHAR obrigatório, sem FK.
+  Evolução prevista: migrar referência para mídia.
+  Estratégia de migração e obrigatoriedade da nova FK
+  dependem de D01/D06; manter imagens existentes.
+end note
 
-entity noticia {
-  * id : INT <<PK>>
-  --
-  titulo : VARCHAR
-  conteudo : TEXT
-  ativo : BOOLEAN
-  administrador_id : INT <<FK>>
-}
+note "MODELOS A DETALHAR — não são tabelas implementadas\n\nConteudoInstitucional: chave estável do bloco, campos e referências\nde mídia a definir em D02/D04/D06.\n\nInformacoesCliente: depoimentos, logos ou ambos em D03.\nChatbot / OpcaoChatbot: estrutura e relações em D05.\n\nTexto alternativo/legenda devem acompanhar o uso da imagem.\nConteúdos repetidos compartilham cadastro, quando forem a mesma informação.\nNenhuma tabela nova é necessária para os blocos fixos.\nSessão e CSRF não possuem tabela própria nas migrations atuais." as Pendencias
+midia -[hidden]-> Pendencias
 
-entity cliente_marca {
-  * id : INT <<PK>>
-  --
-  nome : VARCHAR
-  logo : VARCHAR
-  ativo : BOOLEAN
-  administrador_id : INT <<FK>>
-}
-
-entity chatbot {
-  * id : INT <<PK>>
-  --
-  nome : VARCHAR
-  ativo : BOOLEAN
-  administrador_id : INT <<FK>>
-}
-
-entity opcao_chatbot {
-  * id : INT <<PK>>
-  --
-  pergunta : VARCHAR
-  resposta : TEXT
-  ativo : BOOLEAN
-  chatbot_id : INT <<FK>>
-}
-
-administrador ||--o{ conteudo_home : gerencia
-administrador ||--o{ banner : gerencia
-administrador ||--o{ noticia : gerencia
-administrador ||--o{ cliente_marca : gerencia
-administrador ||--|| chatbot : configura
-chatbot ||--o{ opcao_chatbot : possui
-
+legend bottom
+  * = NOT NULL nas tabelas existentes; PK = chave primária; FK = chave estrangeira.
+  Verde: estrutura existente no SQL. Amarelo: proposta ainda não aplicada.
+  Relações tracejadas não são FKs implementadas.
+  O diagrama não executa alterações no banco.
+endlegend
 @enduml
