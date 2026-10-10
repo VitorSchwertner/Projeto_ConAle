@@ -6,10 +6,9 @@ public class Rodape
     private String telefone;
     private String instagram;
     private String email;
-    private String link;
     private String diasSemana;
     private String horasTrabalhadas;
-    private String local;
+    private String endereco;
 
     public String getTelefone()
     {
@@ -41,16 +40,6 @@ public class Rodape
         this.email = email;
     }
 
-    public String getLink()
-    {
-        return link;
-    }
-
-    public void setLink( String link )
-    {
-        this.link = link;
-    }
-
     public String getDiasSemana()
     {
         return diasSemana;
@@ -71,13 +60,13 @@ public class Rodape
         this.horasTrabalhadas = horasTrabalhadas;
     }
 
-    public String getLocal()
+    public String getEndereco()
     {
-        return local;
+        return endereco;
     }
 
-    public void setLocal( String local )
+    public void setEndereco( String endereco )
     {
-        this.local = local;
+        this.endereco = endereco;
     }
 }
