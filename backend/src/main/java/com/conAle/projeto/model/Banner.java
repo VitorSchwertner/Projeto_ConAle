@@ -1,50 +1,49 @@
 package com.conAle.projeto.Model;
 
-public class Banner
-{
-    private int id;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+// Representa a tabela banner. As anotações indicam como o JPA acessa suas colunas.
+@Entity
+@Table(name = "banner")
+public class Banner {
+
+    // O MySQL gera o ID com AUTO_INCREMENT; antes de salvar, ele pode ser null.
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    // Os limites acompanham a tabela; a validação da entrada fica no DTO.
+    @Column(name = "titulo", nullable = false, length = 150)
     private String titulo;
+
+    // Guarda o caminho ou a URL da imagem, não o arquivo em si.
+    @Column(name = "imagem", nullable = false, length = 500)
     private String imagem;
+
+    // Opcional: o banner pode ser apenas visual, sem link.
+    @Column(name = "link", length = 500)
     private String link;
-    private Boolean ativo;
 
-    public String getTitulo()
-    {
-        return titulo;
-    }
+    // Indica se o banner deve ser exibido no site.
+    @Column(name = "ativo", nullable = false)
+    private boolean ativo;
 
-    public void setTitulo( String titulo )
-    {
-        this.titulo = titulo;
-    }
+    public Integer getId() { return id; }
 
-    public String getImagem()
-    {
-        return imagem;
-    }
+    public String getTitulo() { return titulo; }
+    public void setTitulo(String titulo) { this.titulo = titulo; }
 
-    public void setImagem( String imagem )
-    {
-        this.imagem = imagem;
-    }
+    public String getImagem() { return imagem; }
+    public void setImagem(String imagem) { this.imagem = imagem; }
 
-    public String getLink()
-    {
-        return link;
-    }
+    public String getLink() { return link; }
+    public void setLink(String link) { this.link = link; }
 
-    public void setLink( String link )
-    {
-        this.link = link;
-    }
-
-    public Boolean getAtivo()
-    {
-        return ativo;
-    }
-
-    public void setAtivo( Boolean ativo )
-    {
-        this.ativo = ativo;
-    }
+    public boolean isAtivo() { return ativo; }
+    public void setAtivo(boolean ativo) { this.ativo = ativo; }
 }
