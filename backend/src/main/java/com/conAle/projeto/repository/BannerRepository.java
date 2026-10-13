@@ -11,7 +11,7 @@ import java.util.List;
 public interface BannerRepository
         extends JpaRepository<Banner, Integer> {
 
-    // O Spring gera a consulta a partir do nome do método.
+    // O Spring gera a consulta a partir do nome do métodos.
     // Usado para listar apenas os banners que devem aparecer no site.
     List<Banner> findByAtivoTrue( Sort sort);
 }
