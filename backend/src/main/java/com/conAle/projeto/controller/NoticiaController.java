@@ -1,4 +1,4 @@
-package com.conAle.projeto.controller;
+package com.conAle.projeto.Controller;
 
 import com.conAle.projeto.dto.NoticiaRequest;
 import com.conAle.projeto.dto.NoticiaResponse;

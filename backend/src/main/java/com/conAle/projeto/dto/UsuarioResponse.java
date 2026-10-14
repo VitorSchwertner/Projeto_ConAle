@@ -1,6 +1,6 @@
 package com.conAle.projeto.dto;
 
-import com.conAle.projeto.model.Usuario;
+import com.conAle.projeto.Model.Usuario;
 
 // Define os campos devolvidos pela API. Não inclui senha nem hash.
 public record UsuarioResponse(

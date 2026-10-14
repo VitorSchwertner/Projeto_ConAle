@@ -1,6 +1,6 @@
 package com.conAle.projeto.dto;
 
-import com.conAle.projeto.model.Noticia;
+import com.conAle.projeto.Model.Noticia;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 // Define os campos devolvidos pela API, incluindo o ID gerado no cadastro.

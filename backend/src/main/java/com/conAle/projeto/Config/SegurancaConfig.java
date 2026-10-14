@@ -1,4 +1,4 @@
-package com.conAle.projeto.config;
+package com.conAle.projeto.Config;
 
 import com.conAle.projeto.repository.UsuarioRepository;
 import com.conAle.projeto.security.*;

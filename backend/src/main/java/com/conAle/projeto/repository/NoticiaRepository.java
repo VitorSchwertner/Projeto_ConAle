@@ -1,6 +1,6 @@
 package com.conAle.projeto.repository;
 
-import com.conAle.projeto.model.Noticia;
+import com.conAle.projeto.Model.Noticia;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 // O Spring Data implementa métodos como save, findAll, findById e delete.

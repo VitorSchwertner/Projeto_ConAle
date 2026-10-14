@@ -1,4 +1,4 @@
-package com.conAle.projeto.controller;
+package com.conAle.projeto.Controller;
 
 import com.conAle.projeto.dto.*;
 import com.conAle.projeto.repository.UsuarioRepository;

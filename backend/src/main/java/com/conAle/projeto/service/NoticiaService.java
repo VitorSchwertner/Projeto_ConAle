@@ -2,7 +2,7 @@ package com.conAle.projeto.service;
 
 import com.conAle.projeto.dto.NoticiaRequest;
 import com.conAle.projeto.dto.NoticiaResponse;
-import com.conAle.projeto.model.Noticia;
+import com.conAle.projeto.Model.Noticia;
 import com.conAle.projeto.repository.NoticiaRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;

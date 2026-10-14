@@ -3,7 +3,7 @@ package com.conAle.projeto.service;
 import com.conAle.projeto.dto.UsuarioAtualizacaoRequest;
 import com.conAle.projeto.dto.UsuarioRequest;
 import com.conAle.projeto.dto.UsuarioResponse;
-import com.conAle.projeto.model.Usuario;
+import com.conAle.projeto.Model.Usuario;
 import com.conAle.projeto.repository.UsuarioRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;

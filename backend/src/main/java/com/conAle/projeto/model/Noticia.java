@@ -1,4 +1,4 @@
-package com.conAle.projeto.model;
+package com.conAle.projeto.Model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
