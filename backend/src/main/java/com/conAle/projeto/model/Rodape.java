@@ -2,8 +2,6 @@ package com.conAle.projeto.Model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -12,29 +10,29 @@ import jakarta.persistence.Table;
 @Table(name = "rodape")
 public class Rodape {
 
-    // O MySQL gera o ID com AUTO_INCREMENT; antes de salvar, ele pode ser null.
+    // O registro id = 1 e criado pela migration; nao ha novos cadastros.
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     // Os limites acompanham a tabela; a validação da entrada fica no DTO.
-    @Column(name = "telefone", nullable = false, length = 20)
+    // Campos legados podem ser null ate o primeiro preenchimento pela API.
+    @Column(name = "telefone", length = 20)
     private String telefone;
 
     // Opcional: o rodapé pode ficar sem Instagram.
     @Column(name = "instagram", length = 100)
     private String instagram;
 
-    @Column(name = "email", nullable = false, length = 254)
+    @Column(name = "email", length = 254)
     private String email;
 
-    @Column(name = "dias_semana", nullable = false, length = 100)
+    @Column(name = "dias_semana", length = 100)
     private String diasSemana;
 
-    @Column(name = "horas_trabalhadas", nullable = false, length = 100)
+    @Column(name = "horas_trabalhadas", length = 100)
     private String horasTrabalhadas;
 
-    @Column(name = "endereco", nullable = false, length = 255)
+    @Column(name = "endereco", length = 255)
     private String endereco;
 
     public Integer getId() { return id; }

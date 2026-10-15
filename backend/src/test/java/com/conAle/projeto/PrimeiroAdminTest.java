@@ -1,6 +1,6 @@
 package com.conAle.projeto;
 
-import com.conAle.projeto.config.PrimeiroAdmin;
+import com.conAle.projeto.Config.PrimeiroAdmin;
 import com.conAle.projeto.dto.UsuarioRequest;
 import com.conAle.projeto.repository.UsuarioRepository;
 import com.conAle.projeto.service.UsuarioService;
