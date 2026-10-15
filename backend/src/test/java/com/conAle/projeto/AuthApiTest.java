@@ -1,6 +1,6 @@
 package com.conAle.projeto;
 
-import com.conAle.projeto.model.Usuario;
+import com.conAle.projeto.Model.Usuario;
 import com.conAle.projeto.repository.UsuarioRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
