@@ -23,12 +23,13 @@ class DatabaseMigrationTest {
     @Test
     // Confere as tabelas e garante que a V1 nao seja aplicada novamente.
     void migrationCanRunAgainWithoutChangingSchemaOrFooter() {
-        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("2");
+        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("5");
         flyway.validate();
         assertThat(flyway.migrate().migrationsExecuted).isZero();
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM rodape WHERE id = 1", Integer.class)).isEqualTo(1);
         assertThat(jdbc.queryForList("SHOW TABLES", String.class))
-                .contains("usuario", "banner", "noticia", "rodape", "flyway_schema_history");
+                .contains("usuario", "banner", "noticia", "rodape", "indicador_institucional",
+                        "mensagens_clientes", "flyway_schema_history");
     }
 
     @Test
@@ -48,10 +49,10 @@ class DatabaseMigrationTest {
 
     @Test
     @Transactional
-    // Exige titulo e imagem; ativo comeca falso e aceita apenas 0 ou 1.
-    void bannerStartsInactiveAndRequiresImageAndTitle() {
+    // O padrao SQL agora e ativo; o CHECK continua aceitando apenas 0 ou 1.
+    void bannerStartsActiveAndRequiresImageAndTitle() {
         jdbc.update("INSERT INTO banner(titulo, imagem) VALUES ('Banner teste', '/teste.png')");
-        assertThat(jdbc.queryForObject("SELECT ativo FROM banner WHERE titulo = 'Banner teste'", Boolean.class)).isFalse();
+        assertThat(jdbc.queryForObject("SELECT ativo FROM banner WHERE titulo = 'Banner teste'", Boolean.class)).isTrue();
         assertMysqlError(1364, () -> jdbc.update("INSERT INTO banner(titulo) VALUES ('Sem imagem')"));
         assertMysqlError(1364, () -> jdbc.update("INSERT INTO banner(imagem) VALUES ('/sem-titulo.png')"));
         assertMysqlError(3819, () -> jdbc.update("UPDATE banner SET ativo = 2"));
@@ -74,6 +75,30 @@ class DatabaseMigrationTest {
         assertThat(jdbc.queryForObject("SELECT telefone FROM rodape WHERE id = 1", String.class)).isEqualTo("51999999999");
         assertMysqlError(3819, () -> jdbc.update("INSERT INTO rodape(id) VALUES (2)"));
         assertMysqlError(1062, () -> jdbc.update("INSERT INTO rodape(id) VALUES (1)"));
+    }
+
+    @Test
+    // A coluna foi renomeada e o ID continua sem AUTO_INCREMENT.
+    void footerSchemaKeepsFixedIdAndRenamesAddress() {
+        assertThat(jdbc.queryForList("SELECT COLUMN_NAME FROM information_schema.COLUMNS "
+                + "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'rodape'", String.class))
+                .contains("endereco", "link").doesNotContain("local");
+        assertThat(jdbc.queryForObject("SELECT EXTRA FROM information_schema.COLUMNS "
+                + "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'rodape' AND COLUMN_NAME = 'id'",
+                String.class)).doesNotContain("auto_increment");
+    }
+
+    @Test
+    @Transactional
+    // Confere escrita nas duas novas tabelas e seus campos obrigatorios.
+    void newContentTablesAcceptValidRecords() {
+        jdbc.update("INSERT INTO indicador_institucional(anos_atuacao, empresas_abertas) VALUES (10, 100)");
+        jdbc.update("INSERT INTO mensagens_clientes(titulo, area_atuacao, nota, mensagem) "
+                + "VALUES ('Cliente teste', 'Comercio', 4.5, 'Atendimento teste')");
+        assertThat(jdbc.queryForObject("SELECT nota FROM mensagens_clientes WHERE titulo = 'Cliente teste'",
+                Double.class)).isEqualTo(4.5);
+        assertMysqlError(1364, () -> jdbc.update("INSERT INTO indicador_institucional(anos_atuacao) VALUES (1)"));
+        assertMysqlError(1364, () -> jdbc.update("INSERT INTO mensagens_clientes(titulo) VALUES ('Incompleto')"));
     }
 
     // Confere o motivo da rejeicao, nao apenas a existencia de algum erro.

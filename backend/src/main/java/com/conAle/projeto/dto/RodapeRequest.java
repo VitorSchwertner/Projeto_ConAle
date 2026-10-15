@@ -4,7 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-// Dados recebidos no cadastro e na edição. O ID é gerado pelo banco.
+// Dados da edicao do rodape fixo. O cliente nao escolhe nem envia um ID.
 public record RodapeRequest(
         @NotBlank(message = "O telefone é obrigatório.")
         @Size(max = 20, message = "O telefone aceita até 20 caracteres.")
