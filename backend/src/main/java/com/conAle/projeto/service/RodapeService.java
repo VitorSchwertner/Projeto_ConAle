@@ -4,13 +4,11 @@ import com.conAle.projeto.Model.Rodape;
 import com.conAle.projeto.dto.RodapeRequest;
 import com.conAle.projeto.dto.RodapeResponse;
 import com.conAle.projeto.repository.RodapeRepository;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
 import java.util.Locale;
 
 // Coordena as operações de rodapé usando o repository.
@@ -26,33 +24,14 @@ public class RodapeService {
         this.repository = repository;
     }
 
-    // Ordena por ID decrescente e converte cada entidade em uma resposta.
-    public List<RodapeResponse> listar() {
-        return repository.findAll(Sort.by("id").descending())
-                .stream()
-                .map(RodapeResponse::from)
-                .toList();
-    }
-
-    public RodapeResponse buscar(Integer id) {
-        return RodapeResponse.from(encontrar(id));
-    }
-
-    // A transação confirma a gravação ao concluir ou a desfaz em caso de falha.
-    @Transactional
-    public RodapeResponse criar(RodapeRequest request) {
-        Rodape rodape = new Rodape();
-        preencher(rodape, request);
-
-        Rodape salvo = repository.save(rodape);
-
-        return RodapeResponse.from(salvo);
+    public RodapeResponse buscar() {
+        return RodapeResponse.from(encontrar());
     }
 
     // Busca o registro existente para manter seu ID na edição.
     @Transactional
-    public RodapeResponse atualizar(Integer id, RodapeRequest request) {
-        Rodape rodape = encontrar(id);
+    public RodapeResponse atualizar(RodapeRequest request) {
+        Rodape rodape = encontrar();
         preencher(rodape, request);
 
         Rodape salvo = repository.save(rodape);
@@ -60,16 +39,9 @@ public class RodapeService {
         return RodapeResponse.from(salvo);
     }
 
-    // Confere se o rodapé existe antes de excluir definitivamente.
-    @Transactional
-    public void excluir(Integer id) {
-        Rodape rodape = encontrar(id);
-        repository.delete(rodape);
-    }
-
-    // Reutiliza a busca e retorna 404 quando o ID não existe.
-    private Rodape encontrar(Integer id) {
-        return repository.findById(id)
+    // Sempre acessa o registro criado pela V1, nunca cria um substituto.
+    private Rodape encontrar() {
+        return repository.findById(1)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Rodapé não encontrado."
