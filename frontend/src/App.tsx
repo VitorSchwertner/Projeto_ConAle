@@ -5,8 +5,17 @@ import Home from './pages/Home'
 import ServicesPage from './pages/ServicesPage'
 import AboutPage from './pages/AboutPage'
 import FaqPage from './pages/FaqPage'
+import LoginPage from './admin/pages/LoginPage'
+import DashboardPage from './admin/pages/DashboardPage'
+import ProtectedRoute from './admin/components/ProtectedRoute'
+import AdminOnlyRoute from './admin/components/AdminOnlyRoute'
+import AdminLayout from './admin/components/AdminLayout'
+import BannerListPage from './admin/pages/banners/BannerListPage'
+import BannerFormPage from './admin/pages/banners/BannerFormPage'
+import UsuarioListPage from './admin/pages/usuarios/UsuarioListPage'
+import UsuarioFormPage from './admin/pages/usuarios/UsuarioFormPage'
 
-export default function App() {
+function SiteLayout() {
     return (
         <>
             <Header />
@@ -20,5 +29,54 @@ export default function App() {
             </main>
             <Footer />
         </>
+    )
+}
+
+export default function App() {
+    return (
+        <Routes>
+            <Route path="/admin/login" element={<LoginPage />} />
+
+            <Route
+                path="/admin"
+                element={
+                    <ProtectedRoute>
+                        <AdminLayout />
+                    </ProtectedRoute>
+                }
+            >
+                <Route index element={<DashboardPage />} />
+                <Route path="banners" element={<BannerListPage />} />
+                <Route path="banners/novo" element={<BannerFormPage />} />
+                <Route path="banners/:id" element={<BannerFormPage />} />
+
+                <Route
+                    path="usuarios"
+                    element={
+                        <AdminOnlyRoute>
+                            <UsuarioListPage />
+                        </AdminOnlyRoute>
+                    }
+                />
+                <Route
+                    path="usuarios/novo"
+                    element={
+                        <AdminOnlyRoute>
+                            <UsuarioFormPage />
+                        </AdminOnlyRoute>
+                    }
+                />
+                <Route
+                    path="usuarios/:id"
+                    element={
+                        <AdminOnlyRoute>
+                            <UsuarioFormPage />
+                        </AdminOnlyRoute>
+                    }
+                />
+            </Route>
+
+            <Route path="/*" element={<SiteLayout />} />
+        </Routes>
     )
 }
