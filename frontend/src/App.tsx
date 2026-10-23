@@ -12,6 +12,13 @@ import AdminOnlyRoute from './admin/components/AdminOnlyRoute'
 import AdminLayout from './admin/components/AdminLayout'
 import BannerListPage from './admin/pages/banners/BannerListPage'
 import BannerFormPage from './admin/pages/banners/BannerFormPage'
+import NoticiaListPage from './admin/pages/noticias/NoticiaListPage'
+import NoticiaFormPage from './admin/pages/noticias/NoticiaFormPage'
+import RodapePage from './admin/pages/rodape/RodapePage'
+import IndicadorListPage from './admin/pages/indicadores/IndicadorListPage'
+import IndicadorFormPage from './admin/pages/indicadores/IndicadorFormPage'
+import MensagemListPage from './admin/pages/mensagens/MensagemListPage'
+import MensagemFormPage from './admin/pages/mensagens/MensagemFormPage'
 import UsuarioListPage from './admin/pages/usuarios/UsuarioListPage'
 import UsuarioFormPage from './admin/pages/usuarios/UsuarioFormPage'
 
@@ -46,9 +53,24 @@ export default function App() {
                 }
             >
                 <Route index element={<DashboardPage />} />
+
                 <Route path="banners" element={<BannerListPage />} />
                 <Route path="banners/novo" element={<BannerFormPage />} />
                 <Route path="banners/:id" element={<BannerFormPage />} />
+
+                <Route path="noticias" element={<NoticiaListPage />} />
+                <Route path="noticias/nova" element={<NoticiaFormPage />} />
+                <Route path="noticias/:id" element={<NoticiaFormPage />} />
+
+                <Route path="rodape" element={<RodapePage />} />
+
+                <Route path="indicadores" element={<IndicadorListPage />} />
+                <Route path="indicadores/novo" element={<IndicadorFormPage />} />
+                <Route path="indicadores/:id" element={<IndicadorFormPage />} />
+
+                <Route path="mensagens" element={<MensagemListPage />} />
+                <Route path="mensagens/nova" element={<MensagemFormPage />} />
+                <Route path="mensagens/:id" element={<MensagemFormPage />} />
 
                 <Route
                     path="usuarios"

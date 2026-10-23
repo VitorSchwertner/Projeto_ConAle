@@ -1,0 +1,47 @@
+.noticia-form {
+    max-width: 480px;
+}
+
+.noticia-form h1 {
+    color: var(--color-navy);
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+.noticia-form form {
+    background: #fff;
+    border-radius: var(--radius-md);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.noticia-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-navy);
+}
+
+.noticia-form input,
+.noticia-form textarea {
+    border: 1.5px solid var(--color-slate);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    font-family: var(--font-body);
+    resize: vertical;
+}
+
+.noticia-form__error {
+    color: #c0392b;
+    font-size: 0.82rem;
+    margin: 0;
+}
+
+.noticia-form__actions {
+    margin-top: 8px;
+}
