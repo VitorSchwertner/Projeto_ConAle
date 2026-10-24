@@ -1,0 +1,52 @@
+.usuario-list__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.usuario-list__header h1 {
+    color: var(--color-navy);
+    font-size: 1.5rem;
+}
+
+.usuario-list__table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.usuario-list__table th,
+.usuario-list__table td {
+    text-align: left;
+    padding: 14px 16px;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #eceff1;
+}
+
+.usuario-list__table th {
+    background: var(--color-bg-soft);
+    color: var(--color-navy);
+    font-weight: 600;
+}
+
+.usuario-list__actions {
+    display: flex;
+    gap: 14px;
+}
+
+.usuario-list__actions a {
+    color: var(--color-green-dark);
+    font-weight: 600;
+}
+
+.usuario-list__actions button {
+    background: none;
+    border: none;
+    color: #c0392b;
+    font-weight: 600;
+    padding: 0;
+    font-size: 0.9rem;
+}
