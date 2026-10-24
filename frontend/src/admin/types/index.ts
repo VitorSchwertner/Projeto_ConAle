@@ -11,6 +11,7 @@ export interface Banner {
     imagem: string
     link: string | null
     ativo: boolean
+    posicao: string
 }
 
 export interface Noticia {

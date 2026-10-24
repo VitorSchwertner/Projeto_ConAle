@@ -11,25 +11,63 @@
 
 .highlights__card {
     position: relative;
-    background: linear-gradient(160deg, var(--color-navy) 0%, var(--color-green-dark) 100%);
+    background-color: var(--color-navy);
+    background-size: cover;
+    background-position: 100% 50%;
     border-radius: var(--radius-md);
-    padding: 24px 22px;
     min-height: 200px;
+    overflow: hidden;
+}
+
+.highlights__stripes {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+            100deg,
+            rgba(64, 178, 135, 0.35) 0px,
+            rgba(64, 178, 135, 0.35) 10px,
+            transparent 10px,
+            transparent 20px
+    );
+    opacity: 0.45;
+    -webkit-mask-image: linear-gradient(to right, black 0%, transparent 65%);
+    mask-image: linear-gradient(to right, black 0%, transparent 65%);
+}
+
+.highlights__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+            100deg,
+            rgba(14, 42, 74, 0.97) 0%,
+            rgba(14, 42, 74, 0.92) 40%,
+            rgba(14, 42, 74, 0.55) 68%,
+            rgba(14, 42, 74, 0.15) 90%,
+            rgba(14, 42, 74, 0) 100%
+    );
+}
+
+.highlights__content {
+    position: relative;
+    padding: 24px 22px;
     display: flex;
     flex-direction: column;
     gap: 10px;
     color: #fff;
+    min-height: 200px;
 }
 
-.highlights__card p {
+.highlights__content p {
     font-size: 0.95rem;
-    color: rgba(255, 255, 255, 0.85);
+    color: rgba(255, 255, 255, 0.9);
     margin: 0;
+    max-width: 85%;
 }
 
-.highlights__card strong {
+.highlights__content strong {
     font-size: 1.1rem;
     font-weight: 600;
+    max-width: 85%;
 }
 
 .highlights__cta {

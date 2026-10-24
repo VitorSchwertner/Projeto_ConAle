@@ -38,25 +38,23 @@ export default function Faq() {
   const trackRef = useRef<HTMLDivElement>(null)
   const [activeIndex, setActiveIndex] = useState(0)
 
-  // largura de um card + o espaço entre eles
   const getStep = () => {
     const track = trackRef.current
     const card = track?.querySelector<HTMLElement>('.faq__card')
     return card ? card.offsetWidth + 20 : 0
   }
 
-  const scrollByCard = (direction: 1 | -1) => {
-    trackRef.current?.scrollBy({
-      left: direction * getStep(),
-      behavior: 'smooth',
-    })
+  const goToCard = (index: number) => {
+    const step = getStep()
+    trackRef.current?.scrollTo({ left: index * step, behavior: 'smooth' })
+    setActiveIndex(index)
   }
 
-  const goToCard = (index: number) => {
-    trackRef.current?.scrollTo({
-      left: index * getStep(),
-      behavior: 'smooth',
-    })
+  const scrollByCard = (direction: 1 | -1) => {
+    const total = QUESTIONS.length
+    // Soma o total antes do modulo pra o resultado nunca ficar negativo
+    const proximoIndex = (activeIndex + direction + total) % total
+    goToCard(proximoIndex)
   }
 
   const handleScroll = () => {

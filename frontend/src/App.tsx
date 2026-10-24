@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import Header from './components/Header'
 import Footer from './components/Footer'
+import ScrollToTop from './components/ScrollToTop'
 import Home from './pages/Home'
 import ServicesPage from './pages/ServicesPage'
 import AboutPage from './pages/AboutPage'
@@ -41,64 +42,67 @@ function SiteLayout() {
 
 export default function App() {
     return (
-        <Routes>
-            <Route path="/admin/login" element={<LoginPage />} />
-
-            <Route
-                path="/admin"
-                element={
-                    <ProtectedRoute>
-                        <AdminLayout />
-                    </ProtectedRoute>
-                }
-            >
-                <Route index element={<DashboardPage />} />
-
-                <Route path="banners" element={<BannerListPage />} />
-                <Route path="banners/novo" element={<BannerFormPage />} />
-                <Route path="banners/:id" element={<BannerFormPage />} />
-
-                <Route path="noticias" element={<NoticiaListPage />} />
-                <Route path="noticias/nova" element={<NoticiaFormPage />} />
-                <Route path="noticias/:id" element={<NoticiaFormPage />} />
-
-                <Route path="rodape" element={<RodapePage />} />
-
-                <Route path="indicadores" element={<IndicadorListPage />} />
-                <Route path="indicadores/novo" element={<IndicadorFormPage />} />
-                <Route path="indicadores/:id" element={<IndicadorFormPage />} />
-
-                <Route path="mensagens" element={<MensagemListPage />} />
-                <Route path="mensagens/nova" element={<MensagemFormPage />} />
-                <Route path="mensagens/:id" element={<MensagemFormPage />} />
+        <>
+            <ScrollToTop />
+            <Routes>
+                <Route path="/admin/login" element={<LoginPage />} />
 
                 <Route
-                    path="usuarios"
+                    path="/admin"
                     element={
-                        <AdminOnlyRoute>
-                            <UsuarioListPage />
-                        </AdminOnlyRoute>
+                        <ProtectedRoute>
+                            <AdminLayout />
+                        </ProtectedRoute>
                     }
-                />
-                <Route
-                    path="usuarios/novo"
-                    element={
-                        <AdminOnlyRoute>
-                            <UsuarioFormPage />
-                        </AdminOnlyRoute>
-                    }
-                />
-                <Route
-                    path="usuarios/:id"
-                    element={
-                        <AdminOnlyRoute>
-                            <UsuarioFormPage />
-                        </AdminOnlyRoute>
-                    }
-                />
-            </Route>
+                >
+                    <Route index element={<DashboardPage />} />
 
-            <Route path="/*" element={<SiteLayout />} />
-        </Routes>
+                    <Route path="banners" element={<BannerListPage />} />
+                    <Route path="banners/novo" element={<BannerFormPage />} />
+                    <Route path="banners/:id" element={<BannerFormPage />} />
+
+                    <Route path="noticias" element={<NoticiaListPage />} />
+                    <Route path="noticias/nova" element={<NoticiaFormPage />} />
+                    <Route path="noticias/:id" element={<NoticiaFormPage />} />
+
+                    <Route path="rodape" element={<RodapePage />} />
+
+                    <Route path="indicadores" element={<IndicadorListPage />} />
+                    <Route path="indicadores/novo" element={<IndicadorFormPage />} />
+                    <Route path="indicadores/:id" element={<IndicadorFormPage />} />
+
+                    <Route path="mensagens" element={<MensagemListPage />} />
+                    <Route path="mensagens/nova" element={<MensagemFormPage />} />
+                    <Route path="mensagens/:id" element={<MensagemFormPage />} />
+
+                    <Route
+                        path="usuarios"
+                        element={
+                            <AdminOnlyRoute>
+                                <UsuarioListPage />
+                            </AdminOnlyRoute>
+                        }
+                    />
+                    <Route
+                        path="usuarios/novo"
+                        element={
+                            <AdminOnlyRoute>
+                                <UsuarioFormPage />
+                            </AdminOnlyRoute>
+                        }
+                    />
+                    <Route
+                        path="usuarios/:id"
+                        element={
+                            <AdminOnlyRoute>
+                                <UsuarioFormPage />
+                            </AdminOnlyRoute>
+                        }
+                    />
+                </Route>
+
+                <Route path="/*" element={<SiteLayout />} />
+            </Routes>
+        </>
     )
 }

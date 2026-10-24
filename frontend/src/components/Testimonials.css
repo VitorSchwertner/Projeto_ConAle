@@ -2,6 +2,13 @@
     padding: 0 0 24px;
 }
 
+.testimonials__status {
+    text-align: center;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    padding: 24px 0;
+}
+
 .testimonials h2 {
     text-align: center;
     color: var(--color-navy);
