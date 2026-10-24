@@ -21,6 +21,13 @@ public record UsuarioRequest(
         @com.conAle.projeto.validation.SenhaBcrypt
         @NotBlank(message = "A senha é obrigatória.")
         @Size(min = 8, max = 72, message = "A senha deve ter de 8 a 72 caracteres.")
-        String senha
+        String senha,
+
+        // true representa Administrador; false representa Design.
+        // Quando omitido, mantém a compatibilidade da API e cria um administrador.
+        Boolean administrador
 ) {
+    public UsuarioRequest(String nome, String email, String senha) {
+        this(nome, email, senha, true);
+    }
 }

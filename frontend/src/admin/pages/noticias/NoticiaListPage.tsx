@@ -18,7 +18,21 @@ export default function NoticiaListPage() {
   }
 
   useEffect(() => {
-    carregar()
+    let ativo = true
+    listarNoticias()
+      .then((dados) => {
+        if (ativo) setNoticias(dados)
+      })
+      .catch(() => {
+        if (ativo) setErro('Não foi possível carregar as notícias.')
+      })
+      .finally(() => {
+        if (ativo) setCarregando(false)
+      })
+
+    return () => {
+      ativo = false
+    }
   }, [])
 
   const handleExcluir = async (id: number) => {

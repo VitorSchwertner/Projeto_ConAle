@@ -1,6 +1,11 @@
-const BASE_URL = 'http://localhost:8080'
+const configuredBaseUrl = import.meta.env.VITE_API_URL?.trim()
+const BASE_URL = configuredBaseUrl ? configuredBaseUrl.replace(/\/$/, '') : ''
 
 let csrf: { headerName: string; token: string } | null = null
+
+export function resetCsrf() {
+    csrf = null
+}
 
 async function fetchCsrf() {
     const res = await fetch(`${BASE_URL}/api/auth/csrf`, { credentials: 'include' })
@@ -18,8 +23,10 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
     const method = options.method ?? 'GET'
     const isMutating = method !== 'GET'
 
-    const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
+    const headers: Record<string, string> = {}
+
+    if (options.body !== undefined) {
+        headers['Content-Type'] = 'application/json'
     }
 
     if (isMutating) {

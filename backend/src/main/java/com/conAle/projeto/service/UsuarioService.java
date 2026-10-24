@@ -55,8 +55,9 @@ public class UsuarioService {
         }
 
         Usuario usuario = new Usuario();
-        // A rota de cadastro exige um administrador autenticado.
-        usuario.setAdministrador(true);
+        // A rota de cadastro exige um administrador autenticado. O campo define
+        // se a nova conta será Administrador (true) ou Design (false).
+        usuario.setAdministrador(request.administrador() == null || request.administrador());
         usuario.setNome(request.nome().trim());
         usuario.setEmail(email);
         usuario.setSenhaHash(passwordEncoder.encode(request.senha()));
@@ -79,6 +80,18 @@ public class UsuarioService {
 
         usuario.setNome(request.nome().trim());
         usuario.setEmail(email);
+
+        if (request.administrador() != null
+                && usuario.isAdministrador()
+                && !request.administrador()
+                && repository.administradoresParaExclusao().size() <= 1) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Não é permitido alterar o último administrador para Design.");
+        }
+
+        if (request.administrador() != null) {
+            usuario.setAdministrador(request.administrador());
+        }
 
         if (request.senha() != null) {
             usuario.setSenhaHash(passwordEncoder.encode(request.senha()));

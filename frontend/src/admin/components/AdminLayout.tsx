@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import './AdminLayout.css'
@@ -14,6 +15,20 @@ const NAV_ITEMS = [
 
 export default function AdminLayout() {
     const { usuario, logout } = useAuth()
+    const [saindo, setSaindo] = useState(false)
+    const [erroLogout, setErroLogout] = useState(false)
+
+    const handleLogout = async () => {
+        setSaindo(true)
+        setErroLogout(false)
+        try {
+            await logout()
+        } catch {
+            setErroLogout(true)
+        } finally {
+            setSaindo(false)
+        }
+    }
 
     return (
         <div className="admin-layout">
@@ -38,8 +53,13 @@ export default function AdminLayout() {
             <div className="admin-layout__main">
                 <header className="admin-layout__header">
                     <span>{usuario?.nome}</span>
-                    <button className="btn btn--outline" onClick={logout}>
-                        Sair
+                    {erroLogout && (
+                        <span className="admin-layout__logout-error" role="status">
+                            Não foi possível encerrar a sessão.
+                        </span>
+                    )}
+                    <button className="btn btn--outline" onClick={handleLogout} disabled={saindo}>
+                        {saindo ? 'Saindo...' : 'Sair'}
                     </button>
                 </header>
                 <div className="admin-layout__content">
