@@ -16,9 +16,9 @@ public class AdminSessionFilter extends OncePerRequestFilter {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.getPrincipal() instanceof AdminPrincipal principal) {
             boolean valida = repository.findById(principal.id())
-                    .filter(u -> u.isAdministrador()
-                            && u.getSenhaHash().equals(principal.senhaHash())
-                            && u.getEmail().equals(principal.email())).isPresent();
+                    .filter(u -> u.getSenhaHash().equals(principal.senhaHash())
+                            && u.getEmail().equals(principal.email())
+                            && u.isAdministrador() == principal.administrador()).isPresent();
             if (!valida) {
                 var session = request.getSession(false);
                 if (session != null) session.invalidate();

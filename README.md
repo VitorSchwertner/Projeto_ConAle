@@ -6,13 +6,14 @@ A solução reúne um site institucional e um sistema administrativo de gestão 
 
 ## Estado atual
 
-- **Frontend:** páginas Home, Serviços, Sobre e Dúvidas Frequentes, com React e conteúdo definido nos componentes. Alguns botões ainda não têm ação e há imagens provisórias.
-- **Backend:** CRUDs de notícias e usuários, autenticação administrativa por sessão e rota de saúde.
+- **Frontend:** site institucional navegável, notícias carregadas da API e painel em `/admin` para banners, indicadores, notícias, rodapé, mensagens de clientes e usuários.
+- **Backend:** CRUDs do conteúdo e de usuários, autenticação por sessão, dois papéis e rota de saúde.
+- **Papéis:** Administrador gerencia conteúdo e usuários; Design gerencia apenas conteúdo.
 - **Notícias:** apenas `id`, `titulo` e `sub_titulo`. Não incluem imagens, corpo de artigo, comentários ou agendamento.
-- **Banco:** tabelas `usuario`, `noticia`, `banner` e `rodape`, criadas e atualizadas pelo Flyway.
-- **Ainda pendente:** integração do frontend com a API, telas de login e administração, exibição das notícias da API no site, upload e gestão dos demais conteúdos editáveis. Banners e rodapé possuem estrutura de persistência, mas não um CRUD completo acessível pela API.
+- **Banco:** tabelas gerenciadas pelo Flyway, com volume persistente no Docker.
+- **Publicação:** `compose.prod.yaml` cria frontend, backend e MySQL; o Nginx entrega o site e encaminha `/api` ao backend sem expô-lo diretamente.
 
-O frontend pode ser executado sozinho para visualizar o site. Iniciar frontend e backend ao mesmo tempo não cria a integração entre eles. O Compose atual inicia apenas backend e MySQL.
+Alguns conteúdos institucionais ainda são fixos nos componentes e há imagens provisórias. HTTPS, backup automatizado e limitação de tentativas de login continuam como evoluções após a parcial.
 
 ## Stack
 
@@ -36,7 +37,9 @@ docs/prd/            Requisitos e diagramas
 docs/postman/        Coleção de requisições
 compose.yaml         Backend e banco de desenvolvimento
 compose.test.yaml    Ambiente isolado de testes
+compose.prod.yaml    Site completo para publicação na VM
 .env.example         Modelo de configuração local, sem credenciais pessoais
+.github/workflows/   Verificação automática de frontend e backend
 ```
 
 ## Pré-requisitos
@@ -67,6 +70,7 @@ Edite o `.env` localmente antes da primeira inicialização:
 | `DB_ROOT_PASSWORD` | Senha do administrador do MySQL |
 | `DB_PORT` | Porta do banco na máquina; padrão `3306` |
 | `API_PORT` | Porta da API na máquina; padrão `8080` |
+| `WEB_PORT` | Porta pública do site na VM; padrão `80` |
 | `ADMIN_INITIAL_NAME` | Nome do primeiro administrador do sistema |
 | `ADMIN_INITIAL_EMAIL` | E-mail novo para criar o primeiro administrador |
 | `ADMIN_INITIAL_PASSWORD` | Senha inicial da conta administrativa |
@@ -127,7 +131,7 @@ npm run dev
 
 Abra o endereço exibido pelo Vite, normalmente [http://localhost:5173](http://localhost:5173). Se a porta estiver ocupada, ele poderá selecionar outra. Encerre com `Ctrl+C`.
 
-Rotas atuais: `/`, `/servicos`, `/sobre` e `/duvidas`. Não há rota de login ou painel administrativo. O frontend ainda não faz chamadas à API, e não há proxy de API configurado no Vite. A integração futura precisará definir encaminhamento da API ou CORS e envio dos cookies de sessão.
+Rotas públicas: `/`, `/servicos`, `/sobre` e `/duvidas`. O login fica em `/admin/login`; após autenticar, o painel fica em `/admin`. Durante o desenvolvimento, o Vite encaminha `/api` para o backend em `http://localhost:8080`.
 
 Verificações disponíveis, dentro de `frontend`:
 
@@ -152,7 +156,7 @@ Use sempre o mesmo host e mantenha os cookies habilitados; não misture `localho
 | Obter CSRF | `GET /api/auth/csrf` | Token e nome do cabeçalho; preservar o cookie recebido |
 | Entrar | `POST /api/auth/login` | Enviar JSON com `email` e `senha`, além do cabeçalho CSRF; sucesso `200` |
 | Renovar CSRF | `GET /api/auth/csrf` | Obter novo token após o login |
-| Consultar sessão | `GET /api/auth/me` | `200` com ID, nome e e-mail do administrador |
+| Consultar sessão | `GET /api/auth/me` | `200` com ID, nome, e-mail e papel do usuário |
 | Sair | `POST /api/auth/logout` | Enviar CSRF; sucesso `204` |
 | Conferir logout | `GET /api/auth/me` | `401` após encerramento da sessão |
 
@@ -164,7 +168,7 @@ Sessões expiram após 30 minutos de inatividade e são perdidas ao reiniciar o 
 
 ### Notícias
 
-GETs são públicos; criação, edição e exclusão exigem administrador autenticado e CSRF válido.
+GETs são públicos; criação, edição e exclusão exigem Administrador ou Design autenticado e CSRF válido.
 
 | Método | Rota | Resultado de sucesso |
 | --- | --- | --- |
@@ -197,9 +201,9 @@ Todas as rotas exigem administrador autenticado. POST, PUT e DELETE também exig
 | PUT | `/api/usuarios/{id}` | `200`, usuário atualizado |
 | DELETE | `/api/usuarios/{id}` | `204`, exclusão definitiva |
 
-No cadastro, envie `nome`, `email` e `senha`. Nome é obrigatório (até 150 caracteres), e-mail é obrigatório, válido e único (até 254 caracteres). A senha segue os limites informados na criação do primeiro administrador. E-mails são normalizados para minúsculas e sem espaços nas extremidades.
+No cadastro, envie `nome`, `email`, `senha` e `administrador`. Use `true` para Administrador e `false` para Design. Nome é obrigatório (até 150 caracteres), e-mail é obrigatório, válido e único (até 254 caracteres). A senha segue os limites informados na criação do primeiro administrador. E-mails são normalizados para minúsculas e sem espaços nas extremidades.
 
-No PUT, nome e e-mail continuam obrigatórios; omitir a senha ou enviar `null` mantém a senha atual. As respostas contêm ID, nome e e-mail, nunca senha ou hash. Novas contas criadas pela API recebem acesso administrativo; não há seleção de perfil editorial. A exclusão do último administrador é bloqueada.
+No PUT, nome e e-mail continuam obrigatórios; omitir a senha ou enviar `null` mantém a senha atual. As respostas contêm ID, nome, e-mail e `administrador`, nunca senha ou hash. A exclusão ou alteração do papel do último Administrador é bloqueada.
 
 ### Erros e persistência
 
@@ -214,7 +218,7 @@ As operações no Postman alteram o banco configurado no backend; não são simu
 ## Banco e migrations
 
 - **V1 — estrutura inicial:** cria `usuario`, `banner`, `noticia` e `rodape`; insere o rodapé único com `id = 1`.
-- **V2 — acesso administrativo:** adiciona `administrador` a `usuario`, inicialmente falso para contas anteriores.
+- **V2 — papéis de acesso:** adiciona `administrador` a `usuario`; `true` representa Administrador e `false`, Design.
 
 O Hibernate valida os mapeamentos; o Flyway controla a estrutura. Não altere migrations já aplicadas, nem seus comentários: isso pode gerar erro de checksum. Uma próxima evolução deve usar nova versão, como `V3__descricao.sql`, respeitando as versões existentes na branch.
 
@@ -293,7 +297,7 @@ O banco permanece no volume `conale_mysql_data` com o nome de projeto padrão. *
 - **Duas cópias locais:** por padrão, ambas usam o projeto Docker chamado `conale`; não representam ambientes independentes.
 - **Aviso de compatibilidade Flyway/MySQL:** confira o resultado das migrations e avalie a compatibilidade antes de produção; um aviso não comprova que a execução falhou nem que existe suporte completo.
 
-Antes de disponibilizar na internet, preparar HTTPS, cookies seguros, proteção contra tentativas repetidas de login, recuperação de acesso, backups e a configuração de integração do frontend. Esses controles não estão todos implementados nesta etapa.
+Para uma publicação permanente, ainda é necessário configurar HTTPS e cookies seguros, proteção contra tentativas repetidas de login, recuperação de acesso e backups. Esses controles não estão todos implementados nesta etapa.
 
 ## Documentação e contribuição
 

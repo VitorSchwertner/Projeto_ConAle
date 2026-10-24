@@ -1,0 +1,64 @@
+name: conale
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "${WEB_PORT:-80}:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    logging: *default-logging
+
+  backend:
+    build:
+      context: ./backend
+      target: runtime
+    expose:
+      - "8080"
+    environment:
+      DB_URL: "jdbc:mysql://mysql:3306/${DB_NAME:?Defina DB_NAME no .env}?allowPublicKeyRetrieval=true&sslMode=DISABLED"
+      DB_USERNAME: ${DB_USERNAME:?Defina DB_USERNAME no .env}
+      DB_PASSWORD: ${DB_PASSWORD:?Defina DB_PASSWORD no .env}
+      ADMIN_INITIAL_NAME: ${ADMIN_INITIAL_NAME:-Administrador ConAle}
+      ADMIN_INITIAL_EMAIL: ${ADMIN_INITIAL_EMAIL:-}
+      ADMIN_INITIAL_PASSWORD: ${ADMIN_INITIAL_PASSWORD:-}
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+    logging: *default-logging
+
+  mysql:
+    image: mysql:8.4.11
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:?Defina DB_NAME no .env}
+      MYSQL_USER: ${DB_USERNAME:?Defina DB_USERNAME no .env}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Defina DB_PASSWORD no .env}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Defina DB_ROOT_PASSWORD no .env}
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'MYSQL_PWD="$${MYSQL_PASSWORD}" mysql --protocol=TCP --host=127.0.0.1 --user="$${MYSQL_USER}" --database="$${MYSQL_DATABASE}" --execute="SELECT 1" --silent > /dev/null'
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
+    restart: unless-stopped
+    logging: *default-logging
+
+volumes:
+  mysql_data:

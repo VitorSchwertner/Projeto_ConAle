@@ -18,7 +18,21 @@ export default function IndicadorListPage() {
     }
 
     useEffect(() => {
-        carregar()
+        let ativo = true
+        listarIndicadores()
+            .then((dados) => {
+                if (ativo) setIndicadores(dados)
+            })
+            .catch(() => {
+                if (ativo) setErro('Não foi possível carregar os indicadores.')
+            })
+            .finally(() => {
+                if (ativo) setCarregando(false)
+            })
+
+        return () => {
+            ativo = false
+        }
     }, [])
 
     const handleExcluir = async (id: number) => {

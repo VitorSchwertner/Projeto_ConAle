@@ -41,8 +41,11 @@ class AuthApiTest {
         return json.writeValueAsString(Map.of("email", email, "senha", senha));
     }
     MockHttpSession login() throws Exception {
+        return login(EMAIL, SENHA);
+    }
+    MockHttpSession login(String email, String senha) throws Exception {
         return (MockHttpSession) mvc.perform(post("/api/auth/login").with(csrf())
-                .contentType(MediaType.APPLICATION_JSON).content(dados(EMAIL, SENHA)))
+                .contentType(MediaType.APPLICATION_JSON).content(dados(email, senha)))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.senhaHash").doesNotExist())
                 .andExpect(jsonPath("$.senha").doesNotExist())
                 .andReturn().getRequest().getSession(false);
@@ -51,11 +54,17 @@ class AuthApiTest {
     @Test void loginMantemSessao() throws Exception {
         var session = login();
         mvc.perform(get("/api/auth/me").session(session)).andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(admin.getId()));
+                .andExpect(jsonPath("$.id").value(admin.getId()))
+                .andExpect(jsonPath("$.administrador").value(true));
         mvc.perform(get("/api/usuarios").session(session)).andExpect(status().isOk());
     }
     @Test void noticiasSaoPublicasUsuariosNao() throws Exception {
         mvc.perform(get("/api/noticias")).andExpect(status().isOk());
+        mvc.perform(get("/api/banners/ativos")).andExpect(status().isOk());
+        mvc.perform(get("/api/rodape")).andExpect(status().isOk());
+        mvc.perform(get("/api/indicadores-institucionais")).andExpect(status().isOk());
+        mvc.perform(get("/api/mensagens-clientes")).andExpect(status().isOk());
+        mvc.perform(get("/api/banners")).andExpect(status().isUnauthorized());
         mvc.perform(get("/api/usuarios")).andExpect(status().isUnauthorized());
         mvc.perform(get("/api/auth/me")).andExpect(status().isUnauthorized());
         mvc.perform(post("/api/noticias").with(csrf()).contentType(MediaType.APPLICATION_JSON)
@@ -70,10 +79,34 @@ class AuthApiTest {
                     .andExpect(jsonPath("$.detail").value("E-mail ou senha inválidos."));
         }
     }
-    @Test void contaAntigaSemPermissaoNaoEntra() throws Exception {
+    @Test void designEntraGerenciaConteudoMasNaoUsuarios() throws Exception {
         admin.setAdministrador(false); usuarios.saveAndFlush(admin);
-        mvc.perform(post("/api/auth/login").with(csrf()).contentType(MediaType.APPLICATION_JSON)
-                .content(dados(EMAIL, SENHA))).andExpect(status().isUnauthorized());
+        var session = login();
+        mvc.perform(get("/api/auth/me").session(session)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.administrador").value(false));
+        mvc.perform(get("/api/usuarios").session(session)).andExpect(status().isForbidden());
+        mvc.perform(post("/api/noticias").session(session).with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"titulo\":\"Notícia do Design\"}"))
+                .andExpect(status().isCreated());
+        mvc.perform(post("/api/banners").session(session).with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"titulo\":\"Banner\",\"imagem\":\"/banner.png\",\"ativo\":true}"))
+                .andExpect(status().isCreated());
+        mvc.perform(post("/api/indicadores-institucionais").session(session).with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"anosAtuacao\":10,\"empresasAbertas\":20}"))
+                .andExpect(status().isCreated());
+        mvc.perform(post("/api/mensagens-clientes").session(session).with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"titulo\":\"Cliente\",\"areaAtuacao\":\"Saúde\",\"nota\":5,\"mensagem\":\"Ótimo\"}"))
+                .andExpect(status().isCreated());
+        mvc.perform(put("/api/rodape").session(session).with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"telefone\":\"51999999999\",\"email\":\"contato@example.invalid\","
+                        + "\"diasSemana\":\"Segunda a sexta\",\"horasTrabalhadas\":\"8h às 18h\","
+                        + "\"endereco\":\"Rua de Teste, 1\"}"))
+                .andExpect(status().isOk());
     }
     @Test void csrfObrigatorioInclusiveNoLogin() throws Exception {
         mvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
@@ -119,12 +152,22 @@ class AuthApiTest {
         var session = login(); usuarios.delete(admin); usuarios.flush();
         mvc.perform(get("/api/auth/me").session(session)).andExpect(status().isUnauthorized());
     }
-    @Test void revogacaoInvalidaSessaoAnterior() throws Exception {
+    @Test void mudancaDePapelInvalidaSessaoAnterior() throws Exception {
         var session = login(); admin.setAdministrador(false); usuarios.saveAndFlush(admin);
         mvc.perform(get("/api/auth/me").session(session)).andExpect(status().isUnauthorized());
     }
     @Test void bloqueiaExcluirUltimoAdministrador() throws Exception {
         mvc.perform(delete("/api/usuarios/" + admin.getId()).session(login()).with(csrf()))
+                .andExpect(status().isConflict());
+    }
+    @Test void bloqueiaTransformarUltimoAdministradorEmDesign() throws Exception {
+        var session = login();
+        String payload = json.writeValueAsString(Map.of(
+                "nome", admin.getNome(),
+                "email", admin.getEmail(),
+                "administrador", false));
+        mvc.perform(put("/api/usuarios/" + admin.getId()).session(session).with(csrf())
+                .contentType(MediaType.APPLICATION_JSON).content(payload))
                 .andExpect(status().isConflict());
     }
     @Test void senhaUnicodeInvalidaRetorna400() throws Exception {
@@ -141,11 +184,35 @@ class AuthApiTest {
         var session = login();
         String payload = json.writeValueAsString(Map.of("nome", "Segundo", "email", "segundo@example.invalid", "senha", SENHA));
         mvc.perform(post("/api/usuarios").session(session).with(csrf()).contentType(MediaType.APPLICATION_JSON)
-                .content(payload)).andExpect(status().isCreated()).andExpect(jsonPath("$.senhaHash").doesNotExist());
+                .content(payload)).andExpect(status().isCreated())
+                .andExpect(jsonPath("$.administrador").value(true))
+                .andExpect(jsonPath("$.senhaHash").doesNotExist());
         var salvo = usuarios.findByEmail("segundo@example.invalid").orElseThrow();
         assertThat(salvo.isAdministrador()).isTrue();
         assertThat(encoder.matches(SENHA, salvo.getSenhaHash())).isTrue();
         mvc.perform(post("/api/auth/login").with(csrf()).contentType(MediaType.APPLICATION_JSON)
                 .content(dados(salvo.getEmail(), SENHA))).andExpect(status().isOk());
+    }
+
+    @Test void adminCadastraDesignEProtegeGestaoDeUsuarios() throws Exception {
+        var sessionAdmin = login();
+        String emailDesign = "design@example.invalid";
+        String payload = json.writeValueAsString(Map.of(
+                "nome", "Pessoa Design",
+                "email", emailDesign,
+                "senha", SENHA,
+                "administrador", false));
+
+        mvc.perform(post("/api/usuarios").session(sessionAdmin).with(csrf())
+                .contentType(MediaType.APPLICATION_JSON).content(payload))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.administrador").value(false));
+
+        var sessionDesign = login(emailDesign, SENHA);
+        mvc.perform(get("/api/auth/me").session(sessionDesign))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.administrador").value(false));
+        mvc.perform(get("/api/usuarios").session(sessionDesign))
+                .andExpect(status().isForbidden());
     }
 }

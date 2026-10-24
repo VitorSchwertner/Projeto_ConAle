@@ -18,7 +18,21 @@ export default function MensagemListPage() {
     }
 
     useEffect(() => {
-        carregar()
+        let ativo = true
+        listarMensagens()
+            .then((dados) => {
+                if (ativo) setMensagens(dados)
+            })
+            .catch(() => {
+                if (ativo) setErro('Não foi possível carregar as mensagens.')
+            })
+            .finally(() => {
+                if (ativo) setCarregando(false)
+            })
+
+        return () => {
+            ativo = false
+        }
     }, [])
 
     const handleExcluir = async (id: number) => {

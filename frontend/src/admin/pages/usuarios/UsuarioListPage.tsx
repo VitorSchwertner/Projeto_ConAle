@@ -20,7 +20,21 @@ export default function UsuarioListPage() {
     }
 
     useEffect(() => {
-        carregar()
+        let ativo = true
+        listarUsuarios()
+            .then((dados) => {
+                if (ativo) setUsuarios(dados)
+            })
+            .catch(() => {
+                if (ativo) setErro('Não foi possível carregar os usuários.')
+            })
+            .finally(() => {
+                if (ativo) setCarregando(false)
+            })
+
+        return () => {
+            ativo = false
+        }
     }, [])
 
     const handleExcluir = async (id: number) => {

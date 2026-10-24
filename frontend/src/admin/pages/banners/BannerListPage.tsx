@@ -18,7 +18,21 @@ export default function BannerListPage() {
     }
 
     useEffect(() => {
-        carregar()
+        let ativo = true
+        listarBanners()
+            .then((dados) => {
+                if (ativo) setBanners(dados)
+            })
+            .catch(() => {
+                if (ativo) setErro('Não foi possível carregar os banners.')
+            })
+            .finally(() => {
+                if (ativo) setCarregando(false)
+            })
+
+        return () => {
+            ativo = false
+        }
     }, [])
 
     const handleExcluir = async (id: number) => {
