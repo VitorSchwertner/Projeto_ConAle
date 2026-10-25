@@ -50,3 +50,12 @@
 .banner-form__actions {
     margin-top: 8px;
 }
+
+.banner-form select {
+    border: 1.5px solid var(--color-slate);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    font-family: var(--font-body);
+    background: #fff;
+}

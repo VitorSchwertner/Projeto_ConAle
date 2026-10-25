@@ -1,93 +1,172 @@
 .about-intro {
-    padding: 48px 0 0;
+    padding: 64px 0;
+    position: relative;
+}
+
+.about-intro__decor-wrap {
+    position: relative;
 }
 
 .about-intro__grid {
+    position: relative;
     display: grid;
     grid-template-columns: 1fr 1.4fr;
-    gap: 40px;
+    gap: 36px 56px;
     align-items: start;
-    margin-bottom: 48px;
+    margin-bottom: 50px;
 }
 
 .about-intro__image {
-    min-height: 300px;
+    width: 100%;
+    min-height: 320px;
     border-radius: var(--radius-lg);
+    object-fit: cover;
+    display: block;
+}
+
+.about-intro__image--placeholder {
     background: linear-gradient(160deg, var(--color-navy) 0%, var(--color-slate) 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgba(255, 255, 255, 0.6);
 }
 
 .about-intro__text h2 {
     color: var(--color-navy);
-    font-size: 2rem;
-    margin-bottom: 16px;
+    font-size: 2.6rem;
+    font-weight: 700;
+    margin-bottom: 22px;
+    line-height: 1.1;
 }
 
 .about-intro__text p {
     color: var(--color-text-muted);
-    line-height: 1.6;
-    margin-bottom: 14px;
+    line-height: 1.75;
+    font-size: 1rem;
+    margin-bottom: 18px;
 }
 
-.about-intro__pillars {
+/* Grid de Propósito e Missão */
+.about-intro__pillars-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 32px;
-    margin-bottom: 48px;
+    margin-bottom: 64px;
+}
+
+.about-intro__pillar {
+    position: relative;
+    padding: 32px;
+}
+
+/* Posicionamento dos Ls menores nos cantos */
+.about-intro__corner-l {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    pointer-events: none;
+}
+
+.about-intro__corner-l--left {
+    top: 0;
+    left: 0;
+}
+
+.about-intro__corner-l--right {
+    top: 0;
+    right: 0;
 }
 
 .about-intro__pillar h3 {
     color: var(--color-green);
-    font-size: 1.4rem;
+    font-size: 1.9rem;
+    font-weight: 700;
     text-align: center;
-    margin-bottom: 10px;
+    margin-bottom: 14px;
 }
 
 .about-intro__pillar p {
     color: var(--color-text-muted);
     text-align: center;
-    line-height: 1.6;
+    line-height: 1.7;
+    font-size: 0.95rem;
+    margin: 0 auto;
 }
 
+/* Seção de Valores */
 .about-intro__values {
+    position: relative;
     text-align: center;
-    padding-bottom: 48px;
 }
 
+/* Título Valores agora na mesma cor verde dos outros (var(--color-green)) */
 .about-intro__values h3 {
-    color: var(--color-navy);
-    font-size: 1.8rem;
-    margin-bottom: 28px;
+    color: var(--color-green);
+    font-size: 2.3rem;
+    font-weight: 700;
+    margin-bottom: 40px;
+}
+
+.about-intro__values-wrapper {
+    position: relative;
+    padding: 40px 20px;
+}
+
+.about-intro__corner-l--values {
+    top: 0;
+    left: 0;
 }
 
 .about-intro__values-grid {
+    position: relative;
+    z-index: 1;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 24px;
+    gap: 32px;
 }
 
 .about-intro__value h4 {
     color: var(--color-navy);
-    font-size: 1.05rem;
-    margin-bottom: 8px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 10px;
 }
 
 .about-intro__value p {
     color: var(--color-text-muted);
-    font-size: 0.88rem;
-    line-height: 1.5;
+    font-size: 0.9rem;
+    line-height: 1.6;
 }
 
+/* Responsividade */
 @media (max-width: 860px) {
-    .about-intro__grid,
-    .about-intro__pillars {
+    .about-intro {
+        padding: 48px 0;
+    }
+
+    .about-intro__corner-l {
+        display: none;
+    }
+
+    .about-intro__grid {
         grid-template-columns: 1fr;
+        gap: 28px;
+        margin-bottom: 32px;
+    }
+
+    .about-intro__pillars-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        margin-bottom: 48px;
+    }
+
+    .about-intro__text h2 {
+        font-size: 2rem;
+    }
+
+    .about-intro__values-wrapper {
+        padding: 10px 0;
     }
 
     .about-intro__values-grid {
         grid-template-columns: 1fr 1fr;
+        gap: 24px;
     }
 }

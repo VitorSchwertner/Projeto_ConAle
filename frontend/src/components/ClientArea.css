@@ -29,19 +29,46 @@
     width: fit-content;
 }
 
+.client-area__banner-image {
+    width: 100%;
+    min-height: 220px;
+    border-radius: var(--radius-lg);
+    object-fit: cover;
+}
+
 .client-area__banner {
-    background: linear-gradient(135deg, var(--color-navy) 0%, var(--color-navy-light) 100%);
+    position: relative;
+    background: var(--color-navy);
     border-radius: var(--radius-lg);
     min-height: 220px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgba(255, 255, 255, 0.6);
-    border: 1.5px dashed rgba(255, 255, 255, 0.3);
+    overflow: hidden;
+}
+
+.client-area__waves {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.client-area__stripe {
+    position: absolute;
+    top: -20%;
+    right: 18%;
+    width: 90px;
+    height: 160%;
+    background: var(--color-green);
+    opacity: 0.85;
+    transform: rotate(18deg);
 }
 
 @media (max-width: 860px) {
     .client-area__grid {
         grid-template-columns: 1fr;
+    }
+
+    .client-area__banner,
+    .client-area__banner-image {
+        min-height: 260px;
     }
 }

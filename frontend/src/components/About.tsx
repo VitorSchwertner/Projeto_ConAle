@@ -1,27 +1,17 @@
+import { useBanners } from '../hooks/useBanners'
 import './About.css'
 
-const BADGES = [
-    'Mais de 10 anos de atuação',
-    '15 empresas abertas',
-    'ATENDIMENTO PARA TODO BRASIL',
-]
-
 export default function About() {
+    const { sobreBanner } = useBanners()
+
     return (
         <section className="about" id="sobre">
             <div className="container about__grid">
-                <div className="about__media">
-                    <div className="about__image" role="img" aria-label="Profissionais da ConAle">
-                        <span>Foto aqui</span>
-                    </div>
-                    <div className="about__badges">
-                        {BADGES.map((badge) => (
-                            <span className="about__badge" key={badge}>
-                {badge}
-              </span>
-                        ))}
-                    </div>
-                </div>
+                {sobreBanner ? (
+                    <img src={sobreBanner.imagem} alt={sobreBanner.titulo} className="about__banner" />
+                ) : (
+                    <div className="about__banner about__banner--placeholder" />
+                )}
 
                 <div className="about__text">
                     <h2>Sobre Nós</h2>
