@@ -29,6 +29,11 @@ public class Banner {
     @Column(name = "link", length = 500)
     private String link;
 
+    // Identifica em qual seção do site o banner deve aparecer.
+    // Registros antigos podem permanecer sem posição até serem editados.
+    @Column(name = "posicao", length = 30)
+    private String posicao;
+
     // Indica se o banner deve ser exibido no site.
     @Column(name = "ativo", nullable = false)
     private boolean ativo;
@@ -43,6 +48,9 @@ public class Banner {
 
     public String getLink() { return link; }
     public void setLink(String link) { this.link = link; }
+
+    public String getPosicao() { return posicao; }
+    public void setPosicao(String posicao) { this.posicao = posicao; }
 
     public boolean isAtivo() { return ativo; }
     public void setAtivo(boolean ativo) { this.ativo = ativo; }

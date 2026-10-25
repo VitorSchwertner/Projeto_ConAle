@@ -1,17 +1,10 @@
 import { useEffect, useState } from 'react'
 import { listarBannersAtivos } from '../api/content'
-import type { Banner } from '../types/content'
-
-type Posicao =
-    | 'HOME_TOPO'
-    | 'SERVICOS_TOPO'
-    | 'SOBRE_NOS'
-    | 'AREA_CLIENTE'
-    | 'SOBRE_MIM_FOTO'
+import type { Banner, BannerPosition } from '../types/content'
 
 function encontrarPorPosicao(
     banners: Banner[],
-    posicao: Posicao,
+    posicao: BannerPosition,
     indiceReserva: number,
 ): Banner | null {
     const porPosicao = banners.find((b) => b.posicao === posicao)
