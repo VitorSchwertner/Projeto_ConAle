@@ -20,8 +20,8 @@ export default function Stats() {
             })
     }, [])
 
-    const anos = useCountUp(indicador.anosAtuacao)
-    const empresas = useCountUp(indicador.empresasAbertas)
+    const { ref: anosRef, value: anosValue } = useCountUp(indicador.anosAtuacao)
+    const { ref: empresasRef, value: empresasValue } = useCountUp(indicador.empresasAbertas)
 
     return (
         <section className="stats">
@@ -31,8 +31,8 @@ export default function Stats() {
                 </p>
                 <div className="stats__row">
                     <div className="stats__item">
-            <span className="stats__value" ref={anos.ref}>
-              +{anos.value}
+            <span className="stats__value" ref={anosRef}>
+              +{anosValue}
             </span>
                         <span className="stats__label">anos de atuação</span>
                     </div>
@@ -40,8 +40,8 @@ export default function Stats() {
                     <span className="stats__divider" aria-hidden="true" />
 
                     <div className="stats__item">
-            <span className="stats__value" ref={empresas.ref}>
-              +{empresas.value}
+            <span className="stats__value" ref={empresasRef}>
+              +{empresasValue}
             </span>
                         <span className="stats__label">empresas abertas</span>
                     </div>

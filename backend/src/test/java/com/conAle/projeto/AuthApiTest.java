@@ -91,8 +91,10 @@ class AuthApiTest {
                 .andExpect(status().isCreated());
         mvc.perform(post("/api/banners").session(session).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"titulo\":\"Banner\",\"imagem\":\"/banner.png\",\"ativo\":true}"))
-                .andExpect(status().isCreated());
+                .content("{\"titulo\":\"Banner\",\"imagem\":\"/banner.png\","
+                        + "\"posicao\":\"HOME_TOPO\",\"ativo\":true}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.posicao").value("HOME_TOPO"));
         mvc.perform(post("/api/indicadores-institucionais").session(session).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"anosAtuacao\":10,\"empresasAbertas\":20}"))
@@ -114,6 +116,20 @@ class AuthApiTest {
         mvc.perform(post("/api/noticias").session(login()).contentType(MediaType.APPLICATION_JSON)
                 .content("{\"titulo\":\"Bloqueado\"}")).andExpect(status().isForbidden());
     }
+
+    @Test void bannerExigePosicaoValida() throws Exception {
+        var session = login();
+        mvc.perform(post("/api/banners").session(session).with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"titulo\":\"Sem posição\",\"imagem\":\"/banner.png\"}"))
+                .andExpect(status().isBadRequest());
+        mvc.perform(post("/api/banners").session(session).with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"titulo\":\"Posição inválida\",\"imagem\":\"/banner.png\","
+                        + "\"posicao\":\"QUALQUER\"}"))
+                .andExpect(status().isBadRequest());
+    }
+
     @Test void tokenRealTrocaAoEntrarESessaoTrocaId() throws Exception {
         var initial = mvc.perform(get("/api/auth/csrf")).andExpect(status().isOk()).andReturn();
         var session = (MockHttpSession) initial.getRequest().getSession(false);

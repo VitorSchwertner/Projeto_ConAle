@@ -23,7 +23,7 @@ class DatabaseMigrationTest {
     @Test
     // Confere as tabelas e garante que a V1 nao seja aplicada novamente.
     void migrationCanRunAgainWithoutChangingSchemaOrFooter() {
-        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("5");
+        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("6");
         flyway.validate();
         assertThat(flyway.migrate().migrationsExecuted).isZero();
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM rodape WHERE id = 1", Integer.class)).isEqualTo(1);
@@ -53,9 +53,11 @@ class DatabaseMigrationTest {
     void bannerStartsActiveAndRequiresImageAndTitle() {
         jdbc.update("INSERT INTO banner(titulo, imagem) VALUES ('Banner teste', '/teste.png')");
         assertThat(jdbc.queryForObject("SELECT ativo FROM banner WHERE titulo = 'Banner teste'", Boolean.class)).isTrue();
+        assertThat(jdbc.queryForObject("SELECT posicao FROM banner WHERE titulo = 'Banner teste'", String.class)).isNull();
         assertMysqlError(1364, () -> jdbc.update("INSERT INTO banner(titulo) VALUES ('Sem imagem')"));
         assertMysqlError(1364, () -> jdbc.update("INSERT INTO banner(imagem) VALUES ('/sem-titulo.png')"));
         assertMysqlError(3819, () -> jdbc.update("UPDATE banner SET ativo = 2"));
+        assertMysqlError(3819, () -> jdbc.update("UPDATE banner SET posicao = 'INVALIDA'"));
     }
 
     @Test

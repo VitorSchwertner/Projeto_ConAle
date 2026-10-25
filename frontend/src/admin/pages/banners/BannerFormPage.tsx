@@ -1,13 +1,15 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { buscarBanner, criarBanner, atualizarBanner } from '../../api/banners'
+import type { BannerPosition } from '../../types'
 import './BannerFormPage.css'
 
-const POSICOES = [
+const POSICOES: { value: BannerPosition; label: string }[] = [
     { value: 'HOME_TOPO', label: 'Topo da Home' },
     { value: 'SERVICOS_TOPO', label: 'Topo de Serviços / Dúvidas' },
     { value: 'SOBRE_NOS', label: 'Sobre Nós' },
     { value: 'AREA_CLIENTE', label: 'Área do Cliente' },
+    { value: 'SOBRE_MIM_FOTO', label: 'Foto da página Sobre' },
 ]
 
 export default function BannerFormPage() {
@@ -19,7 +21,7 @@ export default function BannerFormPage() {
     const [imagem, setImagem] = useState('')
     const [link, setLink] = useState('')
     const [ativo, setAtivo] = useState(true)
-    const [posicao, setPosicao] = useState('HOME_TOPO')
+    const [posicao, setPosicao] = useState<BannerPosition>('HOME_TOPO')
     const [carregando, setCarregando] = useState(editando)
     const [salvando, setSalvando] = useState(false)
     const [erro, setErro] = useState<string | null>(null)
@@ -66,7 +68,10 @@ export default function BannerFormPage() {
             <form onSubmit={handleSubmit}>
                 <label>
                     Posição no site
-                    <select value={posicao} onChange={(e) => setPosicao(e.target.value)}>
+                    <select
+                        value={posicao}
+                        onChange={(e) => setPosicao(e.target.value as BannerPosition)}
+                    >
                         {POSICOES.map((p) => (
                             <option key={p.value} value={p.value}>
                                 {p.label}

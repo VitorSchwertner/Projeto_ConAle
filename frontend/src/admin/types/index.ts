@@ -1,3 +1,10 @@
+export type BannerPosition =
+    | 'HOME_TOPO'
+    | 'SERVICOS_TOPO'
+    | 'SOBRE_NOS'
+    | 'AREA_CLIENTE'
+    | 'SOBRE_MIM_FOTO'
+
 export interface Usuario {
     id: number
     nome: string
@@ -11,7 +18,7 @@ export interface Banner {
     imagem: string
     link: string | null
     ativo: boolean
-    posicao: string
+    posicao: BannerPosition | null
 }
 
 export interface Noticia {

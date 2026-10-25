@@ -1,10 +1,17 @@
+export type BannerPosition =
+    | 'HOME_TOPO'
+    | 'SERVICOS_TOPO'
+    | 'SOBRE_NOS'
+    | 'AREA_CLIENTE'
+    | 'SOBRE_MIM_FOTO'
+
 export interface Banner {
     id: number
     titulo: string
     imagem: string
     link: string | null
     ativo: boolean
-    posicao?: string
+    posicao: BannerPosition | null
 }
 
 export interface IndicadorInstitucional {

@@ -8,6 +8,7 @@ public record BannerResponse(
         String titulo,
         String imagem,
         String link,
+        String posicao,
         boolean ativo
 ) {
     // Converte a entidade do banco no formato de resposta da API.
@@ -17,6 +18,7 @@ public record BannerResponse(
                 banner.getTitulo(),
                 banner.getImagem(),
                 banner.getLink(),
+                banner.getPosicao(),
                 banner.isAtivo()
         );
     }
