@@ -1,0 +1,39 @@
+export type BannerPosition =
+    | 'HOME_TOPO'
+    | 'SERVICOS_TOPO'
+    | 'SOBRE_NOS'
+    | 'AREA_CLIENTE'
+    | 'SOBRE_MIM_FOTO'
+
+export interface Banner {
+    id: number
+    titulo: string
+    imagem: string
+    link: string | null
+    ativo: boolean
+    posicao: BannerPosition | null
+}
+
+export interface IndicadorInstitucional {
+    id: number
+    anosAtuacao: number
+    empresasAbertas: number
+}
+
+export interface Rodape {
+    id: number
+    telefone: string | null
+    instagram: string | null
+    email: string | null
+    diasSemana: string | null
+    horasTrabalhadas: string | null
+    endereco: string | null
+}
+
+export interface MensagensClientes {
+    id: number
+    titulo: string
+    areaAtuacao: string
+    nota: number
+    mensagem: string
+}

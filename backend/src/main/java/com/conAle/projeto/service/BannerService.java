@@ -88,6 +88,7 @@ public class BannerService {
         banner.setTitulo(request.titulo().trim());
         banner.setImagem(request.imagem().trim());
         banner.setLink(vazioParaNull(request.link()));
+        banner.setPosicao(request.posicao().trim());
         // Se não vier no request, o banner nasce ativo.
         banner.setAtivo(request.ativo() == null || request.ativo());
     }

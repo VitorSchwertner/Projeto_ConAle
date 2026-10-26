@@ -1,0 +1,61 @@
+.banner-form {
+    max-width: 480px;
+}
+
+.banner-form h1 {
+    color: var(--color-navy);
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+.banner-form form {
+    background: #fff;
+    border-radius: var(--radius-md);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.banner-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-navy);
+}
+
+.banner-form input[type='text'],
+.banner-form input:not([type]) {
+    border: 1.5px solid var(--color-slate);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    font-family: var(--font-body);
+}
+
+.banner-form__checkbox {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+.banner-form__error {
+    color: #c0392b;
+    font-size: 0.82rem;
+    margin: 0;
+}
+
+.banner-form__actions {
+    margin-top: 8px;
+}
+
+.banner-form select {
+    border: 1.5px solid var(--color-slate);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    font-family: var(--font-body);
+    background: #fff;
+}

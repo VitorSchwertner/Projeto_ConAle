@@ -7,6 +7,7 @@ import ClientArea from '../components/ClientArea'
 import Differentials from '../components/Differentials'
 import Services from '../components/Services'
 import Faq from '../components/Faq'
+import Noticias from '../components/Noticias'
 
 export default function Home() {
     return (
@@ -19,6 +20,7 @@ export default function Home() {
             <ClientArea />
             <Differentials />
             <Services />
+            <Noticias />
             <Faq />
         </>
     )

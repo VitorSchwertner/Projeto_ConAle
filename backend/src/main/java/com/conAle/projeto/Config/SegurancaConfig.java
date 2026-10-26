@@ -24,7 +24,7 @@ public class SegurancaConfig {
 
     @Bean UserDetailsService userDetailsService(UsuarioRepository repository) {
         return email -> repository.findByEmail(email.trim().toLowerCase(Locale.ROOT))
-                .filter(u -> u.isAdministrador()).map(AdminPrincipal::from)
+                .map(AdminPrincipal::from)
                 .orElseThrow(() -> new UsernameNotFoundException("Credenciais inválidas."));
     }
 
@@ -54,8 +54,15 @@ public class SegurancaConfig {
                 .requestMatchers(HttpMethod.GET, "/actuator/health", "/api/auth/csrf").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/noticias", "/api/noticias/*").permitAll()
-                .requestMatchers("/api/auth/me", "/api/usuarios", "/api/usuarios/**",
-                        "/api/noticias", "/api/noticias/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/banners/ativos", "/api/rodape",
+                        "/api/indicadores-institucionais", "/api/mensagens-clientes").permitAll()
+                .requestMatchers("/api/auth/me").hasAnyRole("ADMIN", "DESIGN")
+                .requestMatchers("/api/usuarios", "/api/usuarios/**").hasRole("ADMIN")
+                .requestMatchers("/api/noticias", "/api/noticias/**",
+                        "/api/banners", "/api/banners/**", "/api/rodape",
+                        "/api/indicadores-institucionais", "/api/indicadores-institucionais/**",
+                        "/api/mensagens-clientes", "/api/mensagens-clientes/**")
+                    .hasAnyRole("ADMIN", "DESIGN")
                 .anyRequest().denyAll())
             .requestCache(c -> c.disable())
             .formLogin(c -> c.disable()).httpBasic(c -> c.disable())

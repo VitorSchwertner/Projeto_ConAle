@@ -19,9 +19,15 @@
 .stats__row {
     display: flex;
     align-items: center;
-    gap: 32px;
+    gap: 24px;
     flex-wrap: wrap;
     justify-content: center;
+}
+
+.stats__divider {
+    width: 1px;
+    height: 32px;
+    background: rgba(30, 41, 59, 0.3);
 }
 
 .stats__item {
@@ -35,6 +41,8 @@
 .stats__value {
     font-size: 1.8rem;
     font-weight: 700;
+    min-width: 2ch;
+    display: inline-block;
 }
 
 .stats__label {
@@ -49,5 +57,9 @@
     .stats__row {
         flex-direction: column;
         gap: 14px;
+    }
+
+    .stats__divider {
+        display: none;
     }
 }

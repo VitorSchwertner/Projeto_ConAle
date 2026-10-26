@@ -6,14 +6,16 @@ import com.conAle.projeto.Model.Usuario;
 public record UsuarioResponse(
         Integer id,
         String nome,
-        String email
+        String email,
+        boolean administrador
 ) {
     // Converte a entidade do banco no formato de resposta da API.
     public static UsuarioResponse from(Usuario usuario) {
         return new UsuarioResponse(
                 usuario.getId(),
                 usuario.getNome(),
-                usuario.getEmail()
+                usuario.getEmail(),
+                usuario.isAdministrador()
         );
     }
 }

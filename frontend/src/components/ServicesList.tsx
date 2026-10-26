@@ -3,6 +3,7 @@ import './ServicesList.css'
 const SERVICES = [
     {
         title: 'Contabilidade',
+        foto: '/services-contabilidade.png',
         intro:
             'A contabilidade da ConAle vai além das obrigações fiscais que profissionais da saúde tenham clareza sobre seus números, segurança tributária e suporte para tomada de decisões.',
         bullet: 'Cuidamos de toda rotina contábil, fiscal e trabalhista',
@@ -11,6 +12,7 @@ const SERVICES = [
     },
     {
         title: 'Bpo Financeiro',
+        foto: '/services-bpo.jpg',
         intro:
             'O BPO Financeiro é a terceirização da gestão financeira do seu negócio. Assumimos rotinas como contas a pagar e a receber, conciliação bancária e organização do fluxo financeiro.',
         bullet:
@@ -20,6 +22,7 @@ const SERVICES = [
     },
     {
         title: 'Mentoria Financeira',
+        foto: '/services-mentoria.webp',
         intro:
             'A mentoria financeira é voltada para profissionais da saúde que desejam compreender melhor seus números e tomar decisões mais estratégicas sobre o próprio negócio.',
         bullet:
@@ -29,6 +32,7 @@ const SERVICES = [
     },
     {
         title: 'Soluções Complementares',
+        foto: '/services-solucoes.webp',
         intro:
             'Além dos serviços contábeis e financeiros, a ConAle oferece suporte por meio de parceiros especializados em áreas essenciais para profissionais da saúde.',
         bullet:
@@ -53,10 +57,13 @@ export default function ServicesList() {
                         className={`services-list__row ${index % 2 === 1 ? 'is-reversed' : ''}`}
                         key={service.title}
                     >
-                        <div className="services-list__image" role="img" aria-label={service.title}>
-                            <span>Foto aqui</span>
+                        <div className="services-list__image-wrap">
+                            <img src={service.foto} alt={service.title} className="services-list__image" />
+                            <div className="services-list__image-gradient" aria-hidden="true" />
                         </div>
+
                         <div className="services-list__text">
+                            <span className="services-list__accent" aria-hidden="true" />
                             <h3>{service.title}</h3>
                             <p>{service.intro}</p>
                             <ul>

@@ -1,9 +1,19 @@
+import { useBanners } from '../hooks/useBanners'
 import './Hero.css'
 
 export default function Hero() {
+    const { homeBanner } = useBanners()
+
     return (
         <section className="hero" id="home">
-            <div className="hero__stripes" aria-hidden="true" />
+            {homeBanner ? (
+                <img src={homeBanner.imagem} alt={homeBanner.titulo} className="hero__banner" />
+            ) : (
+                <div className="hero__banner hero__banner--placeholder">
+                    <div className="hero__stripes" />
+                </div>
+            )}
+
             <div className="container hero__content">
                 <div className="hero__card">
                     <p>
@@ -11,16 +21,18 @@ export default function Hero() {
                         <br />
                         <strong>Nós</strong> administramos a sua saúde contábil.
                     </p>
-                    <a href="#servicos" className="btn btn--primary hero__cta hero__cta--mobile">
+                    <a
+                        href={homeBanner?.link ?? '#servicos'}
+                        className="btn btn--primary hero__cta hero__cta--mobile"
+                    >
                         Saiba mais
                     </a>
                 </div>
 
-                <div className="hero__image" role="img" aria-label="Profissional da área da saúde">
-                    <span>Foto aqui</span>
-                </div>
-
-                <a href="#servicos" className="btn btn--primary hero__cta hero__cta--desktop">
+                <a
+                    href={homeBanner?.link ?? '#servicos'}
+                    className="btn btn--primary hero__cta hero__cta--desktop"
+                >
                     Saiba mais
                 </a>
             </div>
