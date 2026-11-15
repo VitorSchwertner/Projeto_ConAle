@@ -1,14 +1,19 @@
-.rodape-page {
-    max-width: 520px;
+.rodape-page__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 24px;
 }
 
 .rodape-page h1 {
     color: var(--color-navy);
     font-size: 1.5rem;
-    margin-bottom: 20px;
+    margin: 0;
 }
 
 .rodape-page form {
+    max-width: 520px;
     background: #fff;
     border-radius: var(--radius-md);
     padding: 24px;

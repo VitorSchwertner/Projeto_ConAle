@@ -46,6 +46,10 @@
     text-decoration: underline;
 }
 
+.footer__endereco {
+    white-space: pre-line;
+}
+
 .footer__map {
     display: block;
     width: 200px;

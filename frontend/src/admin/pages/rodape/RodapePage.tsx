@@ -104,7 +104,14 @@ export default function RodapePage() {
 
     return (
         <div className="rodape-page">
-            <h1>{edicao ? (edicao.id === null ? 'Novo rodapé' : 'Editar rodapé') : 'Rodapé'}</h1>
+            <div className="rodape-page__header">
+                <h1>{edicao ? (edicao.id === null ? 'Novo rodapé' : 'Editar rodapé') : 'Rodapé'}</h1>
+                {!edicao && modelos && (
+                    <button className="btn btn--primary" disabled={ocupado} onClick={() => abrirFormulario()}>
+                        Novo rodapé
+                    </button>
+                )}
+            </div>
             {erro && <p className="rodape-page__error" role="alert">{erro}</p>}
             {sucesso && <p className="rodape-page__success" role="status">{sucesso}</p>}
 
@@ -141,6 +148,7 @@ export default function RodapePage() {
                             onChange={(e) => alterarCampo('endereco', e.target.value)}
                             maxLength={255}
                             rows={2}
+                            placeholder={'Rua, número e complemento\nBairro, cidade - UF, CEP'}
                             required
                         />
                     </label>
@@ -154,9 +162,6 @@ export default function RodapePage() {
             ) : modelos ? (
                 <>
                     <p>O rodapé ativo aparece em todas as páginas do site.</p>
-                    <button className="btn btn--primary" disabled={ocupado} onClick={() => abrirFormulario()}>
-                        Novo rodapé
-                    </button>
                     <ul className="rodape-page__modelos">
                         {modelos.map((modelo) => (
                             <li key={modelo.dados.id}>
