@@ -73,10 +73,14 @@ export default function UsuarioListPage() {
                     <tr key={item.id}>
                         <td>{item.nome}</td>
                         <td>{item.email}</td>
-                        <td>{item.administrador ? 'Administrador' : 'Design'}</td>
+                        <td>
+                            {item.administradorOriginal ? 'Administrador original' : item.administrador ? 'Administrador' : 'Design'}
+                        </td>
                         <td className="usuario-list__actions">
-                            <Link to={`/admin/usuarios/${item.id}`}>Editar</Link>
-                            {item.id !== usuarioLogado?.id && (
+                            {(!item.administradorOriginal || item.id === usuarioLogado?.id) && (
+                                <Link to={`/admin/usuarios/${item.id}`}>Editar</Link>
+                            )}
+                            {!item.administradorOriginal && item.id !== usuarioLogado?.id && (
                                 <button onClick={() => handleExcluir(item.id)}>Excluir</button>
                             )}
                         </td>

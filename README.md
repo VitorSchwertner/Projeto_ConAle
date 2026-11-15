@@ -93,6 +93,8 @@ O Compose aguarda o MySQL responder; o backend aplica as migrations pendentes. A
 Preencha as três variáveis `ADMIN_INITIAL_*` antes de iniciar. A senha deve ter entre 8 e 72 caracteres e no máximo 72 bytes em UTF-8. Use credenciais próprias, não senhas de demonstração.
 
 - A conta inicial só é criada se ainda não existir um administrador.
+- Em bancos existentes, na primeira inicialização após a migration V7, mantenha em `ADMIN_INITIAL_EMAIL` o e-mail atual da conta administrativa original. O sistema grava o vínculo ao encontrar essa conta, mesmo com a senha inicial vazia. Se o e-mail não corresponder a um administrador existente, a alteração de papéis fica indisponível até configurar o e-mail correto e reiniciar o backend.
+- Depois que o vínculo é salvo, mudanças no e-mail da conta ou nas variáveis do `.env` não transferem o papel original.
 - Se e-mail e senha estiverem vazios, nenhuma conta inicial será criada.
 - Configuração incompleta/inválida ou e-mail já cadastrado pode impedir a inicialização quando o bootstrap for necessário.
 - Contas anteriores à migration V2 não são promovidas automaticamente.
@@ -201,9 +203,9 @@ Todas as rotas exigem administrador autenticado. POST, PUT e DELETE também exig
 | PUT | `/api/usuarios/{id}` | `200`, usuário atualizado |
 | DELETE | `/api/usuarios/{id}` | `204`, exclusão definitiva |
 
-No cadastro, envie `nome`, `email`, `senha` e `administrador`. Use `true` para Administrador e `false` para Design. Nome é obrigatório (até 150 caracteres), e-mail é obrigatório, válido e único (até 254 caracteres). A senha segue os limites informados na criação do primeiro administrador. E-mails são normalizados para minúsculas e sem espaços nas extremidades.
+No cadastro, envie `nome`, `email`, `senha` e opcionalmente `administrador`. Use `true` para Administrador e `false` para Design. Somente o administrador original pode criar outro Administrador. Se o papel for omitido, o padrão é Administrador para o administrador original e Design para os demais. Nome é obrigatório (até 150 caracteres), e-mail é obrigatório, válido e único (até 254 caracteres). A senha segue os limites informados na criação do primeiro administrador. E-mails são normalizados para minúsculas e sem espaços nas extremidades.
 
-No PUT, nome e e-mail continuam obrigatórios; omitir a senha ou enviar `null` mantém a senha atual. As respostas contêm ID, nome, e-mail e `administrador`, nunca senha ou hash. A exclusão ou alteração do papel do último Administrador é bloqueada.
+No PUT, nome e e-mail continuam obrigatórios; omitir a senha ou enviar `null` mantém a senha atual. Somente o administrador original pode alterar o papel de outras contas. O papel dele é fixo, sua conta não pode ser excluída pelo painel ou pela API e somente ele pode editar os próprios dados. As respostas incluem `administradorOriginal` além de ID, nome, e-mail e `administrador`.
 
 ### Erros e persistência
 

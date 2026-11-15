@@ -47,7 +47,21 @@ public class UsuarioService {
 
     // A transação confirma a gravação ao concluir ou a desfaz em caso de falha.
     @Transactional
-    public UsuarioResponse criar(UsuarioRequest request) {
+    public UsuarioResponse criar(UsuarioRequest request, Integer autorId) {
+        boolean original = repository.existsByIdAndAdministradorOriginalTrue(autorId);
+        if (Boolean.TRUE.equals(request.administrador()) && !original) {
+            throw acessoAoPapelNegado();
+        }
+        boolean administrador = request.administrador() == null ? original : request.administrador();
+        return salvarNovo(request, administrador, false);
+    }
+
+    @Transactional
+    public void criarAdministradorOriginal(UsuarioRequest request) {
+        salvarNovo(request, true, true);
+    }
+
+    private UsuarioResponse salvarNovo(UsuarioRequest request, boolean administrador, boolean original) {
         String email = normalizarEmail(request.email());
 
         if (repository.existsByEmail(email)) {
@@ -55,9 +69,8 @@ public class UsuarioService {
         }
 
         Usuario usuario = new Usuario();
-        // A rota de cadastro exige um administrador autenticado. O campo define
-        // se a nova conta será Administrador (true) ou Design (false).
-        usuario.setAdministrador(request.administrador() == null || request.administrador());
+        usuario.setAdministrador(administrador);
+        usuario.setAdministradorOriginal(original);
         usuario.setNome(request.nome().trim());
         usuario.setEmail(email);
         usuario.setSenhaHash(passwordEncoder.encode(request.senha()));
@@ -70,8 +83,26 @@ public class UsuarioService {
     // Busca o registro existente para manter seu ID na edição.
     // Senha omitida no request chega como null e mantém o hash anterior.
     @Transactional
-    public UsuarioResponse atualizar(Integer id, UsuarioAtualizacaoRequest request) {
+    public UsuarioResponse atualizar(Integer id, UsuarioAtualizacaoRequest request, Integer autorId) {
         Usuario usuario = encontrar(id);
+        if (usuario.isAdministradorOriginal() && !id.equals(autorId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Somente o administrador original pode editar os dados da própria conta.");
+        }
+
+        boolean alterandoPapel = request.administrador() != null
+                && request.administrador() != usuario.isAdministrador();
+        if (alterandoPapel) {
+            if (usuario.isAdministradorOriginal()) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                        "O papel do administrador original não pode ser alterado.");
+            }
+            if (!repository.existsByIdAndAdministradorOriginalTrue(autorId)) {
+                throw acessoAoPapelNegado();
+            }
+            usuario.setAdministrador(request.administrador());
+        }
+
         String email = normalizarEmail(request.email());
 
         if (repository.existsByEmailAndIdNot(email, id)) {
@@ -80,18 +111,6 @@ public class UsuarioService {
 
         usuario.setNome(request.nome().trim());
         usuario.setEmail(email);
-
-        if (request.administrador() != null
-                && usuario.isAdministrador()
-                && !request.administrador()
-                && repository.administradoresParaExclusao().size() <= 1) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "Não é permitido alterar o último administrador para Design.");
-        }
-
-        if (request.administrador() != null) {
-            usuario.setAdministrador(request.administrador());
-        }
 
         if (request.senha() != null) {
             usuario.setSenhaHash(passwordEncoder.encode(request.senha()));
@@ -106,11 +125,20 @@ public class UsuarioService {
     @Transactional
     public void excluir(Integer id) {
         Usuario usuario = encontrar(id);
+        if (usuario.isAdministradorOriginal()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Não é permitido excluir o administrador original.");
+        }
         if (usuario.isAdministrador() && repository.administradoresParaExclusao().size() <= 1) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                     "Não é permitido excluir o último administrador.");
         }
         repository.delete(usuario);
+    }
+
+    private ResponseStatusException acessoAoPapelNegado() {
+        return new ResponseStatusException(HttpStatus.FORBIDDEN,
+                "Somente o administrador original pode atribuir o papel de Administrador ou alterar papéis.");
     }
 
     // Reutiliza a busca e retorna 404 quando o ID não existe.

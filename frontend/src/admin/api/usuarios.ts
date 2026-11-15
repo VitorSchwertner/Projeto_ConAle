@@ -12,7 +12,7 @@ export interface UsuarioUpdateInput {
     nome: string
     email: string
     senha?: string
-    administrador: boolean
+    administrador?: boolean
 }
 
 export function listarUsuarios() {

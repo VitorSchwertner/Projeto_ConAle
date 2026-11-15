@@ -3,9 +3,11 @@ package com.conAle.projeto.Controller;
 import com.conAle.projeto.dto.UsuarioAtualizacaoRequest;
 import com.conAle.projeto.dto.UsuarioRequest;
 import com.conAle.projeto.dto.UsuarioResponse;
+import com.conAle.projeto.security.AdminPrincipal;
 import com.conAle.projeto.service.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -27,9 +29,10 @@ public class UsuarioController {
     // POST cadastra um usuário. @Valid confere as regras do DTO de entrada.
     @PostMapping
     public ResponseEntity<UsuarioResponse> criar(
+            @AuthenticationPrincipal AdminPrincipal autor,
             @Valid @RequestBody UsuarioRequest request
     ) {
-        UsuarioResponse usuario = service.criar(request);
+        UsuarioResponse usuario = service.criar(request, autor.id());
         URI localizacao = URI.create("/api/usuarios/" + usuario.id());
 
         // Retorna 201 e o endereço do usuário no cabeçalho Location.
@@ -52,9 +55,10 @@ public class UsuarioController {
     @PutMapping("/{id}")
     public UsuarioResponse atualizar(
             @PathVariable Integer id,
+            @AuthenticationPrincipal AdminPrincipal autor,
             @Valid @RequestBody UsuarioAtualizacaoRequest request
     ) {
-        return service.atualizar(id, request);
+        return service.atualizar(id, request, autor.id());
     }
 
     // DELETE exclui o usuário e retorna 204, sem corpo na resposta.

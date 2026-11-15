@@ -8,8 +8,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
-// Só cria a primeira conta administrativa. Não expõe cadastro público.
+import java.util.Locale;
+
+// Vincula ao e-mail inicial a identidade permanente do administrador original.
 @Component
 public class PrimeiroAdmin implements ApplicationRunner {
     private final UsuarioRepository repository;
@@ -23,13 +26,22 @@ public class PrimeiroAdmin implements ApplicationRunner {
         this.repository = repository; this.service = service; this.validator = validator;
         this.nome = nome; this.email = email; this.senha = senha;
     }
+    @Transactional
     public void run(ApplicationArguments args) {
-        if (repository.existsByAdministradorTrue() || (email.isBlank() && senha.isBlank())) return;
-        var dados = new UsuarioRequest(nome, email, senha);
+        if (repository.existsByAdministradorOriginalTrue() || (email.isBlank() && senha.isBlank())) return;
+
+        String emailInicial = email.trim().toLowerCase(Locale.ROOT);
+        if (repository.existsByAdministradorTrue()) {
+            repository.findByEmail(emailInicial).filter(usuario -> usuario.isAdministrador())
+                    .ifPresent(usuario -> usuario.setAdministradorOriginal(true));
+            return;
+        }
+
+        var dados = new UsuarioRequest(nome, emailInicial, senha);
         if (!validator.validate(dados).isEmpty()) {
             throw new IllegalStateException("Configuração do administrador inicial inválida. Confira nome, e-mail e senha.");
         }
         // E-mail existente causa erro sem promover nem sobrescrever a conta antiga.
-        service.criar(dados);
+        service.criarAdministradorOriginal(dados);
     }
 }

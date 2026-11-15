@@ -23,7 +23,7 @@ class DatabaseMigrationTest {
     @Test
     // Confere as tabelas e garante que a V1 nao seja aplicada novamente.
     void migrationCanRunAgainWithoutChangingSchemaOrFooter() {
-        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("6");
+        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("7");
         flyway.validate();
         assertThat(flyway.migrate().migrationsExecuted).isZero();
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM rodape WHERE id = 1", Integer.class)).isEqualTo(1);
@@ -45,6 +45,18 @@ class DatabaseMigrationTest {
                 "Outro", "TESTE@example.invalid", "outro-hash"));
         assertMysqlError(1364, () -> jdbc.update(
                 "INSERT INTO usuario(nome, email) VALUES (?, ?)", "Sem senha", "sem@example.invalid"));
+    }
+
+    @Test
+    @Transactional
+    void administradorOriginalDeveSerUnicoEManterPapelAdministrativo() {
+        jdbc.update("INSERT INTO usuario(nome, email, senha_hash, administrador, administrador_original) "
+                + "VALUES ('Original', 'original@example.invalid', 'hash', 1, 1)");
+        assertMysqlError(1062, () -> jdbc.update(
+                "INSERT INTO usuario(nome, email, senha_hash, administrador, administrador_original) "
+                        + "VALUES ('Outro', 'outro@example.invalid', 'hash', 1, 1)"));
+        assertMysqlError(3819, () -> jdbc.update(
+                "UPDATE usuario SET administrador = 0 WHERE email = 'original@example.invalid'"));
     }
 
     @Test

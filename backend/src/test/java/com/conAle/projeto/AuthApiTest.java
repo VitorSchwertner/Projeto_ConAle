@@ -176,7 +176,10 @@ class AuthApiTest {
         mvc.perform(delete("/api/usuarios/" + admin.getId()).session(login()).with(csrf()))
                 .andExpect(status().isConflict());
     }
-    @Test void bloqueiaTransformarUltimoAdministradorEmDesign() throws Exception {
+    @Test void protegePapelEContaDoAdministradorOriginalMesmoComOutroAdmin() throws Exception {
+        admin.setAdministradorOriginal(true);
+        usuarios.saveAndFlush(admin);
+        var outroAdmin = cadastrarConta("outro-admin@example.invalid", true);
         var session = login();
         String payload = json.writeValueAsString(Map.of(
                 "nome", admin.getNome(),
@@ -184,7 +187,60 @@ class AuthApiTest {
                 "administrador", false));
         mvc.perform(put("/api/usuarios/" + admin.getId()).session(session).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON).content(payload))
-                .andExpect(status().isConflict());
+                .andExpect(status().isForbidden());
+        var outraSessao = login(outroAdmin.getEmail(), SENHA);
+        mvc.perform(delete("/api/usuarios/" + admin.getId()).session(outraSessao).with(csrf()))
+                .andExpect(status().isForbidden());
+        mvc.perform(put("/api/usuarios/" + admin.getId()).session(outraSessao).with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"nome\":\"Alterado\",\"email\":\"admin-auth@example.invalid\",\"senha\":\"NovaSenha123!\"}"))
+                .andExpect(status().isForbidden());
+        mvc.perform(put("/api/usuarios/" + admin.getId()).session(session).with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"nome\":\"Novo nome\",\"email\":\"original-novo@example.invalid\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.administradorOriginal").value(true));
+        mvc.perform(get("/api/auth/me").session(login("original-novo@example.invalid", SENHA)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.administradorOriginal").value(true));
+    }
+
+    @Test void somenteAdministradorOriginalAtribuiOuAlteraPapeis() throws Exception {
+        admin.setAdministradorOriginal(true);
+        usuarios.saveAndFlush(admin);
+        var outroAdmin = cadastrarConta("outro-admin@example.invalid", true);
+        var design = cadastrarConta("design-papel@example.invalid", false);
+        var outraSessao = login(outroAdmin.getEmail(), SENHA);
+        String payload = json.writeValueAsString(Map.of(
+                "nome", design.getNome(), "email", design.getEmail(), "administrador", true));
+        var rota = "/api/usuarios/" + design.getId();
+
+        mvc.perform(put(rota).session(outraSessao).with(csrf())
+                .contentType(MediaType.APPLICATION_JSON).content(payload))
+                .andExpect(status().isForbidden());
+        mvc.perform(post("/api/usuarios").session(outraSessao).with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"nome\":\"Novo\",\"email\":\"novo@example.invalid\",\"senha\":\"TesteSeguro123!\",\"administrador\":true}"))
+                .andExpect(status().isForbidden());
+        mvc.perform(post("/api/usuarios").session(outraSessao).with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"nome\":\"Novo\",\"email\":\"novo@example.invalid\",\"senha\":\"TesteSeguro123!\"}"))
+                .andExpect(status().isCreated()).andExpect(jsonPath("$.administrador").value(false));
+        mvc.perform(put(rota).session(outraSessao).with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"nome\":\"Nome editado\",\"email\":\"design-papel@example.invalid\"}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.administrador").value(false));
+        mvc.perform(put(rota).session(login()).with(csrf())
+                .contentType(MediaType.APPLICATION_JSON).content(payload))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.administrador").value(true));
+    }
+
+    private Usuario cadastrarConta(String email, boolean administrador) {
+        var usuario = new Usuario();
+        usuario.setNome("Conta de teste");
+        usuario.setEmail(email);
+        usuario.setSenhaHash(encoder.encode(SENHA));
+        usuario.setAdministrador(administrador);
+        return usuarios.saveAndFlush(usuario);
     }
     @Test void senhaUnicodeInvalidaRetorna400() throws Exception {
         var session = login();
@@ -197,11 +253,14 @@ class AuthApiTest {
                 .content(dados(EMAIL, "á".repeat(40)))).andExpect(status().isBadRequest());
     }
     @Test void adminCadastraOutroAdminSemExporHash() throws Exception {
+        admin.setAdministradorOriginal(true);
+        usuarios.saveAndFlush(admin);
         var session = login();
         String payload = json.writeValueAsString(Map.of("nome", "Segundo", "email", "segundo@example.invalid", "senha", SENHA));
         mvc.perform(post("/api/usuarios").session(session).with(csrf()).contentType(MediaType.APPLICATION_JSON)
                 .content(payload)).andExpect(status().isCreated())
                 .andExpect(jsonPath("$.administrador").value(true))
+                .andExpect(jsonPath("$.administradorOriginal").value(false))
                 .andExpect(jsonPath("$.senhaHash").doesNotExist());
         var salvo = usuarios.findByEmail("segundo@example.invalid").orElseThrow();
         assertThat(salvo.isAdministrador()).isTrue();

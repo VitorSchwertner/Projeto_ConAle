@@ -10,6 +10,8 @@ public interface UsuarioRepository
 
     java.util.Optional<Usuario> findByEmail(String email);
     boolean existsByAdministradorTrue();
+    boolean existsByAdministradorOriginalTrue();
+    boolean existsByIdAndAdministradorOriginalTrue(Integer id);
     // Serializa exclusões administrativas para proteger também contra pedidos simultâneos.
     @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     @org.springframework.data.jpa.repository.Query("select u from Usuario u where u.administrador = true order by u.id")

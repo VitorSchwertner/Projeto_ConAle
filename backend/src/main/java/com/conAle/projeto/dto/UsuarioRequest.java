@@ -24,7 +24,7 @@ public record UsuarioRequest(
         String senha,
 
         // true representa Administrador; false representa Design.
-        // Quando omitido, mantém a compatibilidade da API e cria um administrador.
+        // Quando omitido, o padrão depende de quem está criando a conta.
         Boolean administrador
 ) {
     public UsuarioRequest(String nome, String email, String senha) {

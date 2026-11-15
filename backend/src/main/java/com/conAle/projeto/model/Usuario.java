@@ -6,10 +6,12 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.DynamicUpdate;
 
 // Representa a tabela usuario. As anotações indicam como o JPA acessa suas colunas.
 @Entity
 @Table(name = "usuario")
+@DynamicUpdate
 public class Usuario {
 
     // Contas antigas não recebem acesso administrativo automaticamente.
@@ -18,6 +20,14 @@ public class Usuario {
 
     public boolean isAdministrador() { return administrador; }
     public void setAdministrador(boolean administrador) { this.administrador = administrador; }
+
+    @Column(name = "administrador_original", nullable = false)
+    private boolean administradorOriginal;
+
+    public boolean isAdministradorOriginal() { return administradorOriginal; }
+    public void setAdministradorOriginal(boolean administradorOriginal) {
+        this.administradorOriginal = administradorOriginal;
+    }
 
     // O MySQL gera o ID com AUTO_INCREMENT; antes de salvar, ele pode ser null.
     @Id
