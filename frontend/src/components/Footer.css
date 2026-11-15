@@ -41,8 +41,13 @@
     flex-shrink: 0;
 }
 
-.footer__email {
+.footer__email,
+.footer__endereco {
     text-decoration: underline;
+}
+
+.footer__endereco {
+    white-space: pre-line;
 }
 
 .footer__map {

@@ -1,31 +1,45 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { buscarUsuario, criarUsuario, atualizarUsuario } from '../../api/usuarios'
+import { useAuth } from '../../context/AuthContext'
 import './UsuarioFormPage.css'
 
 export default function UsuarioFormPage() {
     const { id } = useParams()
     const navigate = useNavigate()
+    const { usuario: usuarioLogado } = useAuth()
     const editando = Boolean(id)
 
     const [nome, setNome] = useState('')
     const [email, setEmail] = useState('')
     const [senha, setSenha] = useState('')
     const [administrador, setAdministrador] = useState(false)
+    const [usuarioEditado, setUsuarioEditado] = useState<{ id: number; administradorOriginal: boolean } | null>(null)
     const [carregando, setCarregando] = useState(editando)
     const [salvando, setSalvando] = useState(false)
     const [erro, setErro] = useState<string | null>(null)
+    const podeEditarPapel = Boolean(
+        usuarioLogado?.administradorOriginal && (!editando || !usuarioEditado?.administradorOriginal),
+    )
 
     useEffect(() => {
         if (!id) return
+        let ativo = true
         buscarUsuario(Number(id))
             .then((usuario) => {
+                if (!ativo) return
                 setNome(usuario.nome)
                 setEmail(usuario.email)
                 setAdministrador(usuario.administrador)
+                setUsuarioEditado(usuario)
             })
-            .catch(() => setErro('Não foi possível carregar este usuário.'))
-            .finally(() => setCarregando(false))
+            .catch(() => {
+                if (ativo) setErro('Não foi possível carregar este usuário.')
+            })
+            .finally(() => {
+                if (ativo) setCarregando(false)
+            })
+        return () => { ativo = false }
     }, [id])
 
     const handleSubmit = async (event: FormEvent) => {
@@ -37,11 +51,11 @@ export default function UsuarioFormPage() {
                 await atualizarUsuario(Number(id), {
                     nome,
                     email,
-                    administrador,
+                    ...(podeEditarPapel ? { administrador } : {}),
                     ...(senha ? { senha } : {}),
                 })
             } else {
-                await criarUsuario({ nome, email, senha, administrador })
+                await criarUsuario({ nome, email, senha, administrador: podeEditarPapel && administrador })
             }
             navigate('/admin/usuarios')
         } catch {
@@ -52,6 +66,12 @@ export default function UsuarioFormPage() {
     }
 
     if (carregando) return <p>Carregando...</p>
+    if (editando && usuarioEditado?.id !== Number(id)) {
+        return <p>{erro ?? 'Carregando...'}</p>
+    }
+    if (editando && usuarioEditado?.administradorOriginal && usuarioEditado.id !== usuarioLogado?.id) {
+        return <p>Somente o administrador original pode editar os dados da própria conta.</p>
+    }
 
     return (
         <div className="usuario-form">
@@ -76,10 +96,13 @@ export default function UsuarioFormPage() {
                 <label>
                     Papel
                     <select
-                        value={administrador ? 'administrador' : 'design'}
+                        value={(editando || podeEditarPapel) && administrador ? 'administrador' : 'design'}
+                        disabled={!podeEditarPapel}
                         onChange={(e) => setAdministrador(e.target.value === 'administrador')}
                     >
-                        <option value="administrador">Administrador</option>
+                        <option value="administrador">
+                            {editando && usuarioEditado?.administradorOriginal ? 'Administrador original' : 'Administrador'}
+                        </option>
                         <option value="design">Design</option>
                     </select>
                 </label>

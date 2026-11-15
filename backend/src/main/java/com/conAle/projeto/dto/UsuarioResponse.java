@@ -7,7 +7,8 @@ public record UsuarioResponse(
         Integer id,
         String nome,
         String email,
-        boolean administrador
+        boolean administrador,
+        boolean administradorOriginal
 ) {
     // Converte a entidade do banco no formato de resposta da API.
     public static UsuarioResponse from(Usuario usuario) {
@@ -15,7 +16,8 @@ public record UsuarioResponse(
                 usuario.getId(),
                 usuario.getNome(),
                 usuario.getEmail(),
-                usuario.isAdministrador()
+                usuario.isAdministrador(),
+                usuario.isAdministradorOriginal()
         );
     }
 }

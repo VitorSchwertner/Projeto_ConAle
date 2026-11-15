@@ -1,14 +1,19 @@
-.rodape-page {
-    max-width: 520px;
+.rodape-page__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 24px;
 }
 
 .rodape-page h1 {
     color: var(--color-navy);
     font-size: 1.5rem;
-    margin-bottom: 20px;
+    margin: 0;
 }
 
 .rodape-page form {
+    max-width: 520px;
     background: #fff;
     border-radius: var(--radius-md);
     padding: 24px;
@@ -49,5 +54,40 @@
 }
 
 .rodape-page__actions {
-    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+
+.rodape-page__modelos {
+    display: grid;
+    gap: 12px;
+    list-style: none;
+    padding: 0;
+}
+
+.rodape-page__modelos li {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px;
+    background: #fff;
+    border-radius: var(--radius-md);
+    padding: 16px;
+    overflow-wrap: anywhere;
+}
+
+.rodape-page__estado {
+    display: block;
+    font-size: 0.85rem;
+}
+
+.rodape-page__modelos button,
+.rodape-page__actions button[type='button'] {
+    color: var(--color-green-dark);
+    background: transparent;
+    border: 1px solid var(--color-slate);
+    border-radius: 8px;
+    padding: 6px 10px;
 }

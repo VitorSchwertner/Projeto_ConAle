@@ -59,7 +59,7 @@ public class SegurancaConfig {
                 .requestMatchers("/api/auth/me").hasAnyRole("ADMIN", "DESIGN")
                 .requestMatchers("/api/usuarios", "/api/usuarios/**").hasRole("ADMIN")
                 .requestMatchers("/api/noticias", "/api/noticias/**",
-                        "/api/banners", "/api/banners/**", "/api/rodape",
+                        "/api/banners", "/api/banners/**", "/api/rodape", "/api/rodape/modelos/**",
                         "/api/indicadores-institucionais", "/api/indicadores-institucionais/**",
                         "/api/mensagens-clientes", "/api/mensagens-clientes/**")
                     .hasAnyRole("ADMIN", "DESIGN")

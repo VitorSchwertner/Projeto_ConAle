@@ -51,7 +51,7 @@ export default function MensagemListPage() {
     return (
         <div className="mensagem-list">
             <div className="mensagem-list__header">
-                <h1>Mensagens de Clientes</h1>
+                <h1>Avaliação de clientes</h1>
                 <Link to="/admin/mensagens/nova" className="btn btn--primary">
                     Nova mensagem
                 </Link>

@@ -2,6 +2,8 @@ package com.conAle.projeto.Model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -10,9 +12,12 @@ import jakarta.persistence.Table;
 @Table(name = "rodape")
 public class Rodape {
 
-    // O registro id = 1 e criado pela migration; nao ha novos cadastros.
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    @Column(nullable = false, length = 100)
+    private String nome;
 
     // Os limites acompanham a tabela; a validação da entrada fica no DTO.
     // Campos legados podem ser null ate o primeiro preenchimento pela API.
@@ -36,6 +41,9 @@ public class Rodape {
     private String endereco;
 
     public Integer getId() { return id; }
+
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
 
     public String getTelefone() { return telefone; }
     public void setTelefone(String telefone) { this.telefone = telefone; }

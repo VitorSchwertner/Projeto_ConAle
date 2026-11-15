@@ -10,6 +10,7 @@ export interface Usuario {
     nome: string
     email: string
     administrador: boolean
+    administradorOriginal: boolean
 }
 
 export interface Banner {

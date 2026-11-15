@@ -22,7 +22,7 @@ class RodapeServiceTest {
     @Autowired EntityManager entityManager;
 
     @Test
-    void consultaSempreORodapeFixo() {
+    void consultaRodapePadraoAtivo() {
         assertThat(service.buscar().id()).isEqualTo(1);
     }
 
@@ -45,9 +45,10 @@ class RodapeServiceTest {
     }
 
     @Test
-    void registroAusenteNaoERecriadoSilenciosamente() {
-        jdbc.update("DELETE FROM rodape WHERE id = 1");
-        assertThatThrownBy(service::buscar).isInstanceOf(ResponseStatusException.class);
-        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM rodape", Integer.class)).isZero();
+    void impedeExcluirRodapeAtivo() {
+        assertThatThrownBy(() -> service.excluir(1))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Ative outro rodapé");
+        assertThat(service.buscar().id()).isEqualTo(1);
     }
 }
