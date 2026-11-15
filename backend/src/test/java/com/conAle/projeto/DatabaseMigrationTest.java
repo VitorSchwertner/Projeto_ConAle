@@ -23,13 +23,13 @@ class DatabaseMigrationTest {
     @Test
     // Confere as tabelas e garante que a V1 nao seja aplicada novamente.
     void migrationCanRunAgainWithoutChangingSchemaOrFooter() {
-        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("7");
+        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("9");
         flyway.validate();
         assertThat(flyway.migrate().migrationsExecuted).isZero();
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM rodape WHERE id = 1", Integer.class)).isEqualTo(1);
         assertThat(jdbc.queryForList("SHOW TABLES", String.class))
                 .contains("usuario", "banner", "noticia", "rodape", "indicador_institucional",
-                        "mensagens_clientes", "flyway_schema_history");
+                        "mensagens_clientes", "rodape_ativo", "flyway_schema_history");
     }
 
     @Test
@@ -83,23 +83,21 @@ class DatabaseMigrationTest {
 
     @Test
     @Transactional
-    // Permite editar o rodape, mas impede outro registro ou outro id.
-    void footerCanBeEditedButCannotHaveAnotherIdOrDuplicate() {
-        jdbc.update("UPDATE rodape SET telefone = '51999999999' WHERE id = 1");
-        assertThat(jdbc.queryForObject("SELECT telefone FROM rodape WHERE id = 1", String.class)).isEqualTo("51999999999");
-        assertMysqlError(3819, () -> jdbc.update("INSERT INTO rodape(id) VALUES (2)"));
-        assertMysqlError(1062, () -> jdbc.update("INSERT INTO rodape(id) VALUES (1)"));
+    void rodapePadraoFicaAtivoEProtegidoNoBanco() {
+        assertThat(jdbc.queryForObject("SELECT nome FROM rodape WHERE id = 1", String.class)).isEqualTo("Padrão");
+        assertThat(jdbc.queryForObject("SELECT rodape_id FROM rodape_ativo WHERE id = 1", Integer.class)).isEqualTo(1);
+        assertMysqlError(3819, () -> jdbc.update("INSERT INTO rodape_ativo(id, rodape_id) VALUES (2, 1)"));
+        assertMysqlError(1451, () -> jdbc.update("DELETE FROM rodape WHERE id = 1"));
     }
 
     @Test
-    // A coluna foi renomeada e o ID continua sem AUTO_INCREMENT.
-    void footerSchemaKeepsFixedIdAndRenamesAddress() {
+    void rodapeMantemEnderecoEGeraIdParaNovosCadastros() {
         assertThat(jdbc.queryForList("SELECT COLUMN_NAME FROM information_schema.COLUMNS "
                 + "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'rodape'", String.class))
                 .contains("endereco", "link").doesNotContain("local");
         assertThat(jdbc.queryForObject("SELECT EXTRA FROM information_schema.COLUMNS "
                 + "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'rodape' AND COLUMN_NAME = 'id'",
-                String.class)).doesNotContain("auto_increment");
+                String.class)).contains("auto_increment");
     }
 
     @Test

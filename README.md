@@ -217,6 +217,12 @@ No PUT, nome e e-mail continuam obrigatórios; omitir a senha ou enviar `null` m
 
 As operações no Postman alteram o banco configurado no backend; não são simulações. Utilize registros de teste. Alterações de e-mail/senha, revogação do acesso e exclusão de conta invalidam sessões anteriores no próximo acesso; ao alterar suas credenciais, faça novo login.
 
+### Rodapés
+
+No painel, **Rodapé** lista os modelos cadastrados. Dê um nome interno a cada modelo e use **Ativar** para exibi-lo em todo o site. Novos modelos começam inativos. Para excluir o modelo ativo, ative outro primeiro.
+
+A migration V9 preserva o rodapé existente como **Padrão** e o seleciona para exibição. A leitura pública em `GET /api/rodape` continua retornando apenas o rodapé ativo, e `PUT /api/rodape` edita os dados desse rodapé. Usuários com acesso ao painel podem gerenciar os modelos em `/api/rodape/modelos`.
+
 ## Banco e migrations
 
 - **V1 — estrutura inicial:** cria `usuario`, `banner`, `noticia` e `rodape`; insere o rodapé único com `id = 1`.

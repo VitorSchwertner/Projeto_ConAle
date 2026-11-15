@@ -32,9 +32,12 @@ export default function Header() {
                             </li>
                         ))}
                     </ul>
-                    <Link to="/#area-cliente" className="btn btn--primary header__cta">
+                    <a
+                        href="https://onvio.com.br/br-portal-do-cliente/"
+                        className="btn btn--primary header__cta"
+                    >
                         Área do Cliente
-                    </Link>
+                    </a>
                 </nav>
 
                 <button

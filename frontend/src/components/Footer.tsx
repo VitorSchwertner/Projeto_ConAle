@@ -7,7 +7,7 @@ import './Footer.css'
 
 const PADRAO: Rodape = {
     id: 0,
-    telefone: '+55 (51) 9 9661 - 9470',
+    telefone: '+55 (51) 99661-9470',
     instagram: '@conale.consultoria',
     email: 'atendimento.conale@gmail.com',
     diasSemana: 'Segunda à Sexta-feira',
@@ -15,11 +15,10 @@ const PADRAO: Rodape = {
     endereco: 'R. Guanabara, 353 - Sala 1, São Cristóvão, Lajeado - RS, 95913-122',
 }
 
-const MAPS_LINK =
-    'https://www.google.com/maps/search/?api=1&query=R.+Guanabara,+353,+Lajeado+-+RS'
-
 export default function Footer() {
     const [rodape, setRodape] = useState<Rodape>(PADRAO)
+    const endereco = rodape.endereco?.trim()
+    const mapa = endereco ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}` : null
 
     useEffect(() => {
         buscarRodape()
@@ -63,13 +62,19 @@ export default function Footer() {
                         </div>
                         <div className="footer__row">
                             <FiMapPin size={24} strokeWidth={1.5} />
-                            <span>{rodape.endereco}</span>
+                            {mapa ? (
+                                <a href={mapa} target="_blank" rel="noreferrer" className="footer__endereco">
+                                    {endereco}
+                                </a>
+                            ) : null}
                         </div>
                     </div>
 
-                    <a href={MAPS_LINK} target="_blank" rel="noreferrer" className="footer__map">
-                        <img src="/mapa.png" alt="Mapa de localização da ConAle" />
-                    </a>
+                    {mapa && endereco === PADRAO.endereco && (
+                        <a href={mapa} target="_blank" rel="noreferrer" className="footer__map">
+                            <img src="/mapa.png" alt="Mapa de localização da ConAle" />
+                        </a>
+                    )}
                 </div>
             </div>
 

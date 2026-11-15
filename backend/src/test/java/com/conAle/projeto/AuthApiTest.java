@@ -61,7 +61,13 @@ class AuthApiTest {
     @Test void noticiasSaoPublicasUsuariosNao() throws Exception {
         mvc.perform(get("/api/noticias")).andExpect(status().isOk());
         mvc.perform(get("/api/banners/ativos")).andExpect(status().isOk());
-        mvc.perform(get("/api/rodape")).andExpect(status().isOk());
+        mvc.perform(get("/api/rodape")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.telefone").value("+55 (51) 99661-9470"))
+                .andExpect(jsonPath("$.instagram").value("@conale.consultoria"))
+                .andExpect(jsonPath("$.email").value("atendimento.conale@gmail.com"))
+                .andExpect(jsonPath("$.diasSemana").value("Segunda à Sexta-feira"))
+                .andExpect(jsonPath("$.horasTrabalhadas").value("08:00h - 12:00h | 13:00h - 17:15h"))
+                .andExpect(jsonPath("$.endereco").value("R. Guanabara, 353 - Sala 1, São Cristóvão, Lajeado - RS, 95913-122"));
         mvc.perform(get("/api/indicadores-institucionais")).andExpect(status().isOk());
         mvc.perform(get("/api/mensagens-clientes")).andExpect(status().isOk());
         mvc.perform(get("/api/banners")).andExpect(status().isUnauthorized());
@@ -79,6 +85,54 @@ class AuthApiTest {
                     .andExpect(jsonPath("$.detail").value("E-mail ou senha inválidos."));
         }
     }
+    @Test void gerenciaModelosEPublicaSomenteORodapeAtivo() throws Exception {
+        String rota = "/api/rodape/modelos";
+        var session = login();
+        mvc.perform(get(rota)).andExpect(status().isUnauthorized());
+        mvc.perform(get(rota).session(session)).andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].nome").value("Padrão"))
+                .andExpect(jsonPath("$[0].ativo").value(true));
+
+        var dados = new java.util.HashMap<>(Map.of(
+                "telefone", "51999999999", "email", "plantao@example.invalid",
+                "diasSemana", "Sábado", "horasTrabalhadas", "8h às 12h",
+                "endereco", "Rua do Plantão, 100"));
+        String payload = json.writeValueAsString(Map.of("nome", "Plantão", "dados", dados));
+        mvc.perform(post(rota).session(session).contentType(MediaType.APPLICATION_JSON).content(payload))
+                .andExpect(status().isForbidden());
+        var criado = mvc.perform(post(rota).session(session).with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON).content(payload))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.ativo").value(false))
+                .andReturn().getResponse().getContentAsString();
+        int id = json.readTree(criado).path("dados").path("id").asInt();
+        mvc.perform(get("/api/rodape")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.nome").doesNotExist());
+
+        dados.put("email", "novo-plantao@example.invalid");
+        payload = json.writeValueAsString(Map.of("nome", "Plantão especial", "dados", dados));
+        mvc.perform(put(rota + "/" + id).session(session).with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON).content(payload))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nome").value("Plantão especial"));
+
+        mvc.perform(put(rota + "/" + id + "/ativacao").session(session).with(csrf()))
+                .andExpect(status().isNoContent());
+        mvc.perform(get("/api/rodape")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.email").value("novo-plantao@example.invalid"));
+        mvc.perform(delete(rota + "/" + id).session(session).with(csrf()))
+                .andExpect(status().isConflict());
+        mvc.perform(get(rota).session(session)).andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].ativo").value(false))
+                .andExpect(jsonPath("$[1].ativo").value(true));
+        mvc.perform(delete(rota + "/1").session(session).with(csrf()))
+                .andExpect(status().isNoContent());
+        mvc.perform(get("/api/rodape")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id));
+    }
+
     @Test void designEntraGerenciaConteudoMasNaoUsuarios() throws Exception {
         admin.setAdministrador(false); usuarios.saveAndFlush(admin);
         var session = login();
