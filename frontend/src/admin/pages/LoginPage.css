@@ -51,12 +51,39 @@
     border-color: var(--color-green);
 }
 
+.admin-login__password {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.admin-login__password input {
+    width: 100%;
+    padding-right: 44px;
+}
+
+.admin-login__toggle {
+    position: absolute;
+    right: 10px;
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    padding: 4px;
+    color: var(--color-slate);
+    cursor: pointer;
+}
+
+.admin-login__toggle:hover {
+    color: var(--color-navy);
+}
+
 .admin-login__error {
     color: #c0392b;
     font-size: 0.82rem;
     margin: 0;
 }
 
-.admin-login__card button {
+.admin-login__card button[type='submit'] {
     margin-top: 8px;
 }
