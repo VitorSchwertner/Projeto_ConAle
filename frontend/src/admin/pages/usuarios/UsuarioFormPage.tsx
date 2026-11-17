@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import BackButton from '../../components/BackButton'
 import { buscarUsuario, criarUsuario, atualizarUsuario } from '../../api/usuarios'
 import { useAuth } from '../../context/AuthContext'
 import './UsuarioFormPage.css'
@@ -75,6 +76,7 @@ export default function UsuarioFormPage() {
 
     return (
         <div className="usuario-form">
+            <BackButton to="/admin/usuarios" />
             <h1>{editando ? 'Editar usuário' : 'Novo usuário'}</h1>
 
             <form onSubmit={handleSubmit}>
