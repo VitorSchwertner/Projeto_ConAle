@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { FiEye, FiEyeOff } from 'react-icons/fi'
 import { useAuth } from '../context/AuthContext'
 import './LoginPage.css'
 
@@ -8,6 +9,7 @@ export default function LoginPage() {
     const navigate = useNavigate()
     const [email, setEmail] = useState('')
     const [senha, setSenha] = useState('')
+    const [mostrarSenha, setMostrarSenha] = useState(false)
     const [erro, setErro] = useState<string | null>(null)
     const [enviando, setEnviando] = useState(false)
 
@@ -43,12 +45,22 @@ export default function LoginPage() {
 
                 <label>
                     Senha
-                    <input
-                        type="password"
-                        value={senha}
-                        onChange={(e) => setSenha(e.target.value)}
-                        required
-                    />
+                    <div className="admin-login__password">
+                        <input
+                            type={mostrarSenha ? 'text' : 'password'}
+                            value={senha}
+                            onChange={(e) => setSenha(e.target.value)}
+                            required
+                        />
+                        <button
+                            type="button"
+                            className="admin-login__toggle"
+                            aria-label={mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'}
+                            onClick={() => setMostrarSenha((atual) => !atual)}
+                        >
+                            {mostrarSenha ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                        </button>
+                    </div>
                 </label>
 
                 {erro && <p className="admin-login__error">{erro}</p>}
