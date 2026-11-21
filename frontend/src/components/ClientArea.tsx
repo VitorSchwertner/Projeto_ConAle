@@ -1,3 +1,4 @@
+import { CLIENT_PORTAL_URL } from '../constants'
 import { useBanners } from '../hooks/useBanners'
 import './ClientArea.css'
 
@@ -13,7 +14,7 @@ export default function ClientArea() {
               <br />
               do Cliente
             </h3>
-            <button className="btn btn--primary">Acessar</button>
+            <a href={CLIENT_PORTAL_URL} className="btn btn--primary">Acessar</a>
           </div>
 
           {areaClienteBanner ? (

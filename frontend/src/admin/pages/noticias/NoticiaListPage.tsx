@@ -13,7 +13,7 @@ export default function NoticiaListPage() {
     setCarregando(true)
     listarNoticias()
       .then(setNoticias)
-      .catch(() => setErro('Não foi possível carregar as notícias.'))
+      .catch(() => setErro('Não foi possível carregar os cards informativos.'))
       .finally(() => setCarregando(false))
   }
 
@@ -24,7 +24,7 @@ export default function NoticiaListPage() {
         if (ativo) setNoticias(dados)
       })
       .catch(() => {
-        if (ativo) setErro('Não foi possível carregar as notícias.')
+        if (ativo) setErro('Não foi possível carregar os cards informativos.')
       })
       .finally(() => {
         if (ativo) setCarregando(false)
@@ -36,12 +36,12 @@ export default function NoticiaListPage() {
   }, [])
 
   const handleExcluir = async (id: number) => {
-    if (!confirm('Excluir esta notícia?')) return
+    if (!confirm('Excluir este card?')) return
     try {
       await excluirNoticia(id)
       carregar()
     } catch {
-      alert('Não foi possível excluir a notícia.')
+      alert('Não foi possível excluir o card.')
     }
   }
 
@@ -51,9 +51,9 @@ export default function NoticiaListPage() {
   return (
     <div className="noticia-list">
       <div className="noticia-list__header">
-        <h1>Notícias</h1>
+        <h1>Cards informativos</h1>
         <Link to="/admin/noticias/nova" className="btn btn--primary">
-          Nova notícia
+          Novo card
         </Link>
       </div>
 
@@ -78,7 +78,7 @@ export default function NoticiaListPage() {
           ))}
           {noticias.length === 0 && (
             <tr>
-              <td colSpan={3}>Nenhuma notícia cadastrada.</td>
+              <td colSpan={3}>Nenhum card cadastrado.</td>
             </tr>
           )}
         </tbody>
