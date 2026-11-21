@@ -9,6 +9,7 @@ export interface Banner {
     id: number
     titulo: string
     imagem: string
+    imagemMobile: string | null
     link: string | null
     ativo: boolean
     posicao: BannerPosition | null

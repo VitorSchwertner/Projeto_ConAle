@@ -10,6 +10,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.*;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.RequestCacheConfigurer;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -56,6 +58,7 @@ public class SegurancaConfig {
                 .requestMatchers(HttpMethod.GET, "/api/noticias", "/api/noticias/*").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/banners/ativos", "/api/rodape",
                         "/api/indicadores-institucionais", "/api/mensagens-clientes").permitAll()
+                .requestMatchers(HttpMethod.GET, "/uploads/banners/*").permitAll()
                 .requestMatchers("/api/auth/me").hasAnyRole("ADMIN", "DESIGN")
                 .requestMatchers("/api/usuarios", "/api/usuarios/**").hasRole("ADMIN")
                 .requestMatchers("/api/noticias", "/api/noticias/**",
@@ -64,8 +67,8 @@ public class SegurancaConfig {
                         "/api/mensagens-clientes", "/api/mensagens-clientes/**")
                     .hasAnyRole("ADMIN", "DESIGN")
                 .anyRequest().denyAll())
-            .requestCache(c -> c.disable())
-            .formLogin(c -> c.disable()).httpBasic(c -> c.disable())
+            .requestCache( RequestCacheConfigurer::disable )
+            .formLogin( AbstractHttpConfigurer::disable ).httpBasic( AbstractHttpConfigurer::disable )
             .exceptionHandling(e -> e
                 .authenticationEntryPoint((req, res, ex) -> {
                     res.setStatus(401); res.setContentType("application/problem+json;charset=UTF-8");

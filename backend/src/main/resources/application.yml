@@ -1,6 +1,11 @@
 spring:
   application:
     name: conale-backend
+  # Limites do upload de imagens (banners).
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
   # Recebe a conexao e as credenciais pelo ambiente, sem gravar senhas aqui.
   datasource:
     url: ${DB_URL}
@@ -24,6 +29,12 @@ spring:
     init:
       # Evita outro inicializador SQL: a estrutura fica a cargo do Flyway.
       mode: never
+
+# Pasta onde as imagens enviadas ficam gravadas. Pode ser trocada pela
+# variavel de ambiente UPLOAD_DIR (use um caminho absoluto, fora do projeto).
+app:
+  upload:
+    dir: ${UPLOAD_DIR:C:/conAle/uploads}
 
 # Expoe apenas /actuator/health, sem detalhes internos da aplicacao.
 management:

@@ -1,9 +1,12 @@
+import { urlImagem } from '../api/http'
 import { CLIENT_PORTAL_URL } from '../constants'
 import { useBanners } from '../hooks/useBanners'
+import { useImagemBanner } from '../hooks/useImagemBanner'
 import './ClientArea.css'
 
 export default function ClientArea() {
   const { areaClienteBanner } = useBanners()
+  const imagem = useImagemBanner(areaClienteBanner)
 
   return (
       <section className="client-area" id="area-cliente">
@@ -14,13 +17,13 @@ export default function ClientArea() {
               <br />
               do Cliente
             </h3>
-            <a href={CLIENT_PORTAL_URL} className="btn btn--primary">Acessar</a>
+            <a href={areaClienteBanner?.link ?? CLIENT_PORTAL_URL} className="btn btn--primary">Acessar</a>
           </div>
 
-          {areaClienteBanner ? (
+          {imagem ? (
               <img
-                  src={areaClienteBanner.imagem}
-                  alt={areaClienteBanner.titulo}
+                  src={urlImagem(imagem)}
+                  alt={areaClienteBanner?.titulo ?? ''}
                   className="client-area__banner-image"
               />
           ) : (

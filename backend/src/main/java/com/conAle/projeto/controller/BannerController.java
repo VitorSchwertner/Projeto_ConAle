@@ -2,13 +2,17 @@ package com.conAle.projeto.Controller;
 
 import com.conAle.projeto.dto.BannerRequest;
 import com.conAle.projeto.dto.BannerResponse;
+import com.conAle.projeto.service.ArquivoService;
 import com.conAle.projeto.service.BannerService;
 import jakarta.validation.Valid;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 // Recebe as chamadas HTTP e devolve os resultados em JSON.
 // As operações com o banco ficam no service.
@@ -17,10 +21,12 @@ import java.util.List;
 public class BannerController {
 
     private final BannerService service;
+    private final ArquivoService arquivoService;
 
-    // O Spring fornece o service ao criar este controller.
-    public BannerController(BannerService service) {
+    // O Spring fornece os services ao criar este controller.
+    public BannerController(BannerService service, ArquivoService arquivoService) {
         this.service = service;
+        this.arquivoService = arquivoService;
     }
 
     // POST cadastra um banner. @Valid confere as regras do DTO de entrada.
@@ -33,6 +39,17 @@ public class BannerController {
 
         // Retorna 201 e o endereço do banner no cabeçalho Location.
         return ResponseEntity.created(localizacao).body(banner);
+    }
+
+    // POST /api/banners/upload recebe a imagem (já recortada pelo front),
+    // confere a proporção da posição e devolve o caminho para gravar no banner.
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Map<String, String> upload(
+            @RequestParam("arquivo") MultipartFile arquivo,
+            @RequestParam("posicao") String posicao,
+            @RequestParam(value = "mobile", defaultValue = "false") boolean mobile
+    ) {
+        return Map.of("caminho", arquivoService.salvarImagemBanner(arquivo, posicao, mobile));
     }
 
     // GET sem ID lista todos os banners (uso do painel administrativo).

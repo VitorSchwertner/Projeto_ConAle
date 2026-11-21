@@ -5,7 +5,7 @@ import Services from '../components/Services'
 export default function FaqPage() {
     return (
         <>
-            <ServicesHero />
+            <ServicesHero destinoPadrao="#servicos" />
             <Noticias layout="grid" />
             <Services />
         </>

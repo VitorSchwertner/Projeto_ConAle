@@ -23,7 +23,7 @@ class DatabaseMigrationTest {
     @Test
     // Confere a versão e garante que o Flyway não reaplique migrations.
     void migrationCanRunAgainWithoutChangingSchemaOrFooter() {
-        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("10");
+        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("13");
         flyway.validate();
         assertThat(flyway.migrate().migrationsExecuted).isZero();
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM rodape WHERE id = 1", Integer.class)).isEqualTo(1);
@@ -42,6 +42,19 @@ class DatabaseMigrationTest {
                         "Como sei se estou pagando impostos corretamente?",
                         "Posso trocar de contador facilmente?",
                         "Como funciona o atendimento da ConAle?");
+    }
+
+    @Test
+    void cadastraBannersPadraoAtivosComAsArtesDaPosicao() {
+        assertThat(jdbc.queryForList("""
+                SELECT CONCAT_WS('|', posicao, imagem, imagem_mobile)
+                FROM banner WHERE ativo = TRUE
+                """, String.class)).contains(
+                "HOME_TOPO|/banners/padrao/home-desktop.png|/banners/padrao/home-mobile.png",
+                "SERVICOS_TOPO|/banners/padrao/servicos-desktop.png|/banners/padrao/servicos-mobile.png",
+                "SOBRE_NOS|/banners/padrao/sobre-nos-desktop.png|/banners/padrao/sobre-nos-mobile.png",
+                "AREA_CLIENTE|/banners/padrao/area-do-cliente.png",
+                "SOBRE_MIM_FOTO|/banners/padrao/sobre-mim-desktop.png|/banners/padrao/sobre-mim-mobile.png");
     }
 
     @Test

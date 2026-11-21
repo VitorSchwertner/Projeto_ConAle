@@ -1,0 +1,185 @@
+.imagem-banner {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+    padding: clamp(12px, 2vw, 16px);
+    border: 1px solid var(--banner-border);
+    border-radius: var(--radius-md);
+    background: #f8fafc;
+}
+
+.imagem-banner__cabecalho {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.imagem-banner__cabecalho h3 {
+    margin: 0;
+    color: var(--color-navy);
+    font: 700 0.95rem var(--font-body);
+}
+
+.imagem-banner__icone {
+    display: grid;
+    flex: 0 0 34px;
+    height: 34px;
+    place-items: center;
+    border-radius: 8px;
+    background: #e6f2ed;
+    color: var(--banner-action);
+}
+
+.imagem-banner__opcional {
+    margin-inline-start: auto;
+    color: var(--color-text-muted);
+    font-size: 0.76rem;
+}
+
+.imagem-banner__dica {
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+    line-height: 1.45;
+}
+
+.imagem-banner__palco {
+    display: grid;
+    block-size: clamp(150px, 19vw, 225px);
+    min-width: 0;
+    place-items: center;
+    overflow: hidden;
+    border: 1px solid var(--banner-border);
+    border-radius: 8px;
+    background: #eaf0f4;
+}
+
+.imagem-banner__preview {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    object-fit: contain;
+}
+
+.imagem-banner__vazio {
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    padding: 12px;
+    text-align: center;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+}
+
+.imagem-banner__vazio svg {
+    width: 25px;
+    height: 25px;
+}
+
+.imagem-banner__controles {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    margin-top: auto;
+}
+
+.imagem-banner__escolher {
+    gap: 8px;
+    min-height: 44px;
+    padding-inline: 12px;
+    border: 1px solid #afc3bd;
+    border-radius: 8px;
+    background: #fff;
+    color: var(--banner-action);
+    font-size: 0.85rem;
+}
+
+.imagem-banner__escolher:hover {
+    background: #e6f2ed;
+}
+
+.imagem-banner__remover {
+    min-height: 44px;
+    padding: 8px 4px;
+    border: 0;
+    background: transparent;
+    color: #9d302a;
+    font-size: 0.83rem;
+    font-weight: 600;
+}
+
+.imagem-banner__remover:hover {
+    text-decoration: underline;
+}
+
+.imagem-banner__modal {
+    width: min(680px, calc(100% - 24px));
+    max-width: none;
+    max-height: calc(100dvh - 24px);
+    overflow: auto;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-lg);
+    color: var(--color-navy);
+    background: #fff;
+    box-shadow: 0 24px 64px rgba(15, 23, 42, 0.32);
+}
+
+.imagem-banner__modal::backdrop {
+    background: rgba(15, 23, 42, 0.65);
+}
+
+.imagem-banner__caixa {
+    display: grid;
+    gap: 16px;
+    padding: clamp(14px, 3vw, 24px);
+}
+
+.imagem-banner__caixa h2 {
+    font: 700 1.1rem var(--font-body);
+}
+
+.imagem-banner__area {
+    position: relative;
+    height: clamp(140px, 45dvh, 360px);
+    overflow: hidden;
+    border-radius: 8px;
+    background: var(--color-navy);
+}
+
+.imagem-banner__zoom {
+    display: grid;
+    gap: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.imagem-banner__zoom input {
+    width: 100%;
+    min-height: 22px;
+    margin: 0;
+    accent-color: var(--banner-action);
+}
+
+.imagem-banner__aviso,
+.imagem-banner__erro {
+    font-size: 0.85rem;
+    line-height: 1.45;
+}
+
+.imagem-banner__aviso {
+    color: #784615;
+}
+
+.imagem-banner__erro {
+    color: #8d2823;
+}
+
+.imagem-banner__botoes {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}

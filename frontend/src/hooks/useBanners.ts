@@ -11,7 +11,8 @@ function encontrarPorPosicao(
     if (porPosicao) return porPosicao
 
     const ordenados = [...banners].sort((a, b) => a.id - b.id)
-    return ordenados[indiceReserva] ?? null
+    const legado = ordenados[indiceReserva]
+    return legado?.posicao === null ? legado : null
 }
 
 export function useBanners() {

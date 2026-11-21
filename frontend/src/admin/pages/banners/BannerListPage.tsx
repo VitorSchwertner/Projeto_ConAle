@@ -4,6 +4,15 @@ import { listarBanners, excluirBanner } from '../../api/banners'
 import type { Banner } from '../../types'
 import './BannerListPage.css'
 
+function destinoNoPainel(banner: Banner) {
+    const link = banner.link?.trim()
+    if (!link || banner.posicao === 'SOBRE_MIM_FOTO') return null
+    if (!link.startsWith('#')) return link
+
+    const pagina = banner.posicao === 'SERVICOS_TOPO' && link !== '#servicos' ? '/servicos' : '/'
+    return `${pagina}${link}`
+}
+
 export default function BannerListPage() {
     const [banners, setBanners] = useState<Banner[]>([])
     const [carregando, setCarregando] = useState(true)
@@ -67,17 +76,26 @@ export default function BannerListPage() {
                 </tr>
                 </thead>
                 <tbody>
-                {banners.map((banner) => (
-                    <tr key={banner.id}>
-                        <td>{banner.titulo}</td>
-                        <td>{banner.link ?? '—'}</td>
-                        <td>{banner.ativo ? 'Sim' : 'Não'}</td>
-                        <td className="banner-list__actions">
-                            <Link to={`/admin/banners/${banner.id}`}>Editar</Link>
-                            <button onClick={() => handleExcluir(banner.id)}>Excluir</button>
-                        </td>
-                    </tr>
-                ))}
+                {banners.map((banner) => {
+                    const destino = destinoNoPainel(banner)
+                    return (
+                        <tr key={banner.id}>
+                            <td>{banner.titulo}</td>
+                            <td>
+                                {destino ? (
+                                    <a className="banner-list__link" href={destino} target="_blank" rel="noopener noreferrer">
+                                        {banner.link}
+                                    </a>
+                                ) : '—'}
+                            </td>
+                            <td>{banner.ativo ? 'Sim' : 'Não'}</td>
+                            <td className="banner-list__actions">
+                                <Link to={`/admin/banners/${banner.id}`}>Editar</Link>
+                                <button onClick={() => handleExcluir(banner.id)}>Excluir</button>
+                            </td>
+                        </tr>
+                    )
+                })}
                 {banners.length === 0 && (
                     <tr>
                         <td colSpan={4}>Nenhum banner cadastrado.</td>

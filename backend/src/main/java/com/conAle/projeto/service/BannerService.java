@@ -87,8 +87,9 @@ public class BannerService {
     private void preencher(Banner banner, BannerRequest request) {
         banner.setTitulo(request.titulo().trim());
         banner.setImagem(request.imagem().trim());
-        banner.setLink(vazioParaNull(request.link()));
+        banner.setImagemMobile(vazioParaNull(request.imagemMobile()));
         banner.setPosicao(request.posicao().trim());
+        banner.setLink(banner.aceitaLink() ? vazioParaNull(request.link()) : null);
         // Se não vier no request, o banner nasce ativo.
         banner.setAtivo(request.ativo() == null || request.ativo());
     }

@@ -1,4 +1,6 @@
+import { urlImagem } from '../api/http';
 import { useBanners } from '../hooks/useBanners';
+import { useImagemBanner } from '../hooks/useImagemBanner';
 import './AboutIntro.css';
 
 interface Pillar {
@@ -42,9 +44,8 @@ const VALUES: Value[] = [
 ];
 
 export default function AboutIntro() {
-    const { sobreMimFotoBanner } = useBanners() as {
-        sobreMimFotoBanner?: { imagem: string; titulo: string }
-    };
+    const { sobreMimFotoBanner } = useBanners();
+    const imagem = useImagemBanner(sobreMimFotoBanner);
 
     return (
         <section className="about-intro" id="sobre">
@@ -52,10 +53,10 @@ export default function AboutIntro() {
                 <div className="container">
                     {/* Bloco Superior: Foto e Texto Principal */}
                     <div className="about-intro__grid">
-                        {sobreMimFotoBanner ? (
+                        {imagem ? (
                             <img
-                                src={sobreMimFotoBanner.imagem}
-                                alt={sobreMimFotoBanner.titulo}
+                                src={urlImagem(imagem)}
+                                alt={sobreMimFotoBanner?.titulo ?? ''}
                                 className="about-intro__image"
                             />
                         ) : (

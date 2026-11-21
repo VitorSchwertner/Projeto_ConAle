@@ -1,7 +1,20 @@
 import { apiFetch } from './http'
-import type { Banner } from '../types'
+import type { Banner, BannerPosition } from '../types'
 
 export type BannerInput = Omit<Banner, 'id'>
+
+export async function enviarImagem(arquivo: File, posicao: BannerPosition, mobile: boolean) {
+    const dados = new FormData()
+    dados.append('arquivo', arquivo)
+    dados.append('posicao', posicao)
+    dados.append('mobile', String(mobile))
+
+    const { caminho } = await apiFetch<{ caminho: string }>('/api/banners/upload', {
+        method: 'POST',
+        body: dados,
+    })
+    return caminho
+}
 
 export function listarBanners() {
     return apiFetch<Banner[]>('/api/banners')

@@ -32,6 +32,12 @@
     font-weight: 600;
 }
 
+.banner-list__link {
+    color: var(--color-navy-light);
+    text-decoration: underline;
+    overflow-wrap: anywhere;
+}
+
 .banner-list__actions {
     display: flex;
     gap: 14px;

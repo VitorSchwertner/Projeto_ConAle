@@ -184,6 +184,32 @@ class AuthApiTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test void linkDoBannerFicaDisponivelSomenteNasPosicoesComChamada() throws Exception {
+        var session = login();
+        var dados = new java.util.HashMap<>(Map.of(
+                "titulo", "Banner com chamada",
+                "imagem", "/banner.png",
+                "posicao", "SOBRE_NOS",
+                "link", "https://example.invalid/destino"));
+
+        var criado = mvc.perform(post("/api/banners").session(session).with(csrf())
+                .contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(dados)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.link").value(dados.get("link")))
+                .andReturn();
+
+        String localizacao = criado.getResponse().getHeader("Location");
+        dados.put("posicao", "SOBRE_MIM_FOTO");
+        mvc.perform(put(localizacao).session(session).with(csrf())
+                .contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(dados)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.link").doesNotExist());
+
+        mvc.perform(get(localizacao).session(session))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.link").doesNotExist());
+    }
+
     @Test void tokenRealTrocaAoEntrarESessaoTrocaId() throws Exception {
         var initial = mvc.perform(get("/api/auth/csrf")).andExpect(status().isOk()).andReturn();
         var session = (MockHttpSession) initial.getRequest().getSession(false);

@@ -20,6 +20,9 @@ services:
       ADMIN_INITIAL_EMAIL: ${ADMIN_INITIAL_EMAIL:-}
       ADMIN_INITIAL_PASSWORD: ${ADMIN_INITIAL_PASSWORD:-}
       SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
+      UPLOAD_DIR: /app/uploads
+    volumes:
+      - banner_uploads:/app/uploads
     # Aguarda o banco aceitar conexoes antes de iniciar a aplicacao.
     depends_on:
       mysql:
@@ -57,3 +60,4 @@ services:
 # O Docker administra este armazenamento fora dos arquivos do repositorio.
 volumes:
   mysql_data:
+  banner_uploads:

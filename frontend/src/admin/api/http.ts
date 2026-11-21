@@ -22,10 +22,12 @@ interface RequestOptions {
 export async function apiFetch<T>(path: string, options: RequestOptions = {}): Promise<T> {
     const method = options.method ?? 'GET'
     const isMutating = method !== 'GET'
+    const isForm = options.body instanceof FormData
 
     const headers: Record<string, string> = {}
 
-    if (options.body !== undefined) {
+    // Com FormData o navegador define o Content-Type (multipart + boundary).
+    if (options.body !== undefined && !isForm) {
         headers['Content-Type'] = 'application/json'
     }
 
@@ -34,12 +36,17 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
         if (csrf) headers[csrf.headerName] = csrf.token
     }
 
+    const serializarBody = (): BodyInit | undefined => {
+        if (options.body === undefined) return undefined
+        return isForm ? (options.body as FormData) : JSON.stringify(options.body)
+    }
+
     const doFetch = () =>
         fetch(`${BASE_URL}${path}`, {
             method,
             headers,
             credentials: 'include',
-            body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+            body: serializarBody(),
         })
 
     let response = await doFetch()
