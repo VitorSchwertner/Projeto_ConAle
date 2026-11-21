@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
+import BackButton from '../../components/BackButton'
 import {
     ativarRodape, atualizarRodape, criarRodape, excluirRodape, listarRodapes,
     type RodapeModelo, type RodapeModeloInput,
@@ -105,6 +106,7 @@ export default function RodapePage() {
     return (
         <div className="rodape-page">
             <div className="rodape-page__header">
+                <BackButton to="/admin/rodape" />
                 <h1>{edicao ? (edicao.id === null ? 'Novo rodapé' : 'Editar rodapé') : 'Rodapé'}</h1>
                 {!edicao && modelos && (
                     <button className="btn btn--primary" disabled={ocupado} onClick={() => abrirFormulario()}>

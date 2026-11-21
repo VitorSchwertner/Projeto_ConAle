@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { buscarBanner, criarBanner, atualizarBanner } from '../../api/banners'
 import type { BannerPosition } from '../../types'
 import './BannerFormPage.css'
+import BackButton from '../../components/BackButton'
 
 const POSICOES: { value: BannerPosition; label: string }[] = [
     { value: 'HOME_TOPO', label: 'Topo da Home' },
@@ -63,6 +64,7 @@ export default function BannerFormPage() {
 
     return (
         <div className="banner-form">
+            <BackButton to="/admin/banners" />
             <h1>{editando ? 'Editar banner' : 'Novo banner'}</h1>
 
             <form onSubmit={handleSubmit}>

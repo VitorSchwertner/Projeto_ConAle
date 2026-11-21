@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { buscarNoticia, criarNoticia, atualizarNoticia } from '../../api/noticias'
 import './NoticiaFormPage.css'
+import BackButton from '../../components/BackButton'
 
 export default function NoticiaFormPage() {
     const { id } = useParams()
@@ -48,6 +49,7 @@ export default function NoticiaFormPage() {
 
     return (
         <div className="noticia-form">
+            <BackButton to="/admin/noticias" />
             <h1>{editando ? 'Editar notícia' : 'Nova notícia'}</h1>
 
             <form onSubmit={handleSubmit}>
