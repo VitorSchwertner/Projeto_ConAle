@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { CLIENT_PORTAL_URL } from '../constants'
 import './Header.css'
 
 const NAV_LINKS = [
@@ -33,7 +34,7 @@ export default function Header() {
                         ))}
                     </ul>
                     <a
-                        href="https://onvio.com.br/br-portal-do-cliente/"
+                        href={CLIENT_PORTAL_URL}
                         className="btn btn--primary header__cta"
                     >
                         Área do Cliente

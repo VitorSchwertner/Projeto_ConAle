@@ -21,7 +21,7 @@ export default function NoticiaFormPage() {
                 setTitulo(noticia.titulo)
                 setSubTitulo(noticia.subTitulo ?? '')
             })
-            .catch(() => setErro('Não foi possível carregar esta notícia.'))
+            .catch(() => setErro('Não foi possível carregar este card.'))
             .finally(() => setCarregando(false))
     }, [id])
 
@@ -38,7 +38,7 @@ export default function NoticiaFormPage() {
             }
             navigate('/admin/noticias')
         } catch {
-            setErro('Não foi possível salvar a notícia.')
+            setErro('Não foi possível salvar o card.')
         } finally {
             setSalvando(false)
         }
@@ -48,7 +48,7 @@ export default function NoticiaFormPage() {
 
     return (
         <div className="noticia-form">
-            <h1>{editando ? 'Editar notícia' : 'Nova notícia'}</h1>
+            <h1>{editando ? 'Editar card' : 'Novo card'}</h1>
 
             <form onSubmit={handleSubmit}>
                 <label>

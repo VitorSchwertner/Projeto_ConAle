@@ -1,12 +1,12 @@
 import ServicesHero from '../components/ServicesHero'
-import FaqGrid from '../components/FaqGrid'
+import Noticias from '../components/Noticias'
 import Services from '../components/Services'
 
 export default function FaqPage() {
     return (
         <>
             <ServicesHero />
-            <FaqGrid />
+            <Noticias layout="grid" />
             <Services />
         </>
     )
