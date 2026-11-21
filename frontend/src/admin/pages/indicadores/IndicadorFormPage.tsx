@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { buscarIndicador, criarIndicador, atualizarIndicador } from '../../api/indicadores'
 import './IndicadorFormPage.css'
+import BackButton from '../../components/BackButton'
 
 export default function IndicadorFormPage() {
     const { id } = useParams()
@@ -51,6 +52,7 @@ export default function IndicadorFormPage() {
 
     return (
         <div className="indicador-form">
+            <BackButton to="/admin/indicadores" />
             <h1>{editando ? 'Editar indicador' : 'Novo indicador'}</h1>
 
             <form onSubmit={handleSubmit}>

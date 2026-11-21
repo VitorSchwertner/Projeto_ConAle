@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { buscarNoticia, criarNoticia, atualizarNoticia } from '../../api/noticias'
 import './NoticiaFormPage.css'
+import BackButton from '../../components/BackButton'
 
 export default function NoticiaFormPage() {
     const { id } = useParams()
@@ -21,7 +22,7 @@ export default function NoticiaFormPage() {
                 setTitulo(noticia.titulo)
                 setSubTitulo(noticia.subTitulo ?? '')
             })
-            .catch(() => setErro('Não foi possível carregar esta notícia.'))
+            .catch(() => setErro('Não foi possível carregar este card.'))
             .finally(() => setCarregando(false))
     }, [id])
 
@@ -38,7 +39,7 @@ export default function NoticiaFormPage() {
             }
             navigate('/admin/noticias')
         } catch {
-            setErro('Não foi possível salvar a notícia.')
+            setErro('Não foi possível salvar o card.')
         } finally {
             setSalvando(false)
         }
@@ -48,7 +49,8 @@ export default function NoticiaFormPage() {
 
     return (
         <div className="noticia-form">
-            <h1>{editando ? 'Editar notícia' : 'Nova notícia'}</h1>
+            <BackButton to="/admin/noticias" />
+            <h1>{editando ? 'Editar card' : 'Novo card'}</h1>
 
             <form onSubmit={handleSubmit}>
                 <label>
