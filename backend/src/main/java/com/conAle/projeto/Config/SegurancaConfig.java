@@ -10,6 +10,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.*;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.RequestCacheConfigurer;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -64,8 +66,8 @@ public class SegurancaConfig {
                         "/api/mensagens-clientes", "/api/mensagens-clientes/**")
                     .hasAnyRole("ADMIN", "DESIGN")
                 .anyRequest().denyAll())
-            .requestCache(c -> c.disable())
-            .formLogin(c -> c.disable()).httpBasic(c -> c.disable())
+            .requestCache( RequestCacheConfigurer::disable )
+            .formLogin( AbstractHttpConfigurer::disable ).httpBasic( AbstractHttpConfigurer::disable )
             .exceptionHandling(e -> e
                 .authenticationEntryPoint((req, res, ex) -> {
                     res.setStatus(401); res.setContentType("application/problem+json;charset=UTF-8");

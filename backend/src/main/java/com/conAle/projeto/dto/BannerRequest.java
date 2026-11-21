@@ -15,6 +15,10 @@ public record BannerRequest(
         @Size(max = 500, message = "A imagem aceita até 500 caracteres.")
         String imagem,
 
+        // Opcional: versão para celular. Se omitido ou em branco, é gravado como null.
+        @Size(max = 500, message = "A imagem mobile aceita até 500 caracteres.")
+        String imagemMobile,
+
         // Opcional: se omitido ou em branco, é gravado como null.
         @Size(max = 500, message = "O link aceita até 500 caracteres.")
         String link,
