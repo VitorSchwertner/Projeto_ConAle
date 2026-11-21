@@ -1,7 +1,15 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { buscarBanner, criarBanner, atualizarBanner } from '../../api/banners'
+import {
+    buscarBanner,
+    criarBanner,
+    atualizarBanner,
+    enviarImagem,
+    urlImagem,
+} from '../../api/banners'
 import type { BannerPosition } from '../../types'
+import ImagemBannerInput from './ImagemBannerInput'
+import { FORMATOS } from './bannerFormatos'
 import './BannerFormPage.css'
 
 const POSICOES: { value: BannerPosition; label: string }[] = [
@@ -18,7 +26,10 @@ export default function BannerFormPage() {
     const editando = Boolean(id)
 
     const [titulo, setTitulo] = useState('')
-    const [imagem, setImagem] = useState('')
+    const [imagemAtual, setImagemAtual] = useState('')
+    const [imagemMobileAtual, setImagemMobileAtual] = useState('')
+    const [arquivo, setArquivo] = useState<File | null>(null)
+    const [arquivoMobile, setArquivoMobile] = useState<File | null>(null)
     const [link, setLink] = useState('')
     const [ativo, setAtivo] = useState(true)
     const [posicao, setPosicao] = useState<BannerPosition>('HOME_TOPO')
@@ -31,7 +42,8 @@ export default function BannerFormPage() {
         buscarBanner(Number(id))
             .then((banner) => {
                 setTitulo(banner.titulo)
-                setImagem(banner.imagem)
+                setImagemAtual(banner.imagem)
+                setImagemMobileAtual(banner.imagemMobile ?? '')
                 setLink(banner.link ?? '')
                 setAtivo(banner.ativo)
                 setPosicao(banner.posicao ?? 'HOME_TOPO')
@@ -40,26 +52,48 @@ export default function BannerFormPage() {
             .finally(() => setCarregando(false))
     }, [id])
 
+    // Cada posição tem uma proporção diferente, então trocar a posição
+    // descarta as imagens e pede novas.
+    const handlePosicao = (nova: BannerPosition) => {
+        setPosicao(nova)
+        setArquivo(null)
+        setArquivoMobile(null)
+        setImagemAtual('')
+        setImagemMobileAtual('')
+    }
+
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault()
         setErro(null)
         setSalvando(true)
         try {
-            const dados = { titulo, imagem, link: link || null, ativo, posicao }
+            const imagem = arquivo ? await enviarImagem(arquivo, posicao, false) : imagemAtual
+            if (!imagem) {
+                setErro('Selecione uma imagem para o banner.')
+                return
+            }
+
+            const imagemMobile = arquivoMobile
+                ? await enviarImagem(arquivoMobile, posicao, true)
+                : imagemMobileAtual || null
+
+            const dados = { titulo, imagem, imagemMobile, link: link || null, ativo, posicao }
             if (editando) {
                 await atualizarBanner(Number(id), dados)
             } else {
                 await criarBanner(dados)
             }
             navigate('/admin/banners')
-        } catch {
-            setErro('Não foi possível salvar o banner.')
+        } catch (e) {
+            setErro(e instanceof Error ? e.message : 'Não foi possível salvar o banner.')
         } finally {
             setSalvando(false)
         }
     }
 
     if (carregando) return <p>Carregando...</p>
+
+    const formato = FORMATOS[posicao]
 
     return (
         <div className="banner-form">
@@ -70,7 +104,7 @@ export default function BannerFormPage() {
                     Posição no site
                     <select
                         value={posicao}
-                        onChange={(e) => setPosicao(e.target.value as BannerPosition)}
+                        onChange={(e) => handlePosicao(e.target.value as BannerPosition)}
                     >
                         {POSICOES.map((p) => (
                             <option key={p.value} value={p.value}>
@@ -85,10 +119,29 @@ export default function BannerFormPage() {
                     <input value={titulo} onChange={(e) => setTitulo(e.target.value)} required />
                 </label>
 
-                <label>
-                    Imagem (caminho ou URL)
-                    <input value={imagem} onChange={(e) => setImagem(e.target.value)} required />
-                </label>
+                <ImagemBannerInput
+                    key={`desktop-${posicao}`}
+                    rotulo="Imagem (desktop)"
+                    formato={formato.desktop}
+                    imagemAtual={imagemAtual ? urlImagem(imagemAtual) : null}
+                    arquivo={arquivo}
+                    obrigatorio
+                    onChange={setArquivo}
+                    onErro={setErro}
+                />
+
+                {formato.mobile && (
+                    <ImagemBannerInput
+                        key={`mobile-${posicao}`}
+                        rotulo="Imagem (mobile) - opcional"
+                        formato={formato.mobile}
+                        imagemAtual={imagemMobileAtual ? urlImagem(imagemMobileAtual) : null}
+                        arquivo={arquivoMobile}
+                        onChange={setArquivoMobile}
+                        onRemoverAtual={() => setImagemMobileAtual('')}
+                        onErro={setErro}
+                    />
+                )}
 
                 <label>
                     Link (opcional)
