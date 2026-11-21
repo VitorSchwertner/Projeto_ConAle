@@ -7,7 +7,7 @@ const NAV_ITEMS = [
     { to: '/admin', label: 'Dashboard', end: true, adminOnly: false },
     { to: '/admin/banners', label: 'Banners', adminOnly: false },
     { to: '/admin/indicadores', label: 'Indicadores', adminOnly: false },
-    { to: '/admin/noticias', label: 'Notícias', adminOnly: false },
+    { to: '/admin/noticias', label: 'Cards informativos', adminOnly: false },
     { to: '/admin/rodape', label: 'Rodapé', adminOnly: false },
     { to: '/admin/mensagens', label: 'Avaliação de clientes', adminOnly: false },
     { to: '/admin/usuarios', label: 'Usuários', adminOnly: true },

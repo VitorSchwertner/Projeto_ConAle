@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { buscarMensagem, criarMensagem, atualizarMensagem } from '../../api/mensagens'
 import './MensagemFormPage.css'
+import BackButton from '../../components/BackButton'
 
 export default function MensagemFormPage() {
     const { id } = useParams()
@@ -57,6 +58,7 @@ export default function MensagemFormPage() {
 
     return (
         <div className="mensagem-form">
+            <BackButton to="/admin/mensagens" />
             <h1>{editando ? 'Editar mensagem' : 'Nova mensagem'}</h1>
 
             <form onSubmit={handleSubmit}>

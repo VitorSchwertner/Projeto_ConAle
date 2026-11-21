@@ -21,15 +21,27 @@ class DatabaseMigrationTest {
     @Autowired Flyway flyway;
 
     @Test
-    // Confere as tabelas e garante que a V1 nao seja aplicada novamente.
+    // Confere a versão e garante que o Flyway não reaplique migrations.
     void migrationCanRunAgainWithoutChangingSchemaOrFooter() {
-        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("9");
+        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("10");
         flyway.validate();
         assertThat(flyway.migrate().migrationsExecuted).isZero();
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM rodape WHERE id = 1", Integer.class)).isEqualTo(1);
         assertThat(jdbc.queryForList("SHOW TABLES", String.class))
                 .contains("usuario", "banner", "noticia", "rodape", "indicador_institucional",
                         "mensagens_clientes", "rodape_ativo", "flyway_schema_history");
+    }
+
+    @Test
+    void cadastraCardsDaHomeNaOrdemOriginal() {
+        assertThat(jdbc.queryForList("SELECT titulo FROM noticia ORDER BY id DESC", String.class))
+                .containsSubsequence(
+                        "Como acessar a área do cliente?",
+                        "Como funciona o serviço de BPO Financeiro?",
+                        "O que preciso para abrir um CNPJ?",
+                        "Como sei se estou pagando impostos corretamente?",
+                        "Posso trocar de contador facilmente?",
+                        "Como funciona o atendimento da ConAle?");
     }
 
     @Test
