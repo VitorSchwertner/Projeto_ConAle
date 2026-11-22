@@ -5,7 +5,7 @@ import type { IndicadorInstitucional } from '../types/content'
 import './Stats.css'
 
 // Valores de reserva, usados se o backend ainda nao responder
-const PADRAO: IndicadorInstitucional = { id: 0, anosAtuacao: 10, empresasAbertas: 15 }
+const PADRAO: IndicadorInstitucional = { id: 0, anosAtuacao: 0, empresasAbertas: 0 }
 
 export default function Stats() {
     const [indicador, setIndicador] = useState<IndicadorInstitucional>(PADRAO)
@@ -32,7 +32,7 @@ export default function Stats() {
                 <div className="stats__row">
                     <div className="stats__item">
             <span className="stats__value" ref={anosRef}>
-              +{anosValue}
+              {anosValue > 0 && '+'}{anosValue}
             </span>
                         <span className="stats__label">anos de atuação</span>
                     </div>
@@ -41,7 +41,7 @@ export default function Stats() {
 
                     <div className="stats__item">
             <span className="stats__value" ref={empresasRef}>
-              +{empresasValue}
+              {empresasValue > 0 && '+'}{empresasValue}
             </span>
                         <span className="stats__label">empresas abertas</span>
                     </div>

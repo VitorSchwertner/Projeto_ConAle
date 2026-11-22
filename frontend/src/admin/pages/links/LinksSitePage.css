@@ -1,0 +1,75 @@
+.links-site-form {
+    max-width: 960px;
+}
+
+.links-site-form h1 {
+    margin-bottom: 10px;
+    color: var(--color-navy);
+    font-size: 1.65rem;
+}
+
+.links-site-form__ajuda {
+    max-width: 65ch;
+    margin-bottom: 20px;
+    color: var(--color-text-muted);
+    line-height: 1.5;
+}
+
+.links-site-form__grupo {
+    min-width: 0;
+    margin: 0 0 16px;
+    padding: 16px;
+    border: 1px solid #dbe3eb;
+    border-radius: var(--radius-md);
+    background: #fff;
+}
+
+.links-site-form__grupo legend {
+    padding-inline: 6px;
+    color: var(--color-navy);
+    font-weight: 700;
+}
+
+.links-site-form__campos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr));
+    gap: 14px 18px;
+}
+
+.links-site-form label {
+    display: grid;
+    gap: 6px;
+    color: var(--color-navy);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.links-site-form input {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    padding: 8px 12px;
+    border: 1px solid var(--color-slate);
+    border-radius: 8px;
+    font: inherit;
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--color-text);
+}
+
+.links-site-form__acoes {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.links-site-form__acoes button:disabled {
+    opacity: 0.65;
+    cursor: default;
+}
+
+.links-site-form__erro {
+    margin-top: 12px;
+    color: #a52b21;
+}

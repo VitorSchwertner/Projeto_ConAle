@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { resolverLinkPublico } from '../../../linkPublico'
 import { listarBanners, excluirBanner } from '../../api/banners'
 import type { Banner } from '../../types'
 import './BannerListPage.css'
 
 function destinoNoPainel(banner: Banner) {
-    const link = banner.link?.trim()
-    if (!link || banner.posicao === 'SOBRE_MIM_FOTO') return null
-    if (!link.startsWith('#')) return link
+    if (banner.posicao === 'SOBRE_MIM_FOTO') return null
 
-    const pagina = banner.posicao === 'SERVICOS_TOPO' && link !== '#servicos' ? '/servicos' : '/'
-    return `${pagina}${link}`
+    const pagina = banner.posicao === 'SERVICOS_TOPO' ? '/servicos' : '/'
+    const destino = resolverLinkPublico(banner.link, pagina)
+    return destino?.startsWith('#') ? `${pagina}${destino}` : destino
 }
 
 export default function BannerListPage() {
@@ -86,6 +86,8 @@ export default function BannerListPage() {
                                     <a className="banner-list__link" href={destino} target="_blank" rel="noopener noreferrer">
                                         {banner.link}
                                     </a>
+                                ) : banner.link && banner.posicao !== 'SOBRE_MIM_FOTO' ? (
+                                    <span>{banner.link} (destino inválido)</span>
                                 ) : '—'}
                             </td>
                             <td>{banner.ativo ? 'Sim' : 'Não'}</td>

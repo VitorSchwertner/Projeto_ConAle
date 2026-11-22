@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
+import { resolverLinkPublico } from '../linkPublico'
 import { listarBannersAtivos } from '../api/content'
 import type { Banner, BannerPosition } from '../types/content'
 
@@ -16,6 +18,7 @@ function encontrarPorPosicao(
 }
 
 export function useBanners() {
+    const { pathname } = useLocation()
     const [homeBanner, setHomeBanner] = useState<Banner | null>(null)
     const [servicosBanner, setServicosBanner] = useState<Banner | null>(null)
     const [sobreBanner, setSobreBanner] = useState<Banner | null>(null)
@@ -42,11 +45,15 @@ export function useBanners() {
             .finally(() => setCarregando(false))
     }, [])
 
+    function comDestino(banner: Banner | null) {
+        return banner ? { ...banner, link: resolverLinkPublico(banner.link, pathname) } : null
+    }
+
     return {
-        homeBanner,
-        servicosBanner,
-        sobreBanner,
-        areaClienteBanner,
+        homeBanner: comDestino(homeBanner),
+        servicosBanner: comDestino(servicosBanner),
+        sobreBanner: comDestino(sobreBanner),
+        areaClienteBanner: comDestino(areaClienteBanner),
         sobreMimFotoBanner,
         carregando,
     }

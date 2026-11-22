@@ -57,14 +57,14 @@ public class SegurancaConfig {
                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/noticias", "/api/noticias/*").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/banners/ativos", "/api/rodape",
-                        "/api/indicadores-institucionais", "/api/mensagens-clientes").permitAll()
+                        "/api/indicadores-institucionais", "/api/mensagens-clientes", "/api/links-site").permitAll()
                 .requestMatchers(HttpMethod.GET, "/uploads/banners/*").permitAll()
                 .requestMatchers("/api/auth/me").hasAnyRole("ADMIN", "DESIGN")
                 .requestMatchers("/api/usuarios", "/api/usuarios/**").hasRole("ADMIN")
                 .requestMatchers("/api/noticias", "/api/noticias/**",
                         "/api/banners", "/api/banners/**", "/api/rodape", "/api/rodape/modelos/**",
                         "/api/indicadores-institucionais", "/api/indicadores-institucionais/**",
-                        "/api/mensagens-clientes", "/api/mensagens-clientes/**")
+                        "/api/mensagens-clientes", "/api/mensagens-clientes/**", "/api/links-site")
                     .hasAnyRole("ADMIN", "DESIGN")
                 .anyRequest().denyAll())
             .requestCache( RequestCacheConfigurer::disable )

@@ -9,8 +9,8 @@ export default function IndicadorFormPage() {
     const navigate = useNavigate()
     const editando = Boolean(id)
 
-    const [anosAtuacao, setAnosAtuacao] = useState('')
-    const [empresasAbertas, setEmpresasAbertas] = useState('')
+    const [anosAtuacao, setAnosAtuacao] = useState(editando ? '' : '0')
+    const [empresasAbertas, setEmpresasAbertas] = useState(editando ? '' : '0')
     const [carregando, setCarregando] = useState(editando)
     const [salvando, setSalvando] = useState(false)
     const [erro, setErro] = useState<string | null>(null)

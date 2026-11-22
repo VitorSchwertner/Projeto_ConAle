@@ -1,6 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { urlImagem } from '../../../api/http'
+import { resolverLinkPublico } from '../../../linkPublico'
+import { mensagemDeErroApi } from '../../api/http'
 import {
     buscarBanner,
     criarBanner,
@@ -67,6 +69,10 @@ export default function BannerFormPage() {
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault()
         setErro(null)
+        if (aceitaLink && link.trim() && !resolverLinkPublico(link)) {
+            setErro('Confira o link. Use um endereço com https://, uma página do site ou uma seção como #faq.')
+            return
+        }
         setSalvando(true)
         try {
             const imagem = arquivo ? await enviarImagem(arquivo, posicao, false) : imagemAtual
@@ -94,7 +100,7 @@ export default function BannerFormPage() {
             }
             navigate('/admin/banners')
         } catch (e) {
-            setErro(e instanceof Error ? e.message : 'Não foi possível salvar o banner.')
+            setErro(mensagemDeErroApi(e, 'Não foi possível salvar o banner.'))
         } finally {
             setSalvando(false)
         }

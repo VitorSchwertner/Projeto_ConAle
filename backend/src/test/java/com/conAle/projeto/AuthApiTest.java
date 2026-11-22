@@ -51,6 +51,46 @@ class AuthApiTest {
                 .andReturn().getRequest().getSession(false);
     }
 
+    @Test void linksDoSiteSaoPublicosEEdicaoExigeSessao() throws Exception {
+        String alteracao = """
+                {"acao-diagnostico":"https://example.invalid/agendar","servico-bpo":"/servicos#lista-servicos"}
+                """;
+        mvc.perform(get("/api/links-site")).andExpect(status().isOk());
+        mvc.perform(patch("/api/links-site").with(csrf()).contentType(MediaType.APPLICATION_JSON)
+                        .content(alteracao))
+                .andExpect(status().isUnauthorized());
+
+        var session = login();
+        mvc.perform(patch("/api/links-site").session(session).contentType(MediaType.APPLICATION_JSON)
+                        .content(alteracao))
+                .andExpect(status().isForbidden());
+        mvc.perform(patch("/api/links-site").session(session).with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON).content(alteracao))
+                .andExpect(status().isNoContent());
+        mvc.perform(get("/api/links-site")).andExpect(status().isOk())
+                .andExpect(jsonPath("$['acao-diagnostico']").value("https://example.invalid/agendar"))
+                .andExpect(jsonPath("$['servico-bpo']").value("/servicos#lista-servicos"));
+
+        mvc.perform(patch("/api/links-site").session(session).with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"acao-diagnostico":"/contato","servico-bpo":"javascript:void(0)"}
+                                """))
+                .andExpect(status().isBadRequest());
+        mvc.perform(get("/api/links-site"))
+                .andExpect(jsonPath("$['acao-diagnostico']").value("https://example.invalid/agendar"));
+
+        mvc.perform(patch("/api/links-site").session(session).with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"acao-diagnostico":""}
+                                """))
+                .andExpect(status().isNoContent());
+        mvc.perform(get("/api/links-site")).andExpect(status().isOk())
+                .andExpect(jsonPath("$['acao-diagnostico']").doesNotExist())
+                .andExpect(jsonPath("$['servico-bpo']").value("/servicos#lista-servicos"));
+    }
+
     @Test void loginMantemSessao() throws Exception {
         var session = login();
         mvc.perform(get("/api/auth/me").session(session)).andExpect(status().isOk())
@@ -146,7 +186,7 @@ class AuthApiTest {
         mvc.perform(post("/api/banners").session(session).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"titulo\":\"Banner\",\"imagem\":\"/banner.png\","
-                        + "\"posicao\":\"HOME_TOPO\",\"ativo\":true}"))
+                        + "\"posicao\":\"HOME_TOPO\",\"ativo\":false}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.posicao").value("HOME_TOPO"));
         mvc.perform(post("/api/indicadores-institucionais").session(session).with(csrf())
@@ -171,6 +211,27 @@ class AuthApiTest {
                 .content("{\"titulo\":\"Bloqueado\"}")).andExpect(status().isForbidden());
     }
 
+    @Test void linksPublicosRejeitamRotasEAncorasInvalidas() throws Exception {
+        var session = login();
+        for (String link : java.util.List.of("www.example.invalid", "/rota-inexistente", "/sobre#faq", "#secao-inexistente")) {
+            mvc.perform(patch("/api/links-site").session(session).with(csrf())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json.writeValueAsString(Map.of("acao-diagnostico", link))))
+                    .andExpect(status().isBadRequest());
+            mvc.perform(post("/api/banners").session(session).with(csrf())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json.writeValueAsString(Map.of(
+                                    "titulo", "Rascunho", "imagem", "/banner.png", "posicao", "HOME_TOPO",
+                                    "ativo", false, "link", link))))
+                    .andExpect(status().isBadRequest());
+        }
+        mvc.perform(patch("/api/links-site").session(session).with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json.writeValueAsString(Map.of("acao-diagnostico", "/duvidas#faq",
+                                "acao-reuniao", "#lista-servicos"))))
+                .andExpect(status().isNoContent());
+    }
+
     @Test void bannerExigePosicaoValida() throws Exception {
         var session = login();
         mvc.perform(post("/api/banners").session(session).with(csrf())
@@ -190,7 +251,8 @@ class AuthApiTest {
                 "titulo", "Banner com chamada",
                 "imagem", "/banner.png",
                 "posicao", "SOBRE_NOS",
-                "link", "https://example.invalid/destino"));
+                "link", "https://example.invalid/destino",
+                "ativo", false));
 
         var criado = mvc.perform(post("/api/banners").session(session).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(dados)))

@@ -1,22 +1,18 @@
+import { ACOES_RAPIDAS, type LinksSite } from '../siteLinks'
 import './QuickActions.css'
 
-const ACTIONS = [
-    'Solicite seu diagnóstico gratuito',
-    'Agende uma reunião com a ConAle',
-    'Quero abrir um consultório',
-    'Quero pagar menos imposto',
-    'Quero evitar burocracia',
-]
-
-export default function QuickActions() {
+export default function QuickActions({ links }: { links: LinksSite }) {
     return (
         <section className="quick-actions">
             <div className="container quick-actions__grid">
-                {ACTIONS.map((action) => (
-                    <button className="quick-actions__item" key={action}>
-                        {action}
-                    </button>
-                ))}
+                {ACOES_RAPIDAS.map(({ codigo, titulo }) => {
+                    const link = links[codigo]
+                    return link ? (
+                        <a className="quick-actions__item" href={link} key={codigo}>{titulo}</a>
+                    ) : (
+                        <button className="quick-actions__item" type="button" disabled key={codigo}>{titulo}</button>
+                    )
+                })}
             </div>
         </section>
     )

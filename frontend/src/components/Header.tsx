@@ -38,6 +38,7 @@ export default function Header() {
                     <a
                         href={areaClienteBanner?.link ?? CLIENT_PORTAL_URL}
                         className="btn btn--primary header__cta"
+                        onClick={() => setMenuOpen(false)}
                     >
                         Área do Cliente
                     </a>

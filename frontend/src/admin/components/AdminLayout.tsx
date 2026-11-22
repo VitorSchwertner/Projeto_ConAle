@@ -6,6 +6,7 @@ import './AdminLayout.css'
 const NAV_ITEMS = [
     { to: '/admin', label: 'Dashboard', end: true, adminOnly: false },
     { to: '/admin/banners', label: 'Banners', adminOnly: false },
+    { to: '/admin/links', label: 'Links do site', adminOnly: false },
     { to: '/admin/indicadores', label: 'Indicadores', adminOnly: false },
     { to: '/admin/noticias', label: 'Cards informativos', adminOnly: false },
     { to: '/admin/rodape', label: 'Rodapé', adminOnly: false },

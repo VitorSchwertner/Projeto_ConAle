@@ -3,6 +3,18 @@ const BASE_URL = configuredBaseUrl ? configuredBaseUrl.replace(/\/$/, '') : ''
 
 let csrf: { headerName: string; token: string } | null = null
 
+export function mensagemDeErroApi(erro: unknown, padrao: string) {
+    if (erro instanceof Error) {
+        try {
+            const detalhe = JSON.parse(erro.message)?.detail
+            if (typeof detalhe === 'string') return detalhe
+        } catch {
+            // A resposta pode não conter JSON.
+        }
+    }
+    return padrao
+}
+
 export function resetCsrf() {
     csrf = null
 }
@@ -15,7 +27,7 @@ async function fetchCsrf() {
 }
 
 interface RequestOptions {
-    method?: 'GET' | 'POST' | 'PUT' | 'DELETE'
+    method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
     body?: unknown
 }
 

@@ -1,26 +1,12 @@
+import { DESTAQUES, type LinksSite } from '../siteLinks'
 import './Highlights.css'
 
-const CARDS = [
-    {
-        imagem: '/destaques/inicio-de-carreira.png',
-        descricao: 'O início da sua carreira merece decisões seguras. Conte com a ConAle! Saiba mais.',
-    },
-    {
-        imagem: '/destaques/gestao-financeira.png',
-        descricao: 'Crescer na área da saúde exige mais do que atender mais pacientes. Tenha uma gestão financeira estruturada. Saiba como.',
-    },
-    {
-        imagem: '/destaques/assessoria-estrategica.png',
-        descricao: 'Quando a carreira evolui, a contabilidade também precisa evoluir. Saiba mais sobre a nossa assessoria estratégica. Conheça.',
-    },
-]
-
-export default function Highlights() {
+export default function Highlights({ links }: { links: LinksSite }) {
     return (
         <section className="highlights">
             <div className="container highlights__grid">
-                {CARDS.map((card) => (
-                    <a className="highlights__card" href="#servicos" key={card.imagem}>
+                {DESTAQUES.map((card) => (
+                    <article className="highlights__card" key={card.codigo}>
                         <img
                             src={card.imagem}
                             alt={card.descricao}
@@ -28,7 +14,12 @@ export default function Highlights() {
                             height={266}
                             loading="lazy"
                         />
-                    </a>
+                        <a
+                            className="highlights__link"
+                            href={links[card.codigo] ?? '#servicos'}
+                            aria-label={card.chamada}
+                        />
+                    </article>
                 ))}
             </div>
         </section>

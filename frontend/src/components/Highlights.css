@@ -10,7 +10,7 @@
 }
 
 .highlights__card {
-    display: block;
+    position: relative;
     border-radius: var(--radius-md);
     overflow: hidden;
 }
@@ -19,6 +19,20 @@
     display: block;
     width: 100%;
     height: auto;
+}
+
+.highlights__link {
+    position: absolute;
+    left: 5.7%;
+    top: 77%;
+    width: 35.6%;
+    height: 13.2%;
+    border-radius: 999px;
+}
+
+.highlights__link:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 2px;
 }
 
 @media (max-width: 860px) {

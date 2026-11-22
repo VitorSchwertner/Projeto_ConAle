@@ -96,6 +96,10 @@
     color: var(--color-text);
 }
 
+.services-list__text button:disabled {
+    cursor: default;
+}
+
 @media (max-width: 860px) {
     .services-list__row,
     .services-list__row.is-reversed {
