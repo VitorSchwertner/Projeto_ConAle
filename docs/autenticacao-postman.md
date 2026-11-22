@@ -1,82 +1,41 @@
-# Autenticação administrativa no Postman
+# Autenticação e permissões no Postman
 
-A API usa sessão no servidor e cookie `JSESSIONID`.
-As únicas contas que podem entrar são as que possuem `administrador=true`.
-A migration V2 preserva os dados e marca contas anteriores como não administrativas.
-Não edite a V1 nem apague o volume do banco para aplicar esta mudança.
+Use este guia para verificar a API da versão final da ConAle. O backend autentica **Administrador** e **Design** com e-mail e senha e mantém a sessão no servidor, identificada pelo cookie `JSESSIONID`.
 
-## Primeiro administrador
+## Preparação
 
-Na cópia local de `.env`, configure `ADMIN_INITIAL_NAME`, `ADMIN_INITIAL_EMAIL` e
-`ADMIN_INITIAL_PASSWORD`. Use e-mail ainda não cadastrado e senha própria com pelo
-menos 8 caracteres e no máximo 72 bytes em UTF-8. Nunca versione `.env`.
+1. Configure a conta administrativa e inicie o backend local conforme o [README](../README.md).
+2. Importe a [coleção ConAle](postman/ConAle-Auth.postman_collection.json). Configure `baseUrl` para o endereço da API local, normalmente `http://localhost:8080`. A porta `18081` no arquivo é o valor da demonstração original.
+3. Preencha `adminEmail` e `adminPassword` localmente. Use um banco de teste para executar a coleção inteira, pois ela cria, edita e exclui registros. Mantenha os cookies habilitados e use o mesmo host durante a sessão.
 
-Na raiz desta branch, execute `docker compose up -d --build backend`.
-O primeiro início aplica a V2 e cria o administrador apenas se ainda não existir um.
-Configuração inválida ou e-mail já utilizado causa falha sem sobrescrever contas.
-Após conferir o login, apague o valor de `ADMIN_INITIAL_PASSWORD` do `.env` e execute
-`docker compose up -d --force-recreate backend` para removê-lo do ambiente do container.
-Isso não altera a senha salva no banco. A inicialização nunca redefine uma senha existente.
+Para executar o fluxo completo de contas, use o Administrador original. A requisição de cadastro da coleção omite `administrador`. Com o original, o padrão é Administrador. Com outro Administrador, o padrão é Design.
 
-## Configuração do Postman
+## Sessão e CSRF
 
-Importe `docs/postman/ConAle-Auth.postman_collection.json`.
-Nas variáveis da coleção, preencha `adminEmail` e `adminPassword` apenas localmente.
-Não compartilhe/exporte a coleção preenchida com credenciais reais.
-`baseUrl` usa `http://localhost:18081` para o ambiente temporário desta demonstração.
-No ambiente habitual, use `http://localhost:8080` ou a porta definida no `.env`.
-Use sempre o mesmo host: não misture `localhost` com `127.0.0.1`.
-Mantenha o gerenciamento de cookies habilitado. Não é necessário Bearer Token.
+| Etapa | Requisição | Resultado esperado |
+| --- | --- | --- |
+| Obter CSRF | `GET /api/auth/csrf` | `200` com `token` e `headerName`. Preserve o cookie de sessão. |
+| Entrar | `POST /api/auth/login` | `200` ao enviar `email` e `senha` em JSON com o cabeçalho CSRF válido. A resposta identifica a conta e seu papel. |
+| Renovar CSRF | `GET /api/auth/csrf` | `200` com novo token. O login troca o identificador da sessão e invalida o token anterior. |
+| Verificar a conta | `GET /api/auth/me` | `200` com ID, nome, e-mail e indicadores da conta. |
+| Testar gravações | `POST`, `PUT`, `PATCH` ou `DELETE` | Envie o cookie e o token CSRF atualizado. Na coleção, o token é salvo em `csrfToken` para envio no cabeçalho `X-CSRF-TOKEN`. |
+| Sair | `POST /api/auth/logout` | `204` com CSRF válido. A sessão é encerrada. |
+| Confirmar a saída | `GET /api/auth/me` | `401` após o logout. |
 
-## Sequência
+O cookie usa HttpOnly e SameSite=Strict. A sessão expira após 30 minutos de inatividade e também é encerrada ao reiniciar o backend. Para o Compose de publicação com HTTPS na infraestrutura, configure `SESSION_COOKIE_SECURE=true`.
 
-1. `GET /api/auth/csrf`: retorna `token` e `headerName` e inicia uma sessão anônima.
-   O script da coleção salva o token em `csrfToken`. Manualmente, copie o token.
-2. `POST /api/auth/login`: Body → raw → JSON, com `email` e `senha`.
-   Envie o cabeçalho `X-CSRF-TOKEN: {{csrfToken}}`. Esperado: 200, sem senha/hash.
-   O Postman guarda o novo cookie automaticamente.
-3. Faça novamente `GET /api/auth/csrf`. O login troca o ID da sessão e invalida o
-   token anterior. Repita esta etapa após cada login.
-4. `GET /api/auth/me`: deve retornar 200 com id, nome e e-mail do administrador.
-5. Teste notícias e usuários. GET não precisa de CSRF. POST, PUT e DELETE precisam
-   do cookie da sessão e do cabeçalho `X-CSRF-TOKEN` atualizado.
-6. `POST /api/auth/logout` com CSRF: retorna 204, encerra a sessão e apaga o cookie.
-7. `GET /api/auth/me`: deve retornar 401. Para entrar novamente, recomece pelo CSRF.
+## Permissões e respostas
 
-## Permissões e resultados esperados
+| Operação | Sem sessão | Design | Administrador |
+| --- | --- | --- | --- |
+| Consultar cards informativos em `GET /api/noticias` | `200` | `200` | `200` |
+| Consultar `GET /api/auth/me` | `401` | `200` | `200` |
+| Alterar conteúdo com CSRF válido | `401` | Permitido | Permitido |
+| Consultar `GET /api/usuarios` | `401` | `403` | `200` |
+| Gerenciar usuários com CSRF válido | `401` | `403` | Permitido conforme as regras de papéis |
 
-| Operação | Sem login | Administrador com CSRF válido |
-|---|---|---|
-| Consultar notícias | 200 | 200 |
-| Consultar usuários ou /auth/me | 401 | 200 |
-| Criar notícias/usuários | 401 com CSRF válido | 201 |
-| Editar notícias/usuários | 401 com CSRF válido | 200 |
-| Excluir notícia/usuário de teste | 401 com CSRF válido | 204 |
+Somente o Administrador original pode atribuir o papel de Administrador a novas contas ou alterar o papel de outras contas. O papel do original é fixo e a exclusão dessa conta é bloqueada. No `PUT /api/usuarios/{id}`, omita a senha para manter a atual.
 
-Sem CSRF válido, operações de escrita retornam 403 mesmo antes da verificação do login.
-Senha incorreta, conta inexistente e conta não administrativa retornam o mesmo 401.
-E-mail duplicado retorna 409. Não é permitido excluir o último administrador (409).
-Cadastros feitos por um administrador criam novas contas administrativas.
-Não há cadastro público. Alterações de senha/e-mail, revogação e exclusão invalidam
-as sessões antigas no próximo acesso. Trocar a própria senha exige novo login.
-A senha é opcional no PUT e, quando omitida, permanece igual.
+Gravações sem CSRF válido retornam `403`. Credenciais inválidas retornam `401`. E-mail duplicado e tentativa de excluir o último administrador retornam `409`. Alterações no e-mail, na senha ou no papel, assim como a exclusão da conta, invalidam sessões anteriores no próximo acesso.
 
-## Sessão e implantação
-
-Sessões expiram após 30 minutos de inatividade e são perdidas ao reiniciar o backend.
-Cookie HttpOnly e SameSite=Strict. A configuração local permite HTTP apenas para
-desenvolvimento. Em produção, use HTTPS e `SESSION_COOKIE_SECURE=true`.
-Esta etapa não configura frontend/CORS, recuperação de senha, MFA ou limitação de
-tentativas de login. Antes de publicar na internet, preparar esses controles,
-principalmente proteção contra tentativas repetidas, HTTPS e recuperação de acesso.
-
-## Testes automatizados
-
-`docker compose -p conale-auth-tests -f compose.test.yaml up --build --abort-on-container-exit --exit-code-from backend-test`
-
-Esse comando usa um MySQL temporário separado e não lê os dados do banco habitual.
-Testes cobrem autenticação, autorização, CSRF, troca de ID de sessão, logout,
-revogação de acesso, bootstrap administrativo e os testes anteriores de notícias/banco.
-
-Referências: [sessão no Spring Security](https://docs.spring.io/spring-security/reference/6.5/servlet/authentication/session-management.html)
-e [proteção CSRF](https://docs.spring.io/spring-security/reference/servlet/exploits/csrf.html).
+A coleção denomina os cards como “notícias” em algumas requisições porque o endpoint continua em `/api/noticias`. A tabela de rotas dos outros módulos e o comando da suíte automatizada estão no [README](../README.md).

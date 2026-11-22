@@ -1,127 +1,113 @@
 @startuml
-' Modelo de domínio: classes atuais e conceitos previstos no PRD.
-' Não representa services/controllers nem cria classes na aplicação.
-title ConAle — Classes de domínio e evolução prevista
-left to right direction
-hide methods
-skinparam classAttributeIconSize 0
+title ConAle — Classes da versão final
+hide empty members
 skinparam shadowing false
-skinparam classBackgroundColor<<existente>> #E5F3E9
-skinparam classBackgroundColor<<proposta>> #FFF2CC
-skinparam classBackgroundColor<<pendente>> #EEEEEE
+skinparam defaultFontName Arial
+skinparam classAttributeIconSize 0
+skinparam ArrowColor #526579
+skinparam class {
+  BackgroundColor #EDF7F3
+  BorderColor #387D6A
+}
+skinparam packageBorderColor #8DA5B8
 
-package "Classes existentes no projeto" {
-  class Usuario <<existente>> {
-    - id: Integer
-    - nome: String
-    - email: String
-    - senhaHash: String
-    - administrador: boolean
+package "Entidades JPA" as Entidades {
+  class Usuario {
+    - id : Integer
+    - nome : String
+    - email : String
+    - senhaHash : String
+    - administrador : boolean
+    - administradorOriginal : boolean
   }
-  class Noticia <<existente>> {
-    - id: Integer
-    - titulo: String
-    - subTitulo: String
+
+  class Noticia {
+    - id : Integer
+    - titulo : String
+    - subTitulo : String
   }
-  class Banner <<existente>> {
-    - id: int
-    - titulo: String
-    - imagem: String
-    - link: String
-    - ativo: Boolean
+
+  class Banner {
+    - id : Integer
+    - titulo : String
+    - imagem : String
+    - imagemMobile : String
+    - link : String
+    - posicao : String
+    - ativo : boolean
+    + aceitaLink() : boolean
   }
-  class Rodape <<existente>> {
-    - id: int
-    - telefone: String
-    - instagram: String
-    - email: String
-    - link: String
-    - diasSemana: String
-    - horasTrabalhadas: String
-    - local: String
+
+  class IndicadorInstitucional {
+    - id : Integer
+    - anosAtuacao : int
+    - empresasAbertas : int
+  }
+
+  class MensagensClientes {
+    - id : Integer
+    - titulo : String
+    - areaAtuacao : String
+    - nota : Double
+    - mensagem : String
+  }
+
+  class Rodape {
+    - id : Integer
+    - nome : String
+    - telefone : String
+    - instagram : String
+    - email : String
+    - diasSemana : String
+    - horasTrabalhadas : String
+    - endereco : String
+  }
+
+  class RodapeAtivo {
+    - id : Integer
+    - rodapeId : Integer
   }
 }
 
-note bottom of Usuario
-  Administrador é uma conta com administrador = true,
-  não uma classe separada. Senha armazenada com BCrypt.
-  Perfil restrito às notícias: decisão D08 pendente.
-  Permissões são verificadas no backend, não por
-  um relacionamento de propriedade entre usuário e notícia.
-end note
-note bottom of Noticia
-  RF16 / RF20: apenas ID, título e subtítulo.
-  Título obrigatório: até 200 caracteres.
-  Subtítulo opcional: até 500 caracteres.
-  subTitulo no Java corresponde a sub_titulo na API/banco.
-  Sem mídia, autor, comentários, datas ou estados editoriais.
-end note
-note bottom of Rodape
-  Cadastro único: id = 1 no banco.
-  Banner e Rodape são classes simples, ainda sem
-  mapeamento JPA e sem CRUD completo na API.
-  Usuario e Noticia possuem mapeamento JPA.
-end note
-
-package "Evolução proposta — ainda não implementada" {
-  class Midia <<proposta>> {
-    id
-    chaveArquivo
-    nomeOriginal
-    tipo
-    tamanhoBytes
-    dataEnvio
+package "Classes de apoio" as Apoio {
+  enum BannerFormato {
+    HOME_TOPO
+    SERVICOS_TOPO
+    SOBRE_NOS
+    AREA_CLIENTE
+    SOBRE_MIM_FOTO
+    + largura(mobile : boolean) : int
+    + altura(mobile : boolean) : int
   }
-  class ConteudoInstitucional <<proposta>> {
-    chaveBloco
+
+  class ArquivoService {
+    + salvarImagemBanner(...) : String
+  }
+
+  class LinkSiteService {
+    + listar() : Map<String, String>
+    + atualizar(links : Map<String, String>) : void
+  }
+
+  class DestinoPublico {
+    {static} validar(valor : String) : String
   }
 }
 
-' Relações tracejadas são propostas, não associações JPA existentes.
-Usuario "1" .. "0..*" Midia : responsável pelo envio\n(proposta D06)
-Banner "0..*" .. "0..1" Midia : imagem do banner\n(proposta D01/D06)
-ConteudoInstitucional .. Midia : referências de imagens\n(cardinalidade pendente)
+' As ligações ocultas organizam a leitura do diagrama.
+Entidades -[hidden]down-> Apoio
+Usuario -[hidden]right-> Banner
+Banner -[hidden]right-> Noticia
+Usuario -[hidden]down-> IndicadorInstitucional
+Banner -[hidden]down-> MensagensClientes
+Noticia -[hidden]down-> RodapeAtivo
 
-note bottom of Midia
-  D06: arquivo em filesystem/volume persistente;
-  metadados e chave no MySQL, sem binário no banco.
-  Tipos e restrições finais dependem da aprovação.
-  Texto alternativo e legenda pertencem ao uso
-  da imagem no conteúdo. Notícias não usam Midia.
-end note
-note top of Banner
-  Hoje imagem é uma referência String.
-  Proposta: substituir pela associação com Midia.
-  Associação opcional durante planejamento/transição;
-  obrigatoriedade final e carrossel dependem de D01/D06.
-end note
-note bottom of ConteudoInstitucional
-  Blocos editáveis identificados por chave estável.
-  Campos específicos e imagens: D02/D04/D06.
-  Não é um editor livre de páginas.
-end note
-
-package "Conceitos com definição pendente" {
-  class InformacoesCliente <<pendente>>
-  class Chatbot <<pendente>>
-  class OpcaoChatbot <<pendente>>
-}
-note bottom of InformacoesCliente
-  D03: depoimentos, marcas/logos ou ambos.
-  Atributos e separação em classes ainda não definidos.
-end note
-Chatbot .. OpcaoChatbot : organização prevista\n(a definir em D05)
-note bottom of Chatbot
-  RF17 / D05: escopo e modelagem final pendentes.
-  Nenhum vínculo exclusivo de um administrador
-  com um chatbot é exigido pelo PRD.
-end note
+RodapeAtivo ..> Rodape : referencia por ID
+ArquivoService ..> BannerFormato : consulta o formato
+LinkSiteService ..> DestinoPublico : valida o destino
 
 legend bottom
-  Verde / existente: classe presente no código, não necessariamente módulo concluído.
-  Amarelo / proposta: conceito previsto, sujeito às decisões do PRD.
-  Cinza / pendente: sem atributos ou cardinalidades definitivos.
-  Relações tracejadas: propostas; não representam associações já implementadas.
-  Conteúdos fixos não exigem classes persistentes próprias.
+  Noticia representa os Cards informativos no painel e no site.
+  LinkSiteService lê e atualiza link_site com JdbcTemplate.
 endlegend
 @enduml

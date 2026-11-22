@@ -1,45 +1,27 @@
-# Migrations V3 a V5
+# Registro histórico — Migrations V3 a V5
 
-V1 e V2 nao foram alteradas. O Flyway aplica somente as novas versoes ao iniciar o backend.
+Este documento descreve a transição do banco entre as versões V3 e V5. A entrega final usa as migrations até a V17. O [README](../README.md) descreve a inicialização e o [PRD](prd/conale.md) mostra o esquema atual.
 
-- **V3:** cria `indicador_institucional` e `mensagens_clientes`.
-- **V4:** ajusta os limites do banner e o padrao SQL de `ativo` para `TRUE`. Nao ativa banners existentes. Valores enviados explicitamente pela API prevalecem sobre o padrao SQL.
-- **V5:** renomeia `rodape.local` para `endereco` e ajusta os limites. Preserva o registro `id = 1`, a restricao de unicidade e a coluna legada `link`.
+## Mudanças registradas
 
-O rodape nao tem AUTO_INCREMENT. O controller oferece apenas `GET /api/rodape` e `PUT /api/rodape`, sem ID na URL; GET retorna um objeto, nao uma lista. POST e DELETE foram removidos.
+- **V3** criou as tabelas `indicador_institucional` e `mensagens_clientes`.
+- **V4** ajustou os limites do banner e mudou o valor padrão de `ativo` para `TRUE`. O estado dos banners existentes foi preservado.
+- **V5** renomeou `rodape.local` para `endereco`, ajustou limites e preservou o registro `id = 1` e a coluna legada `link`.
 
-O cadastro inicial pode continuar com campos NULL. A atualizacao pela API exige os campos obrigatorios do DTO. Nao sao inventados dados para preencher registros antigos.
+Na V5, o rodapé ainda era um registro único. Na versão final, a V9 introduziu os modelos de rodapé e a seleção do modelo ativo em `rodape_ativo`.
 
-## Antes de aplicar no banco de desenvolvimento
+## Consultas de diagnóstico para bancos anteriores à V5
 
-Faca backup. Nao exclua volumes do Docker, nao altere V1/V2 e nao execute os CREATE TABLE manualmente. As migrations devem ser aplicadas pelo Flyway.
-
-Confira se existem valores que ultrapassam os novos limites:
+As consultas abaixo documentam as verificações de tamanho usadas antes dessa transição. A segunda usa o nome de coluna anterior à V5, `local`.
 
 ```sql
 SELECT id FROM banner
 WHERE CHAR_LENGTH(titulo) > 150 OR CHAR_LENGTH(imagem) > 500 OR CHAR_LENGTH(link) > 500;
 
--- Executar antes da V5: o nome antigo ainda e local.
 SELECT id FROM rodape
 WHERE CHAR_LENGTH(telefone) > 20 OR CHAR_LENGTH(instagram) > 100
    OR CHAR_LENGTH(dias_semana) > 100 OR CHAR_LENGTH(horas_trabalhadas) > 100
    OR CHAR_LENGTH(local) > 255;
 ```
 
-Se houver resultados, revise esses dados antes de iniciar a atualizacao. O modo SQL estrito impede truncamento automatico. Em MySQL, DDL nao e transacional: se uma migration falhar, inspecione o schema e o historico antes de qualquer reparo do Flyway; nao use repair sem avaliar a causa.
-
-## Testes isolados
-
-Na raiz do projeto, com Docker iniciado:
-
-```powershell
-docker compose -p conale-migrations-test -f compose.test.yaml up --build --abort-on-container-exit --exit-code-from backend-test
-docker compose -p conale-migrations-test -f compose.test.yaml down
-```
-
-Esse ambiente utiliza banco temporario separado, sem dados de desenvolvimento.
-
-## Permissoes ainda pendentes
-
-As regras de seguranca das novas rotas nao foram alteradas nesta etapa. O rodape e os demais novos conteudos continuam bloqueados pela configuracao atual. Antes de testar essas rotas no Postman, e necessario definir e implementar as permissoes de leitura e escrita. Os testes de servico/banco nao substituem essa validacao HTTP.
+As migrations ficam em [db/migration](../backend/src/main/resources/db/migration) e são aplicadas pelo Flyway. O comando para verificar as migrations em um MySQL temporário está no [README](../README.md#verificar-a-entrega).

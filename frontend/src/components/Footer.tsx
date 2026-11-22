@@ -37,6 +37,12 @@ function formatarEndereco(endereco: string) {
 
 export default function Footer() {
     const [rodape, setRodape] = useState<Rodape>(PADRAO)
+    const instagram = rodape.instagram?.trim() ?? ''
+    const perfilNaUrl = instagram.match(/^(?:https?:\/\/)?(?:www\.)?instagram\.com\/([a-z\d._]+)\/?(?:[?#].*)?$/i)
+    const perfilInstagram = perfilNaUrl?.[1] ?? instagram.replace(/^@/, '')
+    const linkInstagram = /^[a-z\d._]{1,30}$/i.test(perfilInstagram)
+        ? `https://www.instagram.com/${perfilInstagram}/`
+        : null
     const email = rodape.email?.trim() ?? ''
     const separadorEmail = email.lastIndexOf('@')
     const linkEmail = separadorEmail > 0
@@ -67,10 +73,17 @@ export default function Footer() {
                             <FaWhatsapp size={24} />
                             <span>{rodape.telefone}</span>
                         </div>
-                        <div className="footer__row">
-                            <FiInstagram size={24} strokeWidth={1.5} />
-                            <span>{rodape.instagram}</span>
-                        </div>
+                        {linkInstagram ? (
+                            <a className="footer__row footer__instagram" href={linkInstagram} target="_blank" rel="noopener noreferrer">
+                                <FiInstagram size={24} strokeWidth={1.5} aria-hidden="true" />
+                                <span>@{perfilInstagram}</span>
+                            </a>
+                        ) : instagram && (
+                            <div className="footer__row">
+                                <FiInstagram size={24} strokeWidth={1.5} aria-hidden="true" />
+                                <span>{instagram}</span>
+                            </div>
+                        )}
                     </div>
 
                     <div className="footer__col footer__col--info">

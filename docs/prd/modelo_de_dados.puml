@@ -1,96 +1,100 @@
 @startuml
-' Parte verde reproduz V1 + V2; parte amarela é proposta, não migration.
-title ConAle — Banco atual e proposta de evolução
-left to right direction
-hide methods
+title ConAle — Modelo de dados MySQL (V1 a V17)
 skinparam shadowing false
-skinparam classBackgroundColor<<existente>> #E5F3E9
-skinparam classBackgroundColor<<proposta>> #FFF2CC
+skinparam defaultFontName Arial
+skinparam classAttributeIconSize 0
+skinparam ArrowColor #526579
+skinparam class {
+  BackgroundColor #EDF7F3
+  BorderColor #387D6A
+}
+hide circle
 
-package "MySQL atual — migrations V1 e V2" {
-  entity usuario <<existente>> {
-    * id : INT <<PK, AUTO_INCREMENT>>
-    --
-    * nome : VARCHAR(150)
-    * email : VARCHAR(254) <<UNIQUE>>
-    * senha_hash : VARCHAR(255)
-    * administrador : BOOLEAN = FALSE
-  }
-  entity noticia <<existente>> {
-    * id : INT <<PK, AUTO_INCREMENT>>
-    --
-    * titulo : VARCHAR(200)
-    sub_titulo : VARCHAR(500)
-  }
-  entity banner <<existente>> {
-    * id : INT <<PK, AUTO_INCREMENT>>
-    --
-    * titulo : VARCHAR(200)
-    * imagem : VARCHAR(2048)
-    link : VARCHAR(2048)
-    * ativo : BOOLEAN = FALSE
-  }
-  entity rodape <<existente>> {
-    * id : INT <<PK>> = 1
-    --
-    telefone : VARCHAR(30)
-    instagram : VARCHAR(2048)
-    email : VARCHAR(254)
-    link : VARCHAR(2048)
-    dias_semana : VARCHAR(150)
-    horas_trabalhadas : VARCHAR(150)
-    local : VARCHAR(500)
-  }
+entity usuario {
+  * id : INT <<PK, AUTO_INCREMENT>>
+  --
+  * nome : VARCHAR(150)
+  * email : VARCHAR(254) <<UNIQUE>>
+  * senha_hash : VARCHAR(255)
+  * administrador : BOOLEAN = FALSE
+  * administrador_original : BOOLEAN = FALSE
 }
 
-note bottom of noticia
-  Modelo mantido: id, titulo e sub_titulo.
-  Sem FK para usuário ou mídia.
-  Sem conteúdo de artigo, comentários ou publicação agendada.
-  Obrigatoriedade de título não vazio também é validada na API.
-end note
-note bottom of rodape
-  CHECK id = 1; registro inicial inserido pela V1.
-  As quatro tabelas atuais não têm FKs entre si.
-  BOOLEAN de usuario e banner possui CHECK para 0/1.
-end note
-
-package "Proposta lógica — D06 / migrations futuras" {
-  entity "midia (proposta)" as midia <<proposta>> {
-    id <<PK proposta>>
-    --
-    chave_arquivo <<UNIQUE proposta>>
-    nome_original
-    tipo
-    tamanho_bytes
-    data_envio
-    usuario_envio_id <<FK proposta>>
-  }
+entity banner {
+  * id : INT <<PK, AUTO_INCREMENT>>
+  --
+  * titulo : VARCHAR(150)
+  * imagem : VARCHAR(500)
+  imagem_mobile : VARCHAR(500)
+  link : VARCHAR(500)
+  posicao : VARCHAR(30)
+  * ativo : BOOLEAN = TRUE
+  posicao_ativa : VARCHAR(30) <<VIRTUAL, UNIQUE>>
 }
-usuario "1" .. "0..*" midia : responsável pelo envio\n(proposta)
-banner .. midia : futura referência de imagem\n(não existe na V1/V2)
 
-note bottom of midia
-  Tipos, tamanhos, nulabilidade e política de exclusão
-  devem ser definidos na aprovação da proposta D06.
-  MySQL guarda metadados; arquivo fica no filesystem
-  com volume persistente. Não armazenar caminho
-  absoluto da máquina do desenvolvedor.
-end note
-note top of banner
-  Hoje: imagem VARCHAR obrigatório, sem FK.
-  Evolução prevista: migrar referência para mídia.
-  Estratégia de migração e obrigatoriedade da nova FK
-  dependem de D01/D06; manter imagens existentes.
-end note
+entity noticia {
+  * id : INT <<PK, AUTO_INCREMENT>>
+  --
+  * titulo : VARCHAR(200)
+  sub_titulo : VARCHAR(500)
+}
 
-note "MODELOS A DETALHAR — não são tabelas implementadas\n\nConteudoInstitucional: chave estável do bloco, campos e referências\nde mídia a definir em D02/D04/D06.\n\nInformacoesCliente: depoimentos, logos ou ambos em D03.\nChatbot / OpcaoChatbot: estrutura e relações em D05.\n\nTexto alternativo/legenda devem acompanhar o uso da imagem.\nConteúdos repetidos compartilham cadastro, quando forem a mesma informação.\nNenhuma tabela nova é necessária para os blocos fixos.\nSessão e CSRF não possuem tabela própria nas migrations atuais." as Pendencias
-midia -[hidden]-> Pendencias
+entity indicador_institucional {
+  * id : INT <<PK, AUTO_INCREMENT>>
+  --
+  * anos_atuacao : INT
+  * empresas_abertas : INT
+}
+
+entity mensagens_clientes {
+  * id : INT <<PK, AUTO_INCREMENT>>
+  --
+  * titulo : VARCHAR(150)
+  * area_atuacao : VARCHAR(150)
+  * nota : DOUBLE
+  * mensagem : VARCHAR(1000)
+}
+
+entity rodape {
+  * id : INT <<PK, AUTO_INCREMENT>>
+  --
+  * nome : VARCHAR(100) = 'Padrão'
+  telefone : VARCHAR(20)
+  instagram : VARCHAR(100)
+  email : VARCHAR(254)
+  link : VARCHAR(2048) <<LEGADO>>
+  dias_semana : VARCHAR(100)
+  horas_trabalhadas : VARCHAR(100)
+  endereco : VARCHAR(255)
+}
+
+entity rodape_ativo {
+  * id : INT <<PK, CHECK id = 1>>
+  --
+  * rodape_id : INT <<FK>>
+}
+
+entity link_site {
+  * codigo : VARCHAR(50) <<PK>>
+  --
+  url : VARCHAR(500)
+}
+
+' As ligações ocultas organizam a leitura do modelo.
+usuario -[hidden]right-> banner
+banner -[hidden]right-> rodape
+usuario -[hidden]down-> noticia
+banner -[hidden]down-> indicador_institucional
+noticia -[hidden]down-> mensagens_clientes
+indicador_institucional -[hidden]down-> link_site
+
+rodape ||--o| rodape_ativo : modelo selecionado
 
 legend bottom
-  * = NOT NULL nas tabelas existentes; PK = chave primária; FK = chave estrangeira.
-  Verde: estrutura existente no SQL. Amarelo: proposta ainda não aplicada.
-  Relações tracejadas não são FKs implementadas.
-  O diagrama não executa alterações no banco.
+  O índice de usuario permite um único administrador original.
+  O índice de banner limita a um banner ativo por posição não nula.
+  Campos com asterisco são NOT NULL.
+  PK = chave primária
+  FK = chave estrangeira
 endlegend
 @enduml
