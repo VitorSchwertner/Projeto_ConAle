@@ -47,24 +47,33 @@
 }
 
 .footer__map {
-    display: grid;
+    position: relative;
     width: 240px;
-    gap: 8px;
-}
-
-.footer__map iframe {
-    display: block;
-    width: 100%;
     height: 200px;
-    border: 0;
+    overflow: hidden;
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.08);
 }
 
-.footer__map a {
-    justify-self: start;
-    font-size: 0.85rem;
-    text-decoration: underline;
+.footer__map-preview {
+    position: absolute;
+    inset: auto 0 0;
+    width: 100%;
+    /* Exibe a área do mapa abaixo do botão do Google e mantém os créditos. */
+    height: calc(100% + 48px);
+    border: 0;
+}
+
+.footer__map-link {
+    position: absolute;
+    /* Mantém os links de atribuição do Google acessíveis pelo mouse. */
+    inset: 0 0 18px;
+}
+
+.footer__map-link:focus-visible {
+    outline: 3px solid var(--color-green);
+    outline-offset: -3px;
+    border-radius: inherit;
 }
 
 .footer__bar {

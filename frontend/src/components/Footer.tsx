@@ -99,18 +99,20 @@ export default function Footer() {
                     {consultaMapa && (
                         <div className="footer__map">
                             <iframe
+                                className="footer__map-preview"
                                 src={`https://www.google.com/maps?q=${consultaMapa}&z=16&output=embed&hl=pt-BR`}
                                 title="Mapa de localização da ConAle"
                                 loading="lazy"
                                 referrerPolicy="strict-origin-when-cross-origin"
+                                tabIndex={-1}
                             />
                             <a
+                                className="footer__map-link"
                                 href={`https://www.google.com/maps/search/?api=1&query=${consultaMapa}`}
                                 target="_blank"
-                                rel="noreferrer"
-                            >
-                                Abrir no Google Maps
-                            </a>
+                                rel="noopener noreferrer"
+                                aria-label="Abrir localização da ConAle no Google Maps (nova aba)"
+                            />
                         </div>
                     )}
                 </div>
