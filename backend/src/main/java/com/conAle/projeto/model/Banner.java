@@ -25,6 +25,10 @@ public class Banner {
     @Column(name = "imagem", nullable = false, length = 500)
     private String imagem;
 
+    // Versão para celular. Opcional: sem ela, o site usa a imagem principal.
+    @Column(name = "imagem_mobile", length = 500)
+    private String imagemMobile;
+
     // Opcional: o banner pode ser apenas visual, sem link.
     @Column(name = "link", length = 500)
     private String link;
@@ -46,11 +50,15 @@ public class Banner {
     public String getImagem() { return imagem; }
     public void setImagem(String imagem) { this.imagem = imagem; }
 
+    public String getImagemMobile() { return imagemMobile; }
+    public void setImagemMobile(String imagemMobile) { this.imagemMobile = imagemMobile; }
+
     public String getLink() { return link; }
     public void setLink(String link) { this.link = link; }
 
     public String getPosicao() { return posicao; }
     public void setPosicao(String posicao) { this.posicao = posicao; }
+    public boolean aceitaLink() { return !"SOBRE_MIM_FOTO".equals(posicao); }
 
     public boolean isAtivo() { return ativo; }
     public void setAtivo(boolean ativo) { this.ativo = ativo; }

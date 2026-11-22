@@ -1,4 +1,7 @@
-import { Routes, Route } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, Routes, Route, useLocation } from 'react-router-dom'
+import { resolverLinkPublico } from './linkPublico'
+import { buscarLinksSite, type LinksSite } from './siteLinks'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import ScrollToTop from './components/ScrollToTop'
@@ -8,6 +11,7 @@ import AboutPage from './pages/AboutPage'
 import FaqPage from './pages/FaqPage'
 import LoginPage from './admin/pages/LoginPage'
 import DashboardPage from './admin/pages/DashboardPage'
+import LinksSitePage from './admin/pages/links/LinksSitePage'
 import ProtectedRoute from './admin/components/ProtectedRoute'
 import AdminOnlyRoute from './admin/components/AdminOnlyRoute'
 import AdminLayout from './admin/components/AdminLayout'
@@ -24,15 +28,41 @@ import UsuarioListPage from './admin/pages/usuarios/UsuarioListPage'
 import UsuarioFormPage from './admin/pages/usuarios/UsuarioFormPage'
 
 function SiteLayout() {
+    const { pathname } = useLocation()
+    const [links, setLinks] = useState<LinksSite>({})
+    const linksPublicos = Object.fromEntries(Object.entries(links).flatMap(([codigo, valor]) => {
+        const destino = resolverLinkPublico(valor, pathname)
+        return destino ? [[codigo, destino]] : []
+    }))
+
+    useEffect(() => {
+        let ativo = true
+        buscarLinksSite()
+            .then((dados) => {
+                if (ativo) setLinks(dados)
+            })
+            .catch(() => {
+                // Mantém os destinos padrão quando a API está indisponível.
+            })
+        return () => { ativo = false }
+    }, [])
+
     return (
         <>
             <Header />
             <main>
                 <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/servicos" element={<ServicesPage />} />
+                    <Route path="/" element={<Home links={linksPublicos} />} />
+                    <Route path="/servicos" element={<ServicesPage links={linksPublicos} />} />
                     <Route path="/sobre" element={<AboutPage />} />
-                    <Route path="/duvidas" element={<FaqPage />} />
+                    <Route path="/duvidas" element={<FaqPage links={linksPublicos} />} />
+                    <Route path="*" element={
+                        <section className="container pagina-nao-encontrada">
+                            <h1>Página não encontrada</h1>
+                            <p>Confira o endereço ou volte à página inicial.</p>
+                            <Link to="/" className="btn btn--primary">Voltar à Home</Link>
+                        </section>
+                    } />
                 </Routes>
             </main>
             <Footer />
@@ -60,6 +90,7 @@ export default function App() {
                     <Route path="banners" element={<BannerListPage />} />
                     <Route path="banners/novo" element={<BannerFormPage />} />
                     <Route path="banners/:id" element={<BannerFormPage />} />
+                    <Route path="links" element={<LinksSitePage />} />
 
                     <Route path="noticias" element={<NoticiaListPage />} />
                     <Route path="noticias/nova" element={<NoticiaFormPage />} />

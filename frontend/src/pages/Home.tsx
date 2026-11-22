@@ -1,3 +1,4 @@
+import type { LinksSite } from '../siteLinks'
 import Hero from '../components/Hero'
 import QuickActions from '../components/QuickActions'
 import Stats from '../components/Stats'
@@ -8,17 +9,17 @@ import Differentials from '../components/Differentials'
 import Services from '../components/Services'
 import Noticias from '../components/Noticias'
 
-export default function Home() {
+export default function Home({ links }: { links: LinksSite }) {
     return (
         <>
             <Hero />
-            <QuickActions />
+            <QuickActions links={links} />
             <Stats />
-            <Highlights />
+            <Highlights links={links} />
             <About />
             <ClientArea />
             <Differentials />
-            <Services />
+            <Services links={links} />
             <Noticias />
         </>
     )

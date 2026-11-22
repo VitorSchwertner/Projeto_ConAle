@@ -14,6 +14,7 @@ CMD ["mvn", "-B", "-ntp", "test"]
 FROM eclipse-temurin:24-jre AS runtime
 WORKDIR /app
 COPY --from=build /app/target/conale-backend.jar app.jar
+RUN install -d -o 10001 -g 10001 /app/uploads
 # Executa sem privilegios de administrador dentro do container.
 USER 10001:10001
 # Informa a porta da aplicacao; o Compose define o acesso pela maquina.

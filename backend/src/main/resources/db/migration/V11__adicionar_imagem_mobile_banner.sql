@@ -1,0 +1,1 @@
+ALTER TABLE banner ADD COLUMN imagem_mobile VARCHAR(500) NULL;

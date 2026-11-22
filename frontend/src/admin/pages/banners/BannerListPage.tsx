@@ -1,8 +1,17 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { resolverLinkPublico } from '../../../linkPublico'
 import { listarBanners, excluirBanner } from '../../api/banners'
 import type { Banner } from '../../types'
 import './BannerListPage.css'
+
+function destinoNoPainel(banner: Banner) {
+    if (banner.posicao === 'SOBRE_MIM_FOTO') return null
+
+    const pagina = banner.posicao === 'SERVICOS_TOPO' ? '/servicos' : '/'
+    const destino = resolverLinkPublico(banner.link, pagina)
+    return destino?.startsWith('#') ? `${pagina}${destino}` : destino
+}
 
 export default function BannerListPage() {
     const [banners, setBanners] = useState<Banner[]>([])
@@ -67,17 +76,28 @@ export default function BannerListPage() {
                 </tr>
                 </thead>
                 <tbody>
-                {banners.map((banner) => (
-                    <tr key={banner.id}>
-                        <td>{banner.titulo}</td>
-                        <td>{banner.link ?? '—'}</td>
-                        <td>{banner.ativo ? 'Sim' : 'Não'}</td>
-                        <td className="banner-list__actions">
-                            <Link to={`/admin/banners/${banner.id}`}>Editar</Link>
-                            <button onClick={() => handleExcluir(banner.id)}>Excluir</button>
-                        </td>
-                    </tr>
-                ))}
+                {banners.map((banner) => {
+                    const destino = destinoNoPainel(banner)
+                    return (
+                        <tr key={banner.id}>
+                            <td>{banner.titulo}</td>
+                            <td>
+                                {destino ? (
+                                    <a className="banner-list__link" href={destino} target="_blank" rel="noopener noreferrer">
+                                        {banner.link}
+                                    </a>
+                                ) : banner.link && banner.posicao !== 'SOBRE_MIM_FOTO' ? (
+                                    <span>{banner.link} (destino inválido)</span>
+                                ) : '—'}
+                            </td>
+                            <td>{banner.ativo ? 'Sim' : 'Não'}</td>
+                            <td className="banner-list__actions">
+                                <Link to={`/admin/banners/${banner.id}`}>Editar</Link>
+                                <button onClick={() => handleExcluir(banner.id)}>Excluir</button>
+                            </td>
+                        </tr>
+                    )
+                })}
                 {banners.length === 0 && (
                     <tr>
                         <td colSpan={4}>Nenhum banner cadastrado.</td>

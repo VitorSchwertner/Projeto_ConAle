@@ -30,6 +30,11 @@
     margin-bottom: 10px;
 }
 
+a.services__item:hover h3,
+a.services__item:focus-visible h3 {
+    text-decoration: underline;
+}
+
 .services__item p {
     color: rgba(255, 255, 255, 0.9);
     font-size: 0.88rem;

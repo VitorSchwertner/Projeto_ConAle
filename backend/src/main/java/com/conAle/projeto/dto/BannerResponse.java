@@ -7,6 +7,7 @@ public record BannerResponse(
         Integer id,
         String titulo,
         String imagem,
+        String imagemMobile,
         String link,
         String posicao,
         boolean ativo
@@ -17,7 +18,8 @@ public record BannerResponse(
                 banner.getId(),
                 banner.getTitulo(),
                 banner.getImagem(),
-                banner.getLink(),
+                banner.getImagemMobile(),
+                banner.aceitaLink() ? banner.getLink() : null,
                 banner.getPosicao(),
                 banner.isAtivo()
         );

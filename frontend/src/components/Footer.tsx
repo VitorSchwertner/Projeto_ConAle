@@ -3,9 +3,11 @@ import { FiInstagram, FiMail, FiClock, FiMapPin } from 'react-icons/fi'
 import { useEffect, useState } from 'react'
 import { buscarRodape } from '../api/content'
 import type { Rodape } from '../types/content'
+import FloatingContacts from './FloatingContacts'
 import './Footer.css'
 
-const ENDERECO_PADRAO = ['R. Guanabara, 353 - Sala 1', 'São Cristóvão, Lajeado - RS, 95913-122']
+const NUMERO_ENDERECO = /^(?:(?:n[º°.]?\s*)?\d+[a-z]?(?:\s|-|$)|s\/n\b)/i
+const COMPLEMENTO_ENDERECO = /^(?:sala|apto|apartamento|bloco|andar|conjunto|loja|casa|fundos)\b/i
 
 const PADRAO: Rodape = {
     id: 0,
@@ -14,16 +16,43 @@ const PADRAO: Rodape = {
     email: 'atendimento.conale@gmail.com',
     diasSemana: 'Segunda à Sexta-feira',
     horasTrabalhadas: '08:00h - 12:00h | 13:00h - 17:15h',
-    endereco: ENDERECO_PADRAO.join(', '),
+    endereco: 'R. Guanabara, 353 - Sala 1, São Cristóvão, Lajeado - RS, 95913-122',
+}
+
+function formatarEndereco(endereco: string) {
+    if (endereco.includes('\n')) return endereco
+
+    const partes = endereco.split(',').map((parte) => parte.trim()).filter(Boolean)
+    let quebra = NUMERO_ENDERECO.test(partes[1] ?? '') ? 2 : 1
+
+    while (quebra < partes.length && COMPLEMENTO_ENDERECO.test(partes[quebra])) {
+        quebra++
+    }
+
+    return [partes.slice(0, quebra), partes.slice(quebra)]
+        .filter((linha) => linha.length > 0)
+        .map((linha) => linha.join(', '))
+        .join('\n')
 }
 
 export default function Footer() {
     const [rodape, setRodape] = useState<Rodape>(PADRAO)
+    const instagram = rodape.instagram?.trim() ?? ''
+    const perfilNaUrl = instagram.match(/^(?:https?:\/\/)?(?:www\.)?instagram\.com\/([a-z\d._]+)\/?(?:[?#].*)?$/i)
+    const perfilInstagram = perfilNaUrl?.[1] ?? instagram.replace(/^@/, '')
+    const linkInstagram = /^[a-z\d._]{1,30}$/i.test(perfilInstagram)
+        ? `https://www.instagram.com/${perfilInstagram}/`
+        : null
+    const email = rodape.email?.trim() ?? ''
+    const separadorEmail = email.lastIndexOf('@')
+    const linkEmail = separadorEmail > 0
+        ? `mailto:${encodeURIComponent(email.slice(0, separadorEmail))}@${encodeURIComponent(email.slice(separadorEmail + 1))}`
+        : null
     const endereco = rodape.endereco?.trim()
-    const enderecoPadrao = endereco === PADRAO.endereco || endereco === ENDERECO_PADRAO.join('\n')
-    const enderecoExibido = enderecoPadrao ? ENDERECO_PADRAO.join('\n') : endereco
-    const consultaMapa = enderecoPadrao ? PADRAO.endereco : endereco?.replace(/\s+/g, ' ')
-    const mapa = consultaMapa ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(consultaMapa)}` : null
+    const enderecoExibido = endereco ? formatarEndereco(endereco) : ''
+    const consultaMapa = endereco
+        ? encodeURIComponent(endereco.replace(/,?\s*\r?\n\s*/g, ', ').replace(/\s+/g, ' '))
+        : null
 
     useEffect(() => {
         buscarRodape()
@@ -44,19 +73,26 @@ export default function Footer() {
                             <FaWhatsapp size={24} />
                             <span>{rodape.telefone}</span>
                         </div>
-                        <div className="footer__row">
-                            <FiInstagram size={24} strokeWidth={1.5} />
-                            <span>{rodape.instagram}</span>
-                        </div>
+                        {linkInstagram ? (
+                            <a className="footer__row footer__instagram" href={linkInstagram} target="_blank" rel="noopener noreferrer">
+                                <FiInstagram size={24} strokeWidth={1.5} aria-hidden="true" />
+                                <span>@{perfilInstagram}</span>
+                            </a>
+                        ) : instagram && (
+                            <div className="footer__row">
+                                <FiInstagram size={24} strokeWidth={1.5} aria-hidden="true" />
+                                <span>{instagram}</span>
+                            </div>
+                        )}
                     </div>
 
                     <div className="footer__col footer__col--info">
-                        <div className="footer__row">
-                            <FiMail size={24} strokeWidth={1.5} />
-                            <a href={`mailto:${rodape.email}`} className="footer__email">
-                                {rodape.email}
-                            </a>
-                        </div>
+                        {email && (
+                            <div className="footer__row">
+                                <FiMail size={24} strokeWidth={1.5} />
+                                <span>{email}</span>
+                            </div>
+                        )}
                         <div className="footer__row">
                             <FiClock size={24} strokeWidth={1.5} />
                             <span>
@@ -65,20 +101,32 @@ export default function Footer() {
                                 {rodape.horasTrabalhadas}
               </span>
                         </div>
-                        <div className="footer__row">
-                            <FiMapPin size={24} strokeWidth={1.5} />
-                            {mapa ? (
-                                <a href={mapa} target="_blank" rel="noreferrer" className="footer__endereco">
-                                    {enderecoExibido}
-                                </a>
-                            ) : null}
-                        </div>
+                        {enderecoExibido && (
+                            <div className="footer__row">
+                                <FiMapPin size={24} strokeWidth={1.5} />
+                                <span className="footer__endereco">{enderecoExibido}</span>
+                            </div>
+                        )}
                     </div>
 
-                    {mapa && enderecoPadrao && (
-                        <a href={mapa} target="_blank" rel="noreferrer" className="footer__map">
-                            <img src="/mapa.png" alt="Mapa de localização da ConAle" />
-                        </a>
+                    {consultaMapa && (
+                        <div className="footer__map">
+                            <iframe
+                                className="footer__map-preview"
+                                src={`https://www.google.com/maps?q=${consultaMapa}&z=16&output=embed&hl=pt-BR`}
+                                title="Mapa de localização da ConAle"
+                                loading="lazy"
+                                referrerPolicy="strict-origin-when-cross-origin"
+                                tabIndex={-1}
+                            />
+                            <a
+                                className="footer__map-link"
+                                href={`https://www.google.com/maps/search/?api=1&query=${consultaMapa}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label="Abrir localização da ConAle no Google Maps (nova aba)"
+                            />
+                        </div>
                     )}
                 </div>
             </div>
@@ -89,6 +137,7 @@ export default function Footer() {
           Financeira - Todos os direitos reservados.
         </span>
             </div>
+            <FloatingContacts telefone={rodape.telefone} linkEmail={linkEmail} />
         </footer>
     )
 }

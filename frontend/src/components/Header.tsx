@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CLIENT_PORTAL_URL } from '../constants'
+import { useBanners } from '../hooks/useBanners'
 import './Header.css'
 
 const NAV_LINKS = [
@@ -12,6 +13,7 @@ const NAV_LINKS = [
 
 export default function Header() {
     const [menuOpen, setMenuOpen] = useState(false)
+    const { areaClienteBanner } = useBanners()
 
     return (
         <header className="header">
@@ -34,8 +36,9 @@ export default function Header() {
                         ))}
                     </ul>
                     <a
-                        href={CLIENT_PORTAL_URL}
+                        href={areaClienteBanner?.link ?? CLIENT_PORTAL_URL}
                         className="btn btn--primary header__cta"
+                        onClick={() => setMenuOpen(false)}
                     >
                         Área do Cliente
                     </a>

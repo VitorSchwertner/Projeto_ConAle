@@ -67,8 +67,12 @@
         grid-template-columns: 1fr;
     }
 
-    .client-area__banner,
-    .client-area__banner-image {
+    .client-area__banner {
         min-height: 260px;
+    }
+
+    .client-area__banner-image {
+        height: auto;
+        min-height: 0;
     }
 }

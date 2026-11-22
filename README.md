@@ -1,83 +1,73 @@
 # Projeto ConAle
 
-Projeto da disciplina de Laboratório de Programação para a Internet (2026B), desenvolvido para a ConAle, especializada em contabilidade para a área da saúde.
+Versão final do projeto da disciplina de Laboratório de Programação para a Internet (2026B), desenvolvido para a ConAle, consultoria contábil especializada na área da saúde.
 
-A solução reúne um site institucional e um sistema administrativo de gestão de conteúdo (CMS). O portal externo dos clientes não é substituído pelo projeto.
+A entrega reúne um site institucional responsivo e um painel administrativo. O site apresenta os serviços da ConAle, reúne os canais de atendimento e encaminha os clientes ao portal externo Onvio. A equipe gerencia os conteúdos do site pelo painel.
 
-## Estado atual
+## Recursos entregues
 
-- **Frontend:** site institucional navegável, notícias carregadas da API e painel em `/admin` para banners, indicadores, notícias, rodapé, mensagens de clientes e usuários.
-- **Backend:** CRUDs do conteúdo e de usuários, autenticação por sessão, dois papéis e rota de saúde.
-- **Papéis:** Administrador gerencia conteúdo e usuários; Design gerencia apenas conteúdo.
-- **Notícias:** apenas `id`, `titulo` e `sub_titulo`. Não incluem imagens, corpo de artigo, comentários ou agendamento.
-- **Banco:** tabelas gerenciadas pelo Flyway, com volume persistente no Docker.
-- **Publicação:** `compose.prod.yaml` cria frontend, backend e MySQL; o Nginx entrega o site e encaminha `/api` ao backend sem expô-lo diretamente.
+- **Site público** com Home (`/`), Serviços (`/servicos`), Sobre Mim (`/sobre`) e Dúvidas Frequentes (`/duvidas`).
+- **Painel administrativo** em `/admin`, com login em `/admin/login`. O perfil **Design** gerencia conteúdo. O perfil **Administrador** também acessa a gestão de contas. O Administrador original tem a permissão de atribuir o papel de Administrador e alterar papéis.
+- **Banners** com imagens de computador e celular, prévia, recorte e links por posição. Cada posição aceita um banner ativo. Se a imagem de celular estiver vazia, o site usa a imagem de computador. A foto de Sobre Mim tem apenas função visual.
+- **Links do site** para os cinco atalhos da Home e de Serviços, os três destaques da Home e os quatro serviços. O painel aceita URLs HTTP ou HTTPS e destinos existentes no site, como `/servicos` ou `/duvidas#faq`. Limpar um campo restaura o comportamento padrão do componente.
+- **Cards informativos** compartilhados pela Home, por Serviços e por Dúvidas Frequentes. Cada registro tem título obrigatório e subtítulo opcional.
+- **Indicadores e avaliações.** A Home exibe os indicadores de anos de atuação e empresas abertas. Sobre Mim mostra as avaliações cadastradas.
+- **Rodapé** com modelos editáveis e um modelo ativo por vez. O Instagram abre o perfil cadastrado, o telefone e o e-mail alimentam os botões flutuantes e o endereço é usado na prévia clicável do Google Maps. No cadastro, é possível digitar o endereço em duas linhas.
+- **Navegação no painel.** O botão **Voltar** dos formulários retorna à listagem da seção sem salvar. Na tela **Links do site** e nas listagens, a navegação entre seções fica no menu lateral.
 
-Alguns conteúdos institucionais ainda são fixos nos componentes e há imagens provisórias. HTTPS, backup automatizado e limitação de tentativas de login continuam como evoluções após a parcial.
+Em um banco vazio, o sistema cadastra **cinco banners padrão, seis cards informativos, cinco avaliações, um indicador com 0 e 0 e um rodapé Padrão ativo**. Os destinos personalizados de **Links do site** são preenchidos pela equipe no painel. Até o cadastro dos destinos, os atalhos e os botões de contratação ficam desativados. Os destaques da Home apontam por padrão para a seção de serviços.
 
-## Stack
+O escopo completo, as regras de acesso e os formatos dos banners estão no [PRD da versão final](docs/prd/conale.md).
 
-| Parte | Tecnologias |
+## Tecnologias e estrutura
+
+| Camada | Tecnologias |
 | --- | --- |
-| Frontend | React 19, TypeScript 6, Vite 8, React Router, React Icons e CSS |
-| Backend | Java 24, Spring Boot 3.5.16, Spring Web, Validation e Spring Data JPA |
+| Frontend | React 19, TypeScript 6, Vite 8, React Router, React Icons, React Easy Crop e CSS |
+| Backend | Java 24, Spring Boot 3.5.16, Spring Web, Validation, Spring Data JPA e Maven 3.9.9 |
 | Segurança | Spring Security, BCrypt, sessão por cookie e proteção CSRF |
-| Banco e migrations | MySQL 8.4.11 e Flyway |
-| Build e ambiente | Maven 3.9.9 no Dockerfile; Docker Compose |
-| Verificação | Testes Java/Spring, MySQL isolado para testes, Postman e ESLint |
+| Banco | MySQL 8.4.11 e Flyway |
+| Execução e verificação | Docker Compose, Nginx, GitHub Actions, testes Java/Spring e ESLint |
 
-As dependências do frontend estão em [package.json](frontend/package.json) e [package-lock.json](frontend/package-lock.json); as do backend estão em [pom.xml](backend/pom.xml).
-
-## Estrutura
+As versões das dependências estão no [manifesto do frontend](frontend/package.json), no [lockfile](frontend/package-lock.json) e no [POM do backend](backend/pom.xml).
 
 ```text
-backend/             API, regras de negócio, segurança, migrations e testes
-frontend/            Site em React
-docs/prd/            Requisitos e diagramas
-docs/postman/        Coleção de requisições
-compose.yaml         Backend e banco de desenvolvimento
-compose.test.yaml    Ambiente isolado de testes
-compose.prod.yaml    Site completo para publicação na VM
-.env.example         Modelo de configuração local, sem credenciais pessoais
+backend/             API, segurança, migrations e testes
+frontend/            Site público e painel administrativo
+docs/prd/            PRD, diagramas PNG e fontes PlantUML
+docs/postman/        Coleção de requisições para verificação da API
+compose.yaml         Backend e banco para desenvolvimento
+compose.test.yaml    Testes do backend com banco isolado
+compose.prod.yaml    Nginx, backend e MySQL para a VM
+.env.example         Modelo de configuração
 .github/workflows/   Verificação automática de frontend e backend
 ```
 
-## Pré-requisitos
+## Executar localmente
 
-- Git, para obter e versionar o projeto.
-- Docker Desktop iniciado, com containers Linux e Docker Compose v2, para backend e banco.
-- Node.js 24.x e npm para o frontend. Essa linha atende aos requisitos das dependências registradas no lockfile.
+Use Git, Docker com containers Linux e Docker Compose v2, além de Node.js 24.x e npm. O Docker fornece Java, Maven e MySQL para a execução do backend. Execute os comandos abaixo no PowerShell, a partir da raiz do projeto.
 
-Usando Docker, não é necessário instalar Java, Maven ou MySQL na máquina. A execução do backend pela IDE é descrita adiante.
+### 1. Configurar o ambiente
 
-Abra o terminal na raiz do projeto, onde estão os arquivos `compose.yaml` e `.env.example`. Os exemplos abaixo usam PowerShell.
-
-## 1. Configurar e iniciar backend e banco
-
-Crie a configuração sem sobrescrever um `.env` existente:
+Crie o arquivo `.env` a partir do exemplo, preservando uma configuração existente.
 
 ```powershell
 if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 ```
 
-Edite o `.env` localmente antes da primeira inicialização:
-
 | Variável | Finalidade |
 | --- | --- |
-| `DB_NAME` | Nome do banco; exemplo: `conale` |
-| `DB_USERNAME` | Usuário MySQL utilizado pelo backend |
-| `DB_PASSWORD` | Senha desse usuário MySQL |
+| `DB_NAME`, `DB_USERNAME` e `DB_PASSWORD` | Banco e credenciais do backend no MySQL |
 | `DB_ROOT_PASSWORD` | Senha do administrador do MySQL |
-| `DB_PORT` | Porta do banco na máquina; padrão `3306` |
-| `API_PORT` | Porta da API na máquina; padrão `8080` |
-| `WEB_PORT` | Porta pública do site na VM; padrão `80` |
-| `ADMIN_INITIAL_NAME` | Nome do primeiro administrador do sistema |
-| `ADMIN_INITIAL_EMAIL` | E-mail novo para criar o primeiro administrador |
-| `ADMIN_INITIAL_PASSWORD` | Senha inicial da conta administrativa |
-| `SESSION_COOKIE_SECURE` | `false` no desenvolvimento HTTP local; `true` na implantação com HTTPS |
-| `DB_URL` | Conexão para execução direta pela IDE; o Compose monta sua própria URL usando o serviço `mysql` |
+| `DB_PORT` e `API_PORT` | Portas locais do banco e da API. Padrões `3306` e `8080` |
+| `ADMIN_INITIAL_NAME`, `ADMIN_INITIAL_EMAIL` e `ADMIN_INITIAL_PASSWORD` | Nome, e-mail e senha da primeira conta administrativa |
+| `SESSION_COOKIE_SECURE` | Use `false` em HTTP local e `true` na implantação com HTTPS |
+| `DB_URL` | Conexão para execução direta pela IDE. O Compose monta a conexão com o serviço `mysql` |
+| `WEB_PORT` | Porta pública do Compose de publicação. Padrão `80` |
 
-Senhas de banco não são senhas de login do sistema. Substitua os valores de exemplo por valores locais e não envie `.env` ao Git. O arquivo contém somente variáveis e comentários, não comandos de terminal.
+Use valores próprios para as senhas e mantenha o `.env` fora do Git. A senha do administrador precisa ter pelo menos 8 caracteres e no máximo 72 bytes em UTF-8.
+
+### 2. Iniciar o backend e o banco
 
 ```powershell
 docker compose config --quiet
@@ -86,231 +76,105 @@ docker compose ps -a
 docker compose logs --tail=100 backend
 ```
 
-O Compose aguarda o MySQL responder; o backend aplica as migrations pendentes. A primeira execução pode demorar devido ao download das imagens e dependências.
+O Compose aguarda o MySQL ficar saudável e o Spring Boot aplica as migrations. Quando o log mostrar `Started ConaleApplication`, consulte a rota de saúde. O resultado esperado é `status: UP`. Ajuste a URL se estiver usando outra porta.
 
-### Primeiro administrador
+```powershell
+Invoke-RestMethod http://localhost:8080/actuator/health
+```
 
-Preencha as três variáveis `ADMIN_INITIAL_*` antes de iniciar. A senha deve ter entre 8 e 72 caracteres e no máximo 72 bytes em UTF-8. Use credenciais próprias, não senhas de demonstração.
+Em um banco sem Administrador, o backend cria a primeira conta com as variáveis `ADMIN_INITIAL_*` preenchidas. Em um banco que já tem Administrador e ainda não tem um original registrado, informe em `ADMIN_INITIAL_EMAIL` o e-mail da conta existente a vincular. O vínculo é persistido. Alterar a configuração do ambiente depois do vínculo mantém a conta original e a senha do banco.
 
-- A conta inicial só é criada se ainda não existir um administrador.
-- Em bancos existentes, na primeira inicialização após a migration V7, mantenha em `ADMIN_INITIAL_EMAIL` o e-mail atual da conta administrativa original. O sistema grava o vínculo ao encontrar essa conta, mesmo com a senha inicial vazia. Se o e-mail não corresponder a um administrador existente, a alteração de papéis fica indisponível até configurar o e-mail correto e reiniciar o backend.
-- Depois que o vínculo é salvo, mudanças no e-mail da conta ou nas variáveis do `.env` não transferem o papel original.
-- Se e-mail e senha estiverem vazios, nenhuma conta inicial será criada.
-- Configuração incompleta/inválida ou e-mail já cadastrado pode impedir a inicialização quando o bootstrap for necessário.
-- Contas anteriores à migration V2 não são promovidas automaticamente.
-- Alterar essas variáveis não redefine a senha de uma conta existente.
-
-Após confirmar o primeiro login, remova o valor de `ADMIN_INITIAL_PASSWORD` do `.env` e recrie somente o backend para retirar a senha inicial do ambiente do container:
+Após confirmar o primeiro login, esvazie `ADMIN_INITIAL_PASSWORD` no `.env` e recrie o backend. A senha da conta continua válida e a sessão em andamento é encerrada.
 
 ```powershell
 docker compose up -d --force-recreate backend
 ```
 
-A senha armazenada como hash no banco permanece válida. Sessões em andamento serão perdidas com a reinicialização.
+### 3. Iniciar o frontend
 
-### Confirmar a inicialização
-
-Com a porta padrão, acesse [saúde da API](http://localhost:8080/actuator/health) ou execute:
-
-```powershell
-Invoke-RestMethod http://localhost:8080/actuator/health
-Invoke-RestMethod http://localhost:8080/api/noticias
-```
-
-O resultado de saúde esperado é `status: UP`; a consulta de notícias retorna os registros ou uma lista vazia. Ajuste a porta dos exemplos se alterou `API_PORT`. O MySQL deve aparecer como `healthy` e o log do backend deve conter `Started ConaleApplication`.
-
-## 2. Iniciar o frontend
-
-Em outro terminal, partindo da raiz:
+Em outro terminal, a partir da raiz do projeto, execute:
 
 ```powershell
 cd frontend
-node --version
-npm --version
 npm ci
 npm run dev
 ```
 
-Abra o endereço exibido pelo Vite, normalmente [http://localhost:5173](http://localhost:5173). Se a porta estiver ocupada, ele poderá selecionar outra. Encerre com `Ctrl+C`.
+Abra o endereço informado pelo Vite, geralmente [localhost:5173](http://localhost:5173). O Vite encaminha `/api` e `/uploads` para `http://localhost:8080`. Se mudar `API_PORT`, ajuste também o destino em [vite.config.ts](frontend/vite.config.ts). Para usar o painel local, acrescente `/admin/login` ao endereço exibido.
 
-Rotas públicas: `/`, `/servicos`, `/sobre` e `/duvidas`. O login fica em `/admin/login`; após autenticar, o painel fica em `/admin`. Durante o desenvolvimento, o Vite encaminha `/api` para o backend em `http://localhost:8080`.
+Para executar o backend pela IDE, use JDK 24 e importe [backend/pom.xml](backend/pom.xml). Inicie o MySQL com `docker compose up -d mysql` e configure `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` e, no primeiro acesso, `ADMIN_INITIAL_*` no ambiente da execução Java. Use `UPLOAD_DIR` para escolher uma pasta absoluta de uploads. A porta do Spring pode ser definida com `SERVER_PORT` quando o backend é iniciado diretamente.
 
-Verificações disponíveis, dentro de `frontend`:
+## Publicar com Docker Compose
+
+Com o `.env` da VM configurado, execute na raiz do projeto:
+
+```powershell
+docker compose -f compose.prod.yaml config --quiet
+docker compose -f compose.prod.yaml up -d --build
+docker compose -f compose.prod.yaml ps
+```
+
+O Nginx expõe o site pela porta `WEB_PORT`, encaminha `/api` e `/uploads/banners/` ao backend e disponibiliza `/health` para verificação. Backend e MySQL permanecem na rede interna do Compose. O arquivo de publicação atende HTTP. Quando houver terminação HTTPS na infraestrutura da VM, use `SESSION_COOKIE_SECURE=true` para a sessão administrativa.
+
+O volume `mysql_data` guarda o banco e o volume `banner_uploads` guarda as imagens enviadas. Preserve ambos na recriação dos containers. Os arquivos Compose local e de publicação usam o mesmo nome de projeto por padrão. Para ambientes independentes no mesmo host, use nomes de projeto diferentes com `-p` e portas distintas. Use `docker compose down` para encerrar o ambiente local e `docker compose -f compose.prod.yaml down` para encerrar o ambiente de publicação. A opção `-v` remove os volumes do projeto selecionado.
+
+## API e autenticação
+
+| Recurso | Leitura pública | Operações no painel |
+| --- | --- | --- |
+| Banners | `GET /api/banners/ativos` | CRUD em `/api/banners` e envio de imagem em `POST /api/banners/upload` |
+| Links do site | `GET /api/links-site` | `PATCH /api/links-site` |
+| Cards informativos | `GET /api/noticias` e `GET /api/noticias/{id}` | CRUD em `/api/noticias`. O nome técnico da rota foi mantido |
+| Indicadores | `GET /api/indicadores-institucionais` | CRUD em `/api/indicadores-institucionais` |
+| Avaliações | `GET /api/mensagens-clientes` | CRUD em `/api/mensagens-clientes` |
+| Rodapé | `GET /api/rodape` | Gerenciar `/api/rodape/modelos`, ativar em `PUT /api/rodape/modelos/{id}/ativacao` e atualizar o ativo em `PUT /api/rodape` |
+| Usuários | Acesso restrito a Administrador | CRUD em `/api/usuarios`, respeitando o papel da conta |
+
+Para criar ou editar um card informativo pela API, envie um JSON com `titulo` e `sub_titulo`. Exemplo de corpo para `POST /api/noticias`:
+
+```json
+{
+  "titulo": "Como agendar uma reunião?",
+  "sub_titulo": "Entre em contato com nossa equipe pelo WhatsApp."
+}
+```
+
+Para testar manualmente com o Postman, importe a [coleção do projeto](docs/postman/ConAle-Auth.postman_collection.json) e configure `baseUrl` de acordo com a porta da API. Mantenha os cookies e use o mesmo host durante toda a sessão.
+
+1. Obtenha o token em `GET /api/auth/csrf`.
+2. Entre com `POST /api/auth/login`, enviando `email`, `senha` e o token no cabeçalho informado pela API.
+3. Obtenha um novo token de CSRF após o login e consulte `GET /api/auth/me` para verificar a conta autenticada.
+4. Envie o cookie `JSESSIONID` e o token CSRF atualizado nas operações de gravação.
+5. Use `POST /api/auth/logout` com o token válido para encerrar a sessão.
+
+A sessão expira após 30 minutos de inatividade. O [guia de autenticação e Postman](docs/autenticacao-postman.md) detalha as permissões, os retornos e as verificações manuais.
+
+## Verificar a entrega
+
+No diretório `frontend`:
 
 ```powershell
 npm run lint
 npm run build
-npm run preview
 ```
 
-O build verifica TypeScript e gera `dist/`. O preview permite visualizar esse build localmente; não é uma configuração de hospedagem de produção. Não há script de testes automatizados do frontend no `package.json` atual.
-
-## 3. Autenticação e Postman
-
-Consulte o [guia de autenticação](docs/autenticacao-postman.md) e importe a [coleção do Postman](docs/postman/ConAle-Auth.postman_collection.json).
-
-Na coleção, ajuste `baseUrl` para a porta do seu backend. A coleção de demonstração utiliza `http://localhost:18081`; o Compose padrão utiliza `http://localhost:8080`. Preencha `adminEmail` e `adminPassword` apenas localmente. Não exporte nem compartilhe a coleção com credenciais reais.
-
-Use sempre o mesmo host e mantenha os cookies habilitados; não misture `localhost` com `127.0.0.1` durante a sessão.
-
-| Etapa | Requisição | Resultado esperado |
-| --- | --- | --- |
-| Obter CSRF | `GET /api/auth/csrf` | Token e nome do cabeçalho; preservar o cookie recebido |
-| Entrar | `POST /api/auth/login` | Enviar JSON com `email` e `senha`, além do cabeçalho CSRF; sucesso `200` |
-| Renovar CSRF | `GET /api/auth/csrf` | Obter novo token após o login |
-| Consultar sessão | `GET /api/auth/me` | `200` com ID, nome, e-mail e papel do usuário |
-| Sair | `POST /api/auth/logout` | Enviar CSRF; sucesso `204` |
-| Conferir logout | `GET /api/auth/me` | `401` após encerramento da sessão |
-
-O login troca o ID da sessão e invalida o CSRF anterior. Requisições de alteração usam o cookie `JSESSIONID` e o cabeçalho `X-CSRF-TOKEN` atualizado. Não se utiliza Bearer Token/JWT. A senha é armazenada como hash BCrypt e não é devolvida nas respostas.
-
-Sessões expiram após 30 minutos de inatividade e são perdidas ao reiniciar o backend. O cookie é HttpOnly e SameSite=Strict. O backend não oferece cadastro público.
-
-## 4. APIs disponíveis
-
-### Notícias
-
-GETs são públicos; criação, edição e exclusão exigem Administrador ou Design autenticado e CSRF válido.
-
-| Método | Rota | Resultado de sucesso |
-| --- | --- | --- |
-| POST | `/api/noticias` | `201`, registro criado e cabeçalho Location |
-| GET | `/api/noticias` | `200`, lista por ID decrescente |
-| GET | `/api/noticias/{id}` | `200`, registro consultado |
-| PUT | `/api/noticias/{id}` | `200`, registro atualizado |
-| DELETE | `/api/noticias/{id}` | `204`, exclusão definitiva |
-
-Corpo de POST/PUT, com `Content-Type: application/json`:
-
-```json
-{
-  "titulo": "Novidades da ConAle",
-  "sub_titulo": "Confira as informações mais recentes."
-}
-```
-
-O título é obrigatório, não aceita somente espaços e tem limite de 200 caracteres. O subtítulo é opcional, com limite de 500 caracteres. Omitir `sub_titulo` ou enviar `null` no PUT remove o valor anterior. O ID é gerado pelo banco. O registro fica disponível na API pública após o salvamento, sem etapa adicional de publicação.
-
-### Usuários
-
-Todas as rotas exigem administrador autenticado. POST, PUT e DELETE também exigem CSRF válido.
-
-| Método | Rota | Resultado de sucesso |
-| --- | --- | --- |
-| POST | `/api/usuarios` | `201`, nova conta administrativa |
-| GET | `/api/usuarios` | `200`, lista por ID decrescente |
-| GET | `/api/usuarios/{id}` | `200`, usuário consultado |
-| PUT | `/api/usuarios/{id}` | `200`, usuário atualizado |
-| DELETE | `/api/usuarios/{id}` | `204`, exclusão definitiva |
-
-No cadastro, envie `nome`, `email`, `senha` e opcionalmente `administrador`. Use `true` para Administrador e `false` para Design. Somente o administrador original pode criar outro Administrador. Se o papel for omitido, o padrão é Administrador para o administrador original e Design para os demais. Nome é obrigatório (até 150 caracteres), e-mail é obrigatório, válido e único (até 254 caracteres). A senha segue os limites informados na criação do primeiro administrador. E-mails são normalizados para minúsculas e sem espaços nas extremidades.
-
-No PUT, nome e e-mail continuam obrigatórios; omitir a senha ou enviar `null` mantém a senha atual. Somente o administrador original pode alterar o papel de outras contas. O papel dele é fixo, sua conta não pode ser excluída pelo painel ou pela API e somente ele pode editar os próprios dados. As respostas incluem `administradorOriginal` além de ID, nome, e-mail e `administrador`.
-
-### Erros e persistência
-
-- `400`: entrada inválida; erros de validação podem incluir mensagens por campo em `campos`.
-- `401`: credenciais inválidas ou acesso sem sessão autenticada.
-- `403`: acesso negado ou CSRF ausente/inválido. Na escrita, o CSRF pode ser recusado antes da verificação do login.
-- `404`: registro inexistente.
-- `409`: conflito, como e-mail duplicado ou tentativa de excluir o último administrador.
-
-As operações no Postman alteram o banco configurado no backend; não são simulações. Utilize registros de teste. Alterações de e-mail/senha, revogação do acesso e exclusão de conta invalidam sessões anteriores no próximo acesso; ao alterar suas credenciais, faça novo login.
-
-### Rodapés
-
-No painel, **Rodapé** lista os modelos cadastrados. Dê um nome interno a cada modelo e use **Ativar** para exibi-lo em todo o site. Novos modelos começam inativos. Para excluir o modelo ativo, ative outro primeiro.
-
-A migration V9 preserva o rodapé existente como **Padrão** e o seleciona para exibição. A leitura pública em `GET /api/rodape` continua retornando apenas o rodapé ativo, e `PUT /api/rodape` edita os dados desse rodapé. Usuários com acesso ao painel podem gerenciar os modelos em `/api/rodape/modelos`.
-
-## Banco e migrations
-
-- **V1 — estrutura inicial:** cria `usuario`, `banner`, `noticia` e `rodape`; insere o rodapé único com `id = 1`.
-- **V2 — papéis de acesso:** adiciona `administrador` a `usuario`; `true` representa Administrador e `false`, Design.
-
-O Hibernate valida os mapeamentos; o Flyway controla a estrutura. Não altere migrations já aplicadas, nem seus comentários: isso pode gerar erro de checksum. Uma próxima evolução deve usar nova versão, como `V3__descricao.sql`, respeitando as versões existentes na branch.
-
-Para consultar o banco com o usuário e nome do exemplo:
-
-```powershell
-docker compose exec mysql mysql --user=conale --password conale
-```
-
-O último `conale` é o nome do banco. Digite a senha de `DB_PASSWORD` quando solicitada; ajuste usuário e banco se mudou as variáveis. Exemplos de consultas:
-
-```sql
-SHOW TABLES;
-SELECT version, description, success FROM flyway_schema_history;
-SELECT id, titulo, sub_titulo FROM noticia;
-SELECT id, nome, email, administrador FROM usuario;
-exit
-```
-
-## Testes automatizados do backend
-
-O ambiente de testes usa o projeto Compose `conale-tests`, MySQL separado, armazenamento temporário e nenhuma porta publicada. Não utiliza o volume do banco de desenvolvimento.
-
-Na raiz, execute:
+Na raiz do repositório, execute os testes do backend com MySQL temporário:
 
 ```powershell
 docker compose -f compose.test.yaml up --build --abort-on-container-exit --exit-code-from backend-test
 $resultadoTestes = $LASTEXITCODE
 docker compose -f compose.test.yaml down
-if ($resultadoTestes -ne 0) { throw 'Os testes falharam. Confira os logs acima.' }
+if ($resultadoTestes -ne 0) { throw 'Os testes falharam. Confira o relatório do Maven.' }
 ```
 
-O sucesso deve ser confirmado pelo código de saída zero e pelo relatório do Maven sem falhas ou erros. O comando de limpeza não deve ser usado como evidência de sucesso dos testes.
+A suíte cobre migrations, autenticação e permissões, criação do Administrador original, operações dos cards informativos e o gerenciamento de rodapés. O [workflow de CI](.github/workflows/ci.yaml) executa o lint e o build do frontend e os testes do backend em pushes e pull requests para `dev` e `main`.
 
-As classes existentes são:
+O Flyway é responsável pelo esquema e pelos dados iniciais. As migrations V1 a V17 ficam em [db/migration](backend/src/main/resources/db/migration). Preserve os arquivos já aplicados para manter os checksums registrados no banco.
 
-- `DatabaseMigrationTest`: estrutura e restrições do banco.
-- `NoticiaApiTest`: CRUD de notícias e validações.
-- `AuthApiTest`: autenticação, autorização, sessão, CSRF e cenários administrativos.
-- `PrimeiroAdminTest`: criação e validação do administrador inicial.
+## Solução de problemas
 
-Nunca aponte testes de banco para dados reais. A presença dos testes no repositório não substitui sua execução após alterações. O build da imagem de execução pula testes; use o comando acima para verificá-los.
-
-## Execução do backend pela IDE
-
-Use JDK 24 e Maven compatível com o projeto (3.9.9 no Dockerfile). Importe `backend/pom.xml` e inicie somente o MySQL:
-
-```powershell
-docker compose up -d mysql
-```
-
-Configure `DB_URL`, `DB_USERNAME` e `DB_PASSWORD` no ambiente da execução Java. Use a URL local de `.env.example`, ajustando porta e nome do banco. O Spring Boot não carrega o `.env` automaticamente. Configure também `ADMIN_INITIAL_*` se precisar criar o primeiro administrador.
-
-Inicie `ConaleApplication` pela IDE ou, dentro de `backend`, execute `mvn spring-boot:run`. A porta direta do Spring Boot é controlada por `SERVER_PORT`; `API_PORT` controla somente a publicação da porta pelo Compose. Para limitar a execução pela IDE à máquina local, configure `SERVER_ADDRESS=127.0.0.1`.
-
-Não execute backend pela IDE e Docker na mesma porta.
-
-## Parar, atualizar e solucionar problemas
-
-Na raiz:
-
-```powershell
-docker compose down
-docker compose up -d --build backend
-```
-
-O banco permanece no volume `conale_mysql_data` com o nome de projeto padrão. **Não use `docker compose down -v` no fluxo normal: ele remove volumes e pode apagar seus dados.** Encerre o frontend separadamente com `Ctrl+C`.
-
-- **Variáveis obrigatórias ausentes:** confira se `.env` está na raiz e se as variáveis do banco têm valor. Valide com `docker compose config --quiet`, sem imprimir segredos.
-- **Conexão recusada na API:** Docker Desktop aberto não significa backend iniciado. Confira `docker compose ps -a` e `docker compose logs --tail=100 backend mysql`.
-- **Porta ocupada:** altere `API_PORT` ou `DB_PORT` e recrie os serviços. Dentro do Docker, o backend continua acessando `mysql:3306`.
-- **Mudança de senha no `.env`:** não altera automaticamente credenciais já gravadas no MySQL nem a senha do administrador do sistema.
-- **Erro CSRF no Postman:** preserve cookies, use o mesmo host e obtenha novo token após cada login.
-- **Node incompatível:** confira `node --version`; utilize a versão indicada nos pré-requisitos antes de instalar as dependências.
-- **PowerShell bloqueia `npm.ps1`:** use `npm.cmd` nos mesmos comandos, sem alterar a política de execução da máquina.
-- **Duas cópias locais:** por padrão, ambas usam o projeto Docker chamado `conale`; não representam ambientes independentes.
-- **Aviso de compatibilidade Flyway/MySQL:** confira o resultado das migrations e avalie a compatibilidade antes de produção; um aviso não comprova que a execução falhou nem que existe suporte completo.
-
-Para uma publicação permanente, ainda é necessário configurar HTTPS e cookies seguros, proteção contra tentativas repetidas de login, recuperação de acesso e backups. Esses controles não estão todos implementados nesta etapa.
-
-## Documentação e contribuição
-
-- [PRD revisado e diagramas](docs/prd/conale.md): escopo, conteúdos fixos/editáveis e decisões pendentes.
-- [Autenticação e Postman](docs/autenticacao-postman.md): configuração e testes manuais.
-- [Coleção Postman](docs/postman/ConAle-Auth.postman_collection.json): requisições da API.
-
-Antes de um commit, revise os arquivos com `git status` e `git diff`, execute as verificações correspondentes e confira `git diff --cached --check` após selecionar as alterações. Não versione `.env`, credenciais, dependências ou arquivos gerados (`node_modules`, `target` e `dist`).
+- **API indisponível.** Na raiz, veja `docker compose ps -a` e `docker compose logs --tail=100 backend mysql`. Confira a rota de saúde e o destino do proxy do Vite.
+- **Variáveis de banco ausentes.** Confira o `.env` na raiz e execute `docker compose config --quiet`.
+- **Porta ocupada.** Ajuste `DB_PORT`, `API_PORT` ou `WEB_PORT` conforme o ambiente.
+- **Importação do frontend com erro.** Em `frontend`, confira a versão do Node e execute `npm ci`. Se o PowerShell bloquear `npm.ps1`, use `npm.cmd`.
+- **Sessão ou CSRF inválido.** Preserve os cookies, use o mesmo host e solicite um novo token depois de autenticar.

@@ -3,6 +3,18 @@ const BASE_URL = configuredBaseUrl ? configuredBaseUrl.replace(/\/$/, '') : ''
 
 let csrf: { headerName: string; token: string } | null = null
 
+export function mensagemDeErroApi(erro: unknown, padrao: string) {
+    if (erro instanceof Error) {
+        try {
+            const detalhe = JSON.parse(erro.message)?.detail
+            if (typeof detalhe === 'string') return detalhe
+        } catch {
+            // A resposta pode não conter JSON.
+        }
+    }
+    return padrao
+}
+
 export function resetCsrf() {
     csrf = null
 }
@@ -15,17 +27,19 @@ async function fetchCsrf() {
 }
 
 interface RequestOptions {
-    method?: 'GET' | 'POST' | 'PUT' | 'DELETE'
+    method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
     body?: unknown
 }
 
 export async function apiFetch<T>(path: string, options: RequestOptions = {}): Promise<T> {
     const method = options.method ?? 'GET'
     const isMutating = method !== 'GET'
+    const isForm = options.body instanceof FormData
 
     const headers: Record<string, string> = {}
 
-    if (options.body !== undefined) {
+    // Com FormData o navegador define o Content-Type (multipart + boundary).
+    if (options.body !== undefined && !isForm) {
         headers['Content-Type'] = 'application/json'
     }
 
@@ -34,12 +48,17 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
         if (csrf) headers[csrf.headerName] = csrf.token
     }
 
+    const serializarBody = (): BodyInit | undefined => {
+        if (options.body === undefined) return undefined
+        return isForm ? (options.body as FormData) : JSON.stringify(options.body)
+    }
+
     const doFetch = () =>
         fetch(`${BASE_URL}${path}`, {
             method,
             headers,
             credentials: 'include',
-            body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+            body: serializarBody(),
         })
 
     let response = await doFetch()

@@ -1,8 +1,9 @@
+import { SERVICOS, type LinksSite } from '../siteLinks'
 import './ServicesList.css'
 
-const SERVICES = [
+const SERVICOS_DETALHADOS = [
     {
-        title: 'Contabilidade',
+        ...SERVICOS.contabilidade,
         foto: '/services-contabilidade.png',
         intro:
             'A contabilidade da ConAle vai além das obrigações fiscais que profissionais da saúde tenham clareza sobre seus números, segurança tributária e suporte para tomada de decisões.',
@@ -11,7 +12,7 @@ const SERVICES = [
             'Nosso objetivo é transformar a contabilidade em uma ferramenta de gestão, e não apenas uma obrigação mensal.',
     },
     {
-        title: 'Bpo Financeiro',
+        ...SERVICOS.bpo,
         foto: '/services-bpo.jpg',
         intro:
             'O BPO Financeiro é a terceirização da gestão financeira do seu negócio. Assumimos rotinas como contas a pagar e a receber, conciliação bancária e organização do fluxo financeiro.',
@@ -21,7 +22,7 @@ const SERVICES = [
             'Mais do que organização, o BPO traz previsibilidade e reduz o risco de erros financeiros, permitindo que você foque no atendimento aos seus pacientes e no crescimento da sua carreira.',
     },
     {
-        title: 'Mentoria Financeira',
+        ...SERVICOS.mentoria,
         foto: '/services-mentoria.webp',
         intro:
             'A mentoria financeira é voltada para profissionais da saúde que desejam compreender melhor seus números e tomar decisões mais estratégicas sobre o próprio negócio.',
@@ -31,7 +32,7 @@ const SERVICES = [
             'É um acompanhamento estratégico, focado em clareza, planejamento e evolução financeira.',
     },
     {
-        title: 'Soluções Complementares',
+        ...SERVICOS.solucoes,
         foto: '/services-solucoes.webp',
         intro:
             'Além dos serviços contábeis e financeiros, a ConAle oferece suporte por meio de parceiros especializados em áreas essenciais para profissionais da saúde.',
@@ -42,7 +43,7 @@ const SERVICES = [
     },
 ]
 
-export default function ServicesList() {
+export default function ServicesList({ links }: { links: LinksSite }) {
     return (
         <section className="services-list" id="lista-servicos">
             <div className="container">
@@ -52,25 +53,37 @@ export default function ServicesList() {
                     ConAle pode ajudar sua empresa!
                 </p>
 
-                {SERVICES.map((service, index) => (
+                {SERVICOS_DETALHADOS.map((service, index) => (
                     <div
                         className={`services-list__row ${index % 2 === 1 ? 'is-reversed' : ''}`}
-                        key={service.title}
+                        key={service.codigo}
                     >
                         <div className="services-list__image-wrap">
-                            <img src={service.foto} alt={service.title} className="services-list__image" />
+                            <img src={service.foto} alt={service.titulo} className="services-list__image" />
                             <div className="services-list__image-gradient" aria-hidden="true" />
                         </div>
 
                         <div className="services-list__text">
                             <span className="services-list__accent" aria-hidden="true" />
-                            <h3>{service.title}</h3>
+                            <h3>{service.titulo}</h3>
                             <p>{service.intro}</p>
                             <ul>
                                 <li>{service.bullet}</li>
                             </ul>
                             <p className="services-list__closing">{service.closing}</p>
-                            <button className="btn btn--primary">Contratar esse serviço</button>
+                            {links[service.codigo] ? (
+                                <a
+                                    className="btn btn--primary"
+                                    href={links[service.codigo]}
+                                    aria-label={`Contratar ${service.titulo}`}
+                                >
+                                    Contratar esse serviço
+                                </a>
+                            ) : (
+                                <button className="btn btn--primary" type="button" disabled>
+                                    Contratar esse serviço
+                                </button>
+                            )}
                         </div>
                     </div>
                 ))}

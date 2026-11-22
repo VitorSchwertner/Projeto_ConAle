@@ -4,6 +4,8 @@ import com.conAle.projeto.Model.Banner;
 import com.conAle.projeto.dto.BannerRequest;
 import com.conAle.projeto.dto.BannerResponse;
 import com.conAle.projeto.repository.BannerRepository;
+import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -51,9 +53,7 @@ public class BannerService {
         Banner banner = new Banner();
         preencher(banner, request);
 
-        Banner salvo = repository.save(banner);
-
-        return BannerResponse.from(salvo);
+        return salvar(banner);
     }
 
     // Busca o registro existente para manter seu ID na edição.
@@ -62,9 +62,21 @@ public class BannerService {
         Banner banner = encontrar(id);
         preencher(banner, request);
 
-        Banner salvo = repository.save(banner);
+        return salvar(banner);
+    }
 
-        return BannerResponse.from(salvo);
+    private BannerResponse salvar(Banner banner) {
+        try {
+            return BannerResponse.from(repository.saveAndFlush(banner));
+        } catch (DataIntegrityViolationException erro) {
+            if (erro.getCause() instanceof ConstraintViolationException violacao
+                    && violacao.getConstraintName() != null
+                    && violacao.getConstraintName().endsWith("uk_banner_posicao_ativa")) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT,
+                        "Já existe um banner ativo nessa posição. Edite ou desative o banner atual antes de ativar outro.");
+            }
+            throw erro;
+        }
     }
 
     // Confere se o banner existe antes de excluir definitivamente.
@@ -87,8 +99,9 @@ public class BannerService {
     private void preencher(Banner banner, BannerRequest request) {
         banner.setTitulo(request.titulo().trim());
         banner.setImagem(request.imagem().trim());
-        banner.setLink(vazioParaNull(request.link()));
+        banner.setImagemMobile(vazioParaNull(request.imagemMobile()));
         banner.setPosicao(request.posicao().trim());
+        banner.setLink(banner.aceitaLink() ? DestinoPublico.validar(request.link()) : null);
         // Se não vier no request, o banner nasce ativo.
         banner.setAtivo(request.ativo() == null || request.ativo());
     }

@@ -1,9 +1,4 @@
-export type BannerPosition =
-    | 'HOME_TOPO'
-    | 'SERVICOS_TOPO'
-    | 'SOBRE_NOS'
-    | 'AREA_CLIENTE'
-    | 'SOBRE_MIM_FOTO'
+export type { Banner, BannerPosition } from '../../types/content'
 
 export interface Usuario {
     id: number
@@ -11,15 +6,6 @@ export interface Usuario {
     email: string
     administrador: boolean
     administradorOriginal: boolean
-}
-
-export interface Banner {
-    id: number
-    titulo: string
-    imagem: string
-    link: string | null
-    ativo: boolean
-    posicao: BannerPosition | null
 }
 
 export interface Noticia {

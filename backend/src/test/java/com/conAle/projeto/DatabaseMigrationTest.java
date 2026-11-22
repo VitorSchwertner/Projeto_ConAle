@@ -23,13 +23,35 @@ class DatabaseMigrationTest {
     @Test
     // Confere a versão e garante que o Flyway não reaplique migrations.
     void migrationCanRunAgainWithoutChangingSchemaOrFooter() {
-        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("10");
+        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("17");
         flyway.validate();
         assertThat(flyway.migrate().migrationsExecuted).isZero();
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM rodape WHERE id = 1", Integer.class)).isEqualTo(1);
         assertThat(jdbc.queryForList("SHOW TABLES", String.class))
                 .contains("usuario", "banner", "noticia", "rodape", "indicador_institucional",
-                        "mensagens_clientes", "rodape_ativo", "flyway_schema_history");
+                        "mensagens_clientes", "rodape_ativo", "link_site", "flyway_schema_history");
+    }
+
+    @Test
+    void cadastraIndicadorInicialComValoresZerados() {
+        assertThat(jdbc.queryForList(
+                "SELECT CONCAT_WS('|', anos_atuacao, empresas_abertas) FROM indicador_institucional",
+                String.class)).containsExactly("0|0");
+    }
+
+    @Test
+    void cadastraAvaliacoesIniciaisComCincoEstrelas() {
+        assertThat(jdbc.queryForList("""
+                SELECT CONCAT_WS('|', titulo, area_atuacao)
+                FROM mensagens_clientes
+                WHERE nota = 5 AND CHAR_LENGTH(mensagem) > 0
+                ORDER BY id DESC
+                """, String.class)).containsExactly(
+                "Ana|Fisioterapeuta",
+                "Vanessa e Thais|Fisioterapeutas",
+                "Janaína|Psicóloga",
+                "Flávia|Terapeuta",
+                "Gabriela|Médica");
     }
 
     @Test
@@ -42,6 +64,28 @@ class DatabaseMigrationTest {
                         "Como sei se estou pagando impostos corretamente?",
                         "Posso trocar de contador facilmente?",
                         "Como funciona o atendimento da ConAle?");
+    }
+
+    @Test
+    @Transactional
+    void cadaPosicaoPermiteApenasUmBannerAtivo() {
+        jdbc.update("INSERT INTO banner(titulo, imagem, posicao, ativo) VALUES ('Rascunho', '/teste.png', 'HOME_TOPO', FALSE)");
+        assertMysqlError(1062, () -> jdbc.update("UPDATE banner SET ativo = TRUE WHERE titulo = 'Rascunho'"));
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM banner WHERE posicao = 'HOME_TOPO' AND ativo = TRUE",
+                Integer.class)).isEqualTo(1);
+    }
+
+    @Test
+    void cadastraBannersPadraoAtivosComAsArtesDaPosicao() {
+        assertThat(jdbc.queryForList("""
+                SELECT CONCAT_WS('|', posicao, imagem, imagem_mobile)
+                FROM banner WHERE ativo = TRUE
+                """, String.class)).contains(
+                "HOME_TOPO|/banners/padrao/home-desktop.png|/banners/padrao/home-mobile.png",
+                "SERVICOS_TOPO|/banners/padrao/servicos-desktop.png|/banners/padrao/servicos-mobile.png",
+                "SOBRE_NOS|/banners/padrao/sobre-nos-desktop.png|/banners/padrao/sobre-nos-mobile.png",
+                "AREA_CLIENTE|/banners/padrao/area-do-cliente.png",
+                "SOBRE_MIM_FOTO|/banners/padrao/sobre-mim-desktop.png|/banners/padrao/sobre-mim-mobile.png");
     }
 
     @Test
@@ -81,7 +125,7 @@ class DatabaseMigrationTest {
         assertMysqlError(1364, () -> jdbc.update("INSERT INTO banner(titulo) VALUES ('Sem imagem')"));
         assertMysqlError(1364, () -> jdbc.update("INSERT INTO banner(imagem) VALUES ('/sem-titulo.png')"));
         assertMysqlError(3819, () -> jdbc.update("UPDATE banner SET ativo = 2"));
-        assertMysqlError(3819, () -> jdbc.update("UPDATE banner SET posicao = 'INVALIDA'"));
+        assertMysqlError(3819, () -> jdbc.update("UPDATE banner SET posicao = 'INVALIDA' WHERE titulo = 'Banner teste'"));
     }
 
     @Test

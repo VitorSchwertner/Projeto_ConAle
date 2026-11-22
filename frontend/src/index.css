@@ -47,6 +47,17 @@ p {
   margin: 0;
 }
 
+main [id] {
+  scroll-margin-top: 92px;
+}
+
+.pagina-nao-encontrada {
+  display: grid;
+  justify-items: start;
+  gap: 16px;
+  padding-block: 56px;
+}
+
 a {
   color: inherit;
   text-decoration: none;

@@ -88,6 +88,11 @@ export default function RodapePage() {
         }, 'Rodapé salvo.')
     }
 
+    function fecharFormulario() {
+        setEdicao(null)
+        setErro(null)
+    }
+
     function excluir(modelo: RodapeModelo) {
         if (confirm(`Excluir o rodapé "${modelo.nome}"?`)) {
             void executar(() => excluirRodape(modelo.dados.id), 'Rodapé excluído.')
@@ -106,7 +111,7 @@ export default function RodapePage() {
     return (
         <div className="rodape-page">
             <div className="rodape-page__header">
-                <BackButton to="/admin/rodape" />
+                {edicao && <BackButton onClick={fecharFormulario} />}
                 <h1>{edicao ? (edicao.id === null ? 'Novo rodapé' : 'Editar rodapé') : 'Rodapé'}</h1>
                 {!edicao && modelos && (
                     <button className="btn btn--primary" disabled={ocupado} onClick={() => abrirFormulario()}>
@@ -156,7 +161,7 @@ export default function RodapePage() {
                     </label>
                     <div className="rodape-page__actions">
                         <button type="submit" className="btn btn--primary" disabled={ocupado}>Salvar</button>
-                        <button type="button" disabled={ocupado} onClick={() => { setEdicao(null); setErro(null) }}>
+                        <button type="button" disabled={ocupado} onClick={fecharFormulario}>
                             Cancelar
                         </button>
                     </div>
