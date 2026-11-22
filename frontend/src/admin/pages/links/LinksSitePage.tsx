@@ -3,7 +3,6 @@ import {
     ACOES_RAPIDAS, DESTAQUES, SERVICOS, ENDPOINT_LINKS_SITE, buscarLinksSite, type LinksSite,
 } from '../../../siteLinks'
 import { apiFetch, mensagemDeErroApi } from '../../api/http'
-import BackButton from '../../components/BackButton'
 import './LinksSitePage.css'
 
 const GRUPOS = [
@@ -62,7 +61,6 @@ export default function LinksSitePage() {
 
     return (
         <section className="links-site-form">
-            <BackButton to="/admin" />
             <h1>Links do site</h1>
             <p className="links-site-form__ajuda" id="links-site-ajuda">
                 Use um endereço completo, um caminho como /servicos ou uma âncora como #servicos.

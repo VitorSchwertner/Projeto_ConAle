@@ -111,7 +111,7 @@ export default function RodapePage() {
     return (
         <div className="rodape-page">
             <div className="rodape-page__header">
-                {edicao ? <BackButton onClick={fecharFormulario} /> : <BackButton to="/admin" />}
+                {edicao && <BackButton onClick={fecharFormulario} />}
                 <h1>{edicao ? (edicao.id === null ? 'Novo rodapé' : 'Editar rodapé') : 'Rodapé'}</h1>
                 {!edicao && modelos && (
                     <button className="btn btn--primary" disabled={ocupado} onClick={() => abrirFormulario()}>
