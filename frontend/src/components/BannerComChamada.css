@@ -86,10 +86,12 @@
     }
 
     .banner-com-chamada--servicos.banner-com-chamada--com-imagem-mobile .banner-com-chamada__link {
-        right: 6%;
+        right: 4%;
         top: 7%;
-        width: clamp(124px, 40%, 245px);
-        height: max(11%, 44px);
-        font-size: clamp(0.85rem, 3.5vw, 1.2rem);
+        width: min(24%, 190px);
+        height: auto;
+        min-height: 44px;
+        padding: 6px 4px;
+        font-size: clamp(0.75rem, 2.5vw, 1.125rem);
     }
 }

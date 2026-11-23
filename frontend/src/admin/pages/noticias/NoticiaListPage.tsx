@@ -70,9 +70,11 @@ export default function NoticiaListPage() {
             <tr key={noticia.id}>
               <td>{noticia.titulo}</td>
               <td>{noticia.subTitulo ?? '—'}</td>
-              <td className="noticia-list__actions">
-                <Link to={`/admin/noticias/${noticia.id}`}>Editar</Link>
-                <button onClick={() => handleExcluir(noticia.id)}>Excluir</button>
+              <td>
+                <div className="noticia-list__actions">
+                  <Link to={`/admin/noticias/${noticia.id}`}>Editar</Link>
+                  <button onClick={() => handleExcluir(noticia.id)}>Excluir</button>
+                </div>
               </td>
             </tr>
           ))}
