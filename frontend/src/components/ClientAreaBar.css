@@ -18,11 +18,15 @@
 }
 
 @media (max-width: 640px) {
-    .client-area-bar__inner {
+    .client-area-bar__inner.container {
         flex-direction: column;
-        gap: 20px;
+        gap: 16px;
         text-align: center;
-        padding: 36px 28px;
+        padding-block: 14px;
         min-height: auto;
+    }
+
+    .client-area-bar__inner .btn {
+        min-height: 48px;
     }
 }
